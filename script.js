@@ -27,7 +27,7 @@
         document.getElementById('submit').addEventListener('click', function() {
             const lat = parseFloat(document.getElementById('latitude').value);
             const lon = parseFloat(document.getElementById('longitude').value);
-            const apiKey = 'YOUR_API_KEY'; // Remplace par ta clé API
+            const apiKey = 'fdd6dcf89555f8033a00cf0116de4656'; // Remplace par ta clé API
 
             if (isNaN(lat) || isNaN(lon)) {
                 alert("Veuillez entrer des coordonnées valides !");
