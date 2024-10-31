@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Feux de Forêt</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carte des Feux de Forêt</h1>
+    <label for="latitude">Latitude :</label>
+    <input type="text" id="latitude" placeholder="ex: 37.7749">
+    <label for="longitude">Longitude :</label>
+    <input type="text" id="longitude" placeholder="ex: -122.4194">
+    <button id="submit">Afficher la carte</button>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
