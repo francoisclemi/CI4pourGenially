@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche Ferme SIF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .search-container {
+            background-color: #003366;
+            padding: 2rem;
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d82;
+        }
+        .result-card {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            visibility: hidden;
+        }
+        .label {
+            color: #666;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        .farm-name {
+            color: #002B5C;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 0 16px 0;
+        }
+        .farm-info {
+            color: #666;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .farm-info strong {
+            color: #333;
+        }
+        .sif-number {
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .unknown-sif {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <h2>Recherche d'informations sur une ferme</h2>
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="sifNumber" 
+                placeholder="Entrez le numéro SIF"
+                pattern="[0-9]*"
+            >
+            <button id="searchButton">Rechercher</button>
+        </div>
+    </div>
+
+    <div id="result" class="result-card">
+        <div class="sif-number" id="displaySif"></div>
+        <div class="label">NOM DE LA FERME :</div>
+        <div class="farm-name" id="displayName"></div>
+        <div class="farm-info">
+            <strong>ETAT : </strong><span id="displayState"></span>
+        </div>
+        <div class="farm-info">
+            <strong>COMMUNE : </strong><span id="displayCity"></span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("searchButton").addEventListener("click", searchFarm);
+
+        const farmsData = [
+            { sif: "SIF0247", commune: "Acrelândia", nom: "Fazenda Monte Verde", etat: "Acre" },
+            { sif: "SIF0249", commune: "Acrelândia", nom: "Sítio dos Araçás", etat: "Acre" },
+            { sif: "SIF0233", commune: "Brasileia", nom: "Chácara Luz do Acre", etat: "Acre" },
+            { sif: "SIF0231", commune: "Brasileia", nom: "Sítio Vale Verde", etat: "Acre" },
+            { sif: "SIF0253", commune: "Capixaba", nom: "Chácara Sol Poente", etat: "Acre" },
+            { sif: "SIF0251", commune: "Capixaba", nom: "Sítio Lagoa Azul", etat: "Acre" },
+            { sif: "SIF0227", commune: "Cruzeiro do Sul", nom: "Chácara da Paz", etat: "Acre" },
+            { sif: "SIF0229", commune: "Cruzeiro do Sul", nom: "Sítio Coração da Floresta", etat: "Acre" },
+            { sif: "SIF0257", commune: "Epitaciolândia", nom: "Chácara Rio Grande", etat: "Acre" },
+            { sif: "SIF0255", commune: "Epitaciolândia", nom: "Sítio dos Cedros", etat: "Acre" },
+            { sif: "SIF0245", commune: "Feijó", nom: "Chácara Rio Branco", etat: "Acre" },
+            { sif: "SIF0243", commune: "Feijó", nom: "Sítio Pôr do Sol", etat: "Acre" },
+            { sif: "SIF0259", commune: "Plácido de Castro", nom: "Chácara das Palmeiras", etat: "Acre" },
+            { sif: "SIF0261", commune: "Plácido de Castro", nom: "Sítio Vale Encantado", etat: "Acre" },
+            { sif: "SIF0224", commune: "Rio Branco", nom: "Chácara Sol Nascente", etat: "Acre" },
+            { sif: "SIF0222", commune: "Rio Branco", nom: "Fazenda Boa Esperança", etat: "Acre" },
+            { sif: "SIF0226", commune: "Rio Branco", nom: "Sítio Rio Verde", etat: "Acre" },
+            { sif: "SIF0239", commune: "Sena Madureira", nom: "Chácara Sossego", etat: "Acre" },
+            { sif: "SIF0241", commune: "Sena Madureira", nom: "Sítio Campo Alegre", etat: "Acre" },
+            { sif: "SIF0235", commune: "Tarauacá", nom: "Fazenda Rio Bonito", etat: "Acre" },
+            { sif: "SIF0237", commune: "Tarauacá", nom: "Sítio Morro Verde", etat: "Acre" },
+            { sif: "SIF0265", commune: "Arapiraca", nom: "Chácara Nova Aliança", etat: "Alagoas" },
+            { sif: "SIF0263", commune: "Arapiraca", nom: "Fazenda Boa Vista", etat: "Alagoas" },
+            { sif: "SIF0289", commune: "Campo Alegre", nom: "Fazenda Nova Aliança", etat: "Alagoas" },
+            { sif: "SIF0288", commune: "Delmiro Gouveia", nom: "Fazenda São João", etat: "Alagoas" },
+            { sif: "SIF0287", commune: "Delmiro Gouveia", nom: "Sítio Boa Vista", etat: "Alagoas" },
+            { sif: "SIF0283", commune: "Murici", nom: "Chácara das Palmeiras", etat: "Alagoas" },
+            { sif: "SIF0277", commune: "Palmeira dos Índios", nom: "Chácara Nova Vida", etat: "Alagoas" },
+            { sif: "SIF0276", commune: "Palmeira dos Índios", nom: "Fazenda Monte Alegre", etat: "Alagoas" },
+            { sif: "SIF0275", commune: "Palmeira dos Índios", nom: "Sítio Vale do Sol", etat: "Alagoas" },
+            { sif: "SIF0273", commune: "Penedo", nom: "Chácara Horizonte Verde", etat: "Alagoas" },
+            { sif: "SIF0274", commune: "Penedo", nom: "Fazenda Boa Esperança", etat: "Alagoas" },
+            { sif: "SIF0271", commune: "Penedo", nom: "Fazenda Santa Luzia", etat: "Alagoas" },
+            { sif: "SIF0272", commune: "Penedo", nom: "Sítio Paraíso", etat: "Alagoas" },
+            { sif: "SIF0268", commune: "Santana do Ipanema", nom: "Chácara Bela Vista", etat: "Alagoas" },
+            { sif: "SIF0269", commune: "Santana do Ipanema", nom: "Fazenda Lago Azul", etat: "Alagoas" },
+            { sif: "SIF0267", commune: "Santana do Ipanema", nom: "Sítio Flor do Sertão", etat: "Alagoas" },
+            { sif: "SIF0270", commune: "Santana do Ipanema", nom: "Sítio Rio Grande", etat: "Alagoas" },
+            { sif: "SIF0281", commune: "São Miguel dos Campos", nom: "Fazenda Santa Cruz", etat: "Alagoas" },
+            { sif: "SIF0285", commune: "Teotônio Vilela", nom: "Fazenda Rio Grande", etat: "Alagoas" },
+            { sif: "SIF0280", commune: "União dos Palmares", nom: "Chácara Horizonte Azul", etat: "Alagoas" },
+            { sif: "SIF0278", commune: "União dos Palmares", nom: "Fazenda Boa Esperança", etat: "Alagoas" },
+            { sif: "SIF0279", commune: "União dos Palmares", nom: "Sítio Flor da Serra", etat: "Alagoas" },
+            { sif: "SIF0306", commune: "Ferreira Gomes", nom: "Chácara Paraíso", etat: "Amapá" },
+            { sif: "SIF0309", commune: "Itaubal", nom: "Chácara Nova Esperança", etat: "Amapá" },
+            { sif: "SIF0307", commune: "Itaubal", nom: "Fazenda Santa Rosa", etat: "Amapá" },
+            { sif: "SIF0300", commune: "Laranjal do Jari", nom: "Chácara Palmeiras", etat: "Amapá" },
+            { sif: "SIF0298", commune: "Laranjal do Jari", nom: "Fazenda Vale do Jari", etat: "Amapá" },
+            { sif: "SIF0293", commune: "Macapá (zone rurale)", nom: "Chácara Rio Sol", etat: "Amapá" },
+            { sif: "SIF0291", commune: "Macapá (zone rurale)", nom: "Fazenda Boa Esperança", etat: "Amapá" },
+            { sif: "SIF0312", commune: "Mazagão", nom: "Chácara Nova Aliança", etat: "Amapá" },
+            { sif: "SIF0295", commune: "Porto Grande", nom: "Sítio Três Rios", etat: "Amapá" },
+            { sif: "SIF0301", commune: "Tartarugalzinho", nom: "Sítio Rio Branco", etat: "Amapá" },
+            { sif: "SIF0368", commune: "Autazes", nom: "Sítio da Paz", etat: "Amazonas" },
+            { sif: "SIF0371", commune: "Careiro da Várzea", nom: "Sítio Floresta Encantada", etat: "Amazonas" },
+            { sif: "SIF0348", commune: "Coari", nom: "Rancho Santa Rita", etat: "Amazonas" },
+            { sif: "SIF0363", commune: "Humaitá", nom: "Rancho Santa Cruz", etat: "Amazonas" },
+            { sif: "SIF0359", commune: "Iranduba", nom: "Sítio Vale do Sol", etat: "Amazonas" },
+            { sif: "SIF0347", commune: "Itacoatiara", nom: "Sítio Paraíso", etat: "Amazonas" },
+            { sif: "SIF0344", commune: "Manacapuru", nom: "Rancho das Palmeiras", etat: "Amazonas" },
+            { sif: "SIF0342", commune: "Manacapuru", nom: "Sítio Amazonas Verde", etat: "Amazonas" },
+            { sif: "SIF0360", commune: "Maués", nom: "Rancho Bela Vista", etat: "Amazonas" },
+            { sif: "SIF0354", commune: "Parintins", nom: "Fazenda Rio das Flores", etat: "Amazonas" },
+            { sif: "SIF0356", commune: "Parintins", nom: "Sítio Boa Vista", etat: "Amazonas" },
+            { sif: "SIF0351", commune: "Tefé", nom: "Rancho Nova Esperança", etat: "Amazonas" },
+            { sif: "SIF0353", commune: "Tefé", nom: "Sítio da Lua", etat: "Amazonas" },
+            { sif: "SIF0316", commune: "Barreiras", nom: "Fazenda Sol Nascente", etat: "Bahia" },
+            { sif: "SIF0318", commune: "Barreiras", nom: "Sítio Paraíso", etat: "Bahia" },
+            { sif: "SIF0328", commune: "Bom Jesus da Lapa", nom: "Rancho da Paz", etat: "Bahia" },
+            { sif: "SIF0329", commune: "Bom Jesus da Lapa", nom: "Sítio Vista Alegre", etat: "Bahia" },
+            { sif: "SIF0336", commune: "Cruz das Almas", nom: "Rancho Verdejante", etat: "Bahia" },
+            { sif: "SIF0337", commune: "Cruz das Almas", nom: "Sítio Boa Esperança", etat: "Bahia" },
+            { sif: "SIF0327", commune: "Irecê", nom: "Fazenda Palmeiras", etat: "Bahia" },
+            { sif: "SIF0326", commune: "Irecê", nom: "Sítio do Sol", etat: "Bahia" },
+            { sif: "SIF0324", commune: "Itaberaba", nom: "Fazenda Primavera", etat: "Bahia" },
+            { sif: "SIF0325", commune: "Itaberaba", nom: "Rancho Bonança", etat: "Bahia" },
+            { sif: "SIF0338", commune: "Jacobina", nom: "Fazenda Serra Dourada", etat: "Bahia" },
+            { sif: "SIF0339", commune: "Jacobina", nom: "Rancho Flor da Terra", etat: "Bahia" },
+            { sif: "SIF0321", commune: "Juazeiro", nom: "Fazenda Santa Luzia", etat: "Bahia" },
+            { sif: "SIF0322", commune: "Juazeiro", nom: "Rancho dos Ventos", etat: "Bahia" },
+            { sif: "SIF0323", commune: "Juazeiro", nom: "Sítio das Águas", etat: "Bahia" },
+            { sif: "SIF0319", commune: "Luís Eduardo Magalhães", nom: "Sítio Esperança", etat: "Bahia" },
+            { sif: "SIF0335", commune: "Ribeira do Pombal", nom: "Fazenda do Horizonte", etat: "Bahia" },
+            { sif: "SIF0334", commune: "Ribeira do Pombal", nom: "Sítio Flor do Campo", etat: "Bahia" },
+            { sif: "SIF0333", commune: "Santo Antônio de Jesus", nom: "Fazenda Três Rios", etat: "Bahia" },
+            { sif: "SIF0332", commune: "Santo Antônio de Jesus", nom: "Rancho Feliz", etat: "Bahia" },
+            { sif: "SIF0340", commune: "Senhor do Bonfim", nom: "Rancho Estrela do Norte", etat: "Bahia" },
+            { sif: "SIF0330", commune: "Vitória da Conquista", nom: "Fazenda Bela Vista", etat: "Bahia" },
+            { sif: "SIF0390", commune: "Canindé", nom: "Rancho Serra Bonita", etat: "Ceará" },
+            { sif: "SIF0392", commune: "Canindé", nom: "Sítio Vale do Sol", etat: "Ceará" },
+            { sif: "SIF0384", commune: "Crateús", nom: "Fazenda Morro Azul", etat: "Ceará" },
+            { sif: "SIF0386", commune: "Crateús", nom: "Sítio da Fazenda Nova", etat: "Ceará" },
+            { sif: "SIF0378", commune: "Iguatu", nom: "Fazenda Santa Luzia", etat: "Ceará" },
+            { sif: "SIF0379", commune: "Iguatu", nom: "Rancho dos Ventos", etat: "Ceará" },
+            { sif: "SIF0380", commune: "Iguatu", nom: "Sítio Paraíso Sertanejo", etat: "Ceará" },
+            { sif: "SIF0387", commune: "Itapipoca", nom: "Fazenda Lagoa Serena", etat: "Ceará" },
+            { sif: "SIF0388", commune: "Itapipoca", nom: "Rancho das Pedras", etat: "Ceará" },
+            { sif: "SIF0389", commune: "Itapipoca", nom: "Sítio Arco-Íris", etat: "Ceará" },
+            { sif: "SIF0382", commune: "Limoeiro do Norte", nom: "Fazenda Encantada", etat: "Ceará" },
+            { sif: "SIF0381", commune: "Limoeiro do Norte", nom: "Rancho da Mata Verde", etat: "Ceará" },
+            { sif: "SIF0383", commune: "Limoeiro do Norte", nom: "Sítio das Colinas", etat: "Ceará" },
+            { sif: "SIF0396", commune: "Morada Nova", nom: "Fazenda Lagoa Azul", etat: "Ceará" },
+            { sif: "SIF0398", commune: "Morada Nova", nom: "Sítio Boa Vista", etat: "Ceará" },
+            { sif: "SIF0372", commune: "Quixadá", nom: "Fazenda Quixadá Verde", etat: "Ceará" },
+            { sif: "SIF0373", commune: "Quixadá", nom: "Rancho Sertão de Ouro", etat: "Ceará" },
+            { sif: "SIF0374", commune: "Quixadá", nom: "Sítio Vale Encantado", etat: "Ceará" },
+            { sif: "SIF0399", commune: "Russas", nom: "Fazenda Terra Nova", etat: "Ceará" },
+            { sif: "SIF0400", commune: "Russas", nom: "Rancho da Floresta", etat: "Ceará" },
+            { sif: "SIF0401", commune: "Russas", nom: "Sítio Bela Paisagem", etat: "Ceará" },
+            { sif: "SIF0375", commune: "Sobral", nom: "Fazenda Boa Esperança", etat: "Ceará" },
+            { sif: "SIF0377", commune: "Sobral", nom: "Sítio da Serra", etat: "Ceará" },
+            { sif: "SIF0393", commune: "Tauá", nom: "Fazenda Estrela do Sertão", etat: "Ceará" },
+            { sif: "SIF0394", commune: "Tauá", nom: "Rancho Encanto do Vale", etat: "Ceará" },
+            { sif: "SIF0395", commune: "Tauá", nom: "Sítio da Várzea Verde", etat: "Ceará" },
+            { sif: "SIF0423", commune: "Afonso Cláudio", nom: "Fazenda Novo Horizonte", etat: "Espírito Santo" },
+            { sif: "SIF0424", commune: "Afonso Cláudio", nom: "Rancho Vale Encantado", etat: "Espírito Santo" },
+            { sif: "SIF0425", commune: "Afonso Cláudio", nom: "Sítio Vista Bonita", etat: "Espírito Santo" },
+            { sif: "SIF0411", commune: "Cachoeiro de Itapemirim", nom: "Fazenda Água Clara", etat: "Espírito Santo" },
+            { sif: "SIF0412", commune: "Cachoeiro de Itapemirim", nom: "Rancho Vale do Sol", etat: "Espírito Santo" },
+            { sif: "SIF0413", commune: "Cachoeiro de Itapemirim", nom: "Sítio dos Sonhos", etat: "Espírito Santo" },
+            { sif: "SIF0426", commune: "Castelo", nom: "Fazenda Lagoa Serena", etat: "Espírito Santo" },
+            { sif: "SIF0428", commune: "Castelo", nom: "Sítio da Montanha", etat: "Espírito Santo" },
+            { sif: "SIF0408", commune: "Colatina", nom: "Fazenda Vale Encantado", etat: "Espírito Santo" },
+            { sif: "SIF0410", commune: "Colatina", nom: "Sítio Flor do Sertão", etat: "Espírito Santo" },
+            { sif: "SIF0417", commune: "Domingos Martins", nom: "Fazenda da Encosta", etat: "Espírito Santo" },
+            { sif: "SIF0418", commune: "Domingos Martins", nom: "Rancho dos Cedros", etat: "Espírito Santo" },
+            { sif: "SIF0419", commune: "Domingos Martins", nom: "Sítio Refúgio da Paz", etat: "Espírito Santo" },
+            { sif: "SIF0429", commune: "Itarana", nom: "Fazenda Boa Esperança", etat: "Espírito Santo" },
+            { sif: "SIF0430", commune: "Itarana", nom: "Rancho dos Pioneiros", etat: "Espírito Santo" },
+            { sif: "SIF0431", commune: "Itarana", nom: "Sítio Vale do Cedro", etat: "Espírito Santo" },
+            { sif: "SIF0402", commune: "Linhares", nom: "Fazenda Rio Doce", etat: "Espírito Santo" },
+            { sif: "SIF0403", commune: "Linhares", nom: "Rancho Esperança Verde", etat: "Espírito Santo" },
+            { sif: "SIF0404", commune: "Linhares", nom: "Sítio Paraíso das Matas", etat: "Espírito Santo" },
+            { sif: "SIF0414", commune: "Santa Maria de Jetibá", nom: "Fazenda Serra Azul", etat: "Espírito Santo" },
+            { sif: "SIF0415", commune: "Santa Maria de Jetibá", nom: "Rancho Verde das Montanhas", etat: "Espírito Santo" },
+            { sif: "SIF0416", commune: "Santa Maria de Jetibá", nom: "Sítio da Cachoeira", etat: "Espírito Santo" },
+            { sif: "SIF0405", commune: "São Mateus", nom: "Fazenda Vista Alegre", etat: "Espírito Santo" },
+            { sif: "SIF0406", commune: "São Mateus", nom: "Rancho dos Palmares", etat: "Espírito Santo" },
+            { sif: "SIF0407", commune: "São Mateus", nom: "Sítio Boa Vista", etat: "Espírito Santo" },
+            { sif: "SIF0420", commune: "Venda Nova do Imigrante", nom: "Fazenda Três Lagos", etat: "Espírito Santo" },
+            { sif: "SIF0422", commune: "Venda Nova do Imigrante", nom: "Sítio Serra Verde", etat: "Espírito Santo" },
+            { sif: "SIF0444", commune: "Anápolis", nom: "Fazenda Morro Alto", etat: "Goiás" },
+            { sif: "SIF0445", commune: "Anápolis", nom: "Rancho dos Pinheiros", etat: "Goiás" },
+            { sif: "SIF0446", commune: "Anápolis", nom: "Sítio Bela Natureza", etat: "Goiás" },
+            { sif: "SIF0441", commune: "Catalão", nom: "Fazenda Lagoa Bonita", etat: "Goiás" },
+            { sif: "SIF0442", commune: "Catalão", nom: "Rancho Verdejante", etat: "Goiás" },
+            { sif: "SIF0443", commune: "Catalão", nom: "Sítio da Colina", etat: "Goiás" },
+            { sif: "SIF0438", commune: "Cristalina", nom: "Fazenda Cristalina Alta", etat: "Goiás" },
+            { sif: "SIF0440", commune: "Cristalina", nom: "Sítio das Águas Claras", etat: "Goiás" },
+            { sif: "SIF0453", commune: "Goiatuba", nom: "Fazenda Santa Luzia", etat: "Goiás" },
+            { sif: "SIF0455", commune: "Goiatuba", nom: "Sítio Refúgio Verde", etat: "Goiás" },
+            { sif: "SIF0435", commune: "Jataí", nom: "Fazenda Três Irmãos", etat: "Goiás" },
+            { sif: "SIF0436", commune: "Jataí", nom: "Rancho Vale do Sol", etat: "Goiás" },
+            { sif: "SIF0437", commune: "Jataí", nom: "Sítio Recanto Verde", etat: "Goiás" },
+            { sif: "SIF0450", commune: "Mineiros", nom: "Fazenda dos Buritis", etat: "Goiás" },
+            { sif: "SIF0452", commune: "Mineiros", nom: "Sítio Primavera", etat: "Goiás" },
+            { sif: "SIF0456", commune: "Morrinhos", nom: "Fazenda Três Palmeiras", etat: "Goiás" },
+            { sif: "SIF0457", commune: "Morrinhos", nom: "Rancho Encanto do Cerrado", etat: "Goiás" },
+            { sif: "SIF0458", commune: "Morrinhos", nom: "Sítio Monte Alegre", etat: "Goiás" },
+            { sif: "SIF0447", commune: "Porangatu", nom: "Fazenda Nova Esperança", etat: "Goiás" },
+            { sif: "SIF0449", commune: "Porangatu", nom: "Sítio dos Cedros", etat: "Goiás" },
+            { sif: "SIF0432", commune: "Rio Verde", nom: "Fazenda Bela Vista", etat: "Goiás" },
+            { sif: "SIF0434", commune: "Rio Verde", nom: "Sítio Água Clara", etat: "Goiás" },
+            { sif: "SIF0459", commune: "Uruaçu", nom: "Fazenda Riacho Fundo", etat: "Goiás" },
+            { sif: "SIF0461", commune: "Uruaçu", nom: "Sítio das Cachoeiras", etat: "Goiás" },
+            { sif: "SIF0471", commune: "Açailândia", nom: "Fazenda Bela Vista", etat: "Maranhão" },
+            { sif: "SIF0473", commune: "Açailândia", nom: "Sítio Riacho Claro", etat: "Maranhão" },
+            { sif: "SIF0482", commune: "Bacabal", nom: "Sítio Lago Azul", etat: "Maranhão" },
+            { sif: "SIF0462", commune: "Balsas", nom: "Fazenda Boa Esperança", etat: "Maranhão" },
+            { sif: "SIF0464", commune: "Balsas", nom: "Sítio do Lago Verde", etat: "Maranhão" },
+            { sif: "SIF0483", commune: "Barra do Corda", nom: "Fazenda Riacho Fundo", etat: "Maranhão" },
+            { sif: "SIF0477", commune: "Chapadinha", nom: "Fazenda Boa Vista", etat: "Maranhão" },
+            { sif: "SIF0479", commune: "Chapadinha", nom: "Sítio das Palmeiras", etat: "Maranhão" },
+            { sif: "SIF0474", commune: "Codó", nom: "Fazenda Lagoa do Sol", etat: "Maranhão" },
+            { sif: "SIF0476", commune: "Codó", nom: "Sítio da Cachoeira", etat: "Maranhão" },
+            { sif: "SIF0468", commune: "Grajaú", nom: "Fazenda Três Marias", etat: "Maranhão" },
+            { sif: "SIF0465", commune: "Imperatriz", nom: "Fazenda Estrela do Sul", etat: "Maranhão" },
+            { sif: "SIF0466", commune: "Imperatriz", nom: "Rancho São João", etat: "Maranhão" },
+            { sif: "SIF0486", commune: "Pedreiras", nom: "Fazenda Água Clara", etat: "Maranhão" },
+            { sif: "SIF0488", commune: "Pedreiras", nom: "Sítio do Sossego", etat: "Maranhão" },
+            { sif: "SIF0489", commune: "Santa Inês", nom: "Fazenda dos Sonhos", etat: "Maranhão" },
+            { sif: "SIF025", commune: "Alta Floresta", nom: "Fazenda Bela Vista", etat: "Mato Grosso" },
+            { sif: "SIF029", commune: "Alta Floresta", nom: "Fazenda Boa Esperança", etat: "Mato Grosso" },
+            { sif: "SIF022", commune: "Alta Floresta", nom: "Fazenda Bonança", etat: "Mato Grosso" },
+            { sif: "SIF035", commune: "Alta Floresta", nom: "Fazenda Novo Amanhecer", etat: "Mato Grosso" },
+            { sif: "SIF027", commune: "Alta Floresta", nom: "Rancho dos Lagos", etat: "Mato Grosso" },
+            { sif: "SIF040", commune: "Alta Floresta", nom: "Rancho Floresta Viva", etat: "Mato Grosso" },
+            { sif: "SIF024", commune: "Alta Floresta", nom: "Rancho São Francisco", etat: "Mato Grosso" },
+            { sif: "SIF031", commune: "Alta Floresta", nom: "Rancho Sol Nascente", etat: "Mato Grosso" },
+            { sif: "SIF038", commune: "Alta Floresta", nom: "Sítio das Águas", etat: "Mato Grosso" },
+            { sif: "SIF033", commune: "Alta Floresta", nom: "Sítio Mata Verde", etat: "Mato Grosso" },
+            { sif: "SIF036", commune: "Alta Floresta", nom: "Vale dos Ipês", etat: "Mato Grosso" },
+            { sif: "SIF05", commune: "Aripuanã", nom: "Estância Águas Claras", etat: "Mato Grosso" },
+            { sif: "SIF06", commune: "Aripuanã", nom: "Estância Vista Alegre", etat: "Mato Grosso" },
+            { sif: "SIF08", commune: "Aripuanã", nom: "Morada das Águas", etat: "Mato Grosso" },
+            { sif: "SIF011", commune: "Aripuanã", nom: "Rancho das Bromélias", etat: "Mato Grosso" },
+            { sif: "SIF015", commune: "Aripuanã", nom: "Refúgio dos Pinhais", etat: "Mato Grosso" },
+            { sif: "SIF017", commune: "Aripuanã", nom: "Sítio do Tucano", etat: "Mato Grosso" },
+            { sif: "SIF018", commune: "Aripuanã", nom: "Sítio Rio Sereno", etat: "Mato Grosso" },
+            { sif: "SIF020", commune: "Aripuanã", nom: "Vale do Cedro", etat: "Mato Grosso" },
+            { sif: "SIF0107", commune: "Barra do Garças", nom: "Fazenda Campo Verde", etat: "Mato Grosso" },
+            { sif: "SIF097", commune: "Barra do Garças", nom: "Fazenda Rio Azul", etat: "Mato Grosso" },
+            { sif: "SIF094", commune: "Barra do Garças", nom: "Rancho da Montanha", etat: "Mato Grosso" },
+            { sif: "SIF0105", commune: "Barra do Garças", nom: "Rancho dos Amigos", etat: "Mato Grosso" },
+            { sif: "SIF0101", commune: "Barra do Garças", nom: "Rancho Santa Clara", etat: "Mato Grosso" },
+            { sif: "SIF099", commune: "Barra do Garças", nom: "Sítio Bela Vista", etat: "Mato Grosso" },
+            { sif: "SIF0111", commune: "Barra do Garças", nom: "Sítio Boa Fé", etat: "Mato Grosso" },
+            { sif: "SIF092", commune: "Barra do Garças", nom: "Sítio das Palmeiras", etat: "Mato Grosso" },
+            { sif: "SIF0103", commune: "Barra do Garças", nom: "Sítio Raízes da Terra", etat: "Mato Grosso" },
+            { sif: "SIF095", commune: "Barra do Garças", nom: "Vale do Paraíso", etat: "Mato Grosso" },
+            { sif: "SIF0109", commune: "Barra do Garças", nom: "Vale do Sol", etat: "Mato Grosso" },
+            { sif: "SIF046", commune: "Brasnorte", nom: "Estância das Palmeiras", etat: "Mato Grosso" },
+            { sif: "SIF047", commune: "Brasnorte", nom: "Estância do Riacho", etat: "Mato Grosso" },
+            { sif: "SIF048", commune: "Brasnorte", nom: "Estância Flor do Campo", etat: "Mato Grosso" },
+            { sif: "SIF1751", commune: "Brasnorte", nom: "Fazenda de Paolo", etat: "Mato Grosso" },
+            { sif: "SIF050", commune: "Brasnorte", nom: "Fazenda Sol da Manhã", etat: "Mato Grosso" },
+            { sif: "SIF052", commune: "Brasnorte", nom: "Fazenda Terra Fértil", etat: "Mato Grosso" },
+            { sif: "SIF056", commune: "Brasnorte", nom: "Morada Encantada", etat: "Mato Grosso" },
+            { sif: "SIF059", commune: "Brasnorte", nom: "Pousada da Serra Azul", etat: "Mato Grosso" },
+            { sif: "SIF060", commune: "Brasnorte", nom: "Pousada da Serra Verde", etat: "Mato Grosso" },
+            { sif: "SIF061", commune: "Brasnorte", nom: "Pousada dos Araucárias", etat: "Mato Grosso" },
+            { sif: "SIF062", commune: "Brasnorte", nom: "Pousada Rio Claro", etat: "Mato Grosso" },
+            { sif: "SIF063", commune: "Brasnorte", nom: "Rancho Alegre", etat: "Mato Grosso" },
+            { sif: "SIF064", commune: "Brasnorte", nom: "Rancho da Cachoeira", etat: "Mato Grosso" },
+            { sif: "SIF066", commune: "Brasnorte", nom: "Rancho da Vargem", etat: "Mato Grosso" },
+            { sif: "SIF071", commune: "Brasnorte", nom: "Recanto do Cerrado", etat: "Mato Grosso" },
+            { sif: "SIF072", commune: "Brasnorte", nom: "Recanto do Horizonte", etat: "Mato Grosso" },
+            { sif: "SIF075", commune: "Brasnorte", nom: "Recanto dos Ipês", etat: "Mato Grosso" },
+            { sif: "SIF076", commune: "Brasnorte", nom: "Recanto dos Ipês Brancos", etat: "Mato Grosso" },
+            { sif: "SIF078", commune: "Brasnorte", nom: "Refúgio do Sol", etat: "Mato Grosso" },
+            { sif: "SIF080", commune: "Brasnorte", nom: "Refúgio dos Ventos", etat: "Mato Grosso" },
+            { sif: "SIF082", commune: "Brasnorte", nom: "Sítio da Estrela", etat: "Mato Grosso" },
+            { sif: "SIF084", commune: "Brasnorte", nom: "Sítio do Cedro", etat: "Mato Grosso" },
+            { sif: "SIF089", commune: "Brasnorte", nom: "Terra do Rio Sereno", etat: "Mato Grosso" },
+            { sif: "SIF090", commune: "Brasnorte", nom: "Vale das Águas Claras", etat: "Mato Grosso" },
+            { sif: "SIF091", commune: "Brasnorte", nom: "Vale dos Pássaros", etat: "Mato Grosso" },
+            { sif: "SIF0114", commune: "Cuiabá", nom: "Rancho do Sossego", etat: "Mato Grosso" },
+            { sif: "SIF0144", commune: "Cuiabá", nom: "Rancho do Sossego", etat: "Mato Grosso" },
+            { sif: "SIF0118", commune: "Cuiabá", nom: "Rancho Verdejante", etat: "Mato Grosso" },
+            { sif: "SIF0148", commune: "Cuiabá", nom: "Rancho Verdejante", etat: "Mato Grosso" },
+            { sif: "SIF0112", commune: "Cuiabá", nom: "Sítio do Cerrado", etat: "Mato Grosso" },
+            { sif: "SIF0142", commune: "Cuiabá", nom: "Sítio do Cerrado", etat: "Mato Grosso" },
+            { sif: "SIF0120", commune: "Cuiabá", nom: "Sítio do Jacaré", etat: "Mato Grosso" },
+            { sif: "SIF0150", commune: "Cuiabá", nom: "Sítio do Jacaré", etat: "Mato Grosso" },
+            { sif: "SIF0116", commune: "Cuiabá", nom: "Sítio Raízes de Mato", etat: "Mato Grosso" },
+            { sif: "SIF0146", commune: "Cuiabá", nom: "Sítio Raízes de Mato", etat: "Mato Grosso" },
+            { sif: "SIF0124", commune: "Lucas do Rio Verde", nom: "Fazenda Boa Safra", etat: "Mato Grosso" },
+            { sif: "SIF0154", commune: "Lucas do Rio Verde", nom: "Fazenda Boa Safra", etat: "Mato Grosso" },
+            { sif: "SIF0128", commune: "Lucas do Rio Verde", nom: "Fazenda Céu Azul", etat: "Mato Grosso" },
+            { sif: "SIF0158", commune: "Lucas do Rio Verde", nom: "Fazenda Céu Azul", etat: "Mato Grosso" },
+            { sif: "SIF0130", commune: "Lucas do Rio Verde", nom: "Rancho dos Amigos", etat: "Mato Grosso" },
+            { sif: "SIF0160", commune: "Lucas do Rio Verde", nom: "Rancho dos Amigos", etat: "Mato Grosso" },
+            { sif: "SIF0126", commune: "Lucas do Rio Verde", nom: "Rancho Encantado", etat: "Mato Grosso" },
+            { sif: "SIF0156", commune: "Lucas do Rio Verde", nom: "Rancho Encantado", etat: "Mato Grosso" },
+            { sif: "SIF0122", commune: "Lucas do Rio Verde", nom: "Rancho Esperança", etat: "Mato Grosso" },
+            { sif: "SIF0152", commune: "Lucas do Rio Verde", nom: "Rancho Esperança", etat: "Mato Grosso" },
+            { sif: "SIF0132", commune: "Nova Mutum", nom: "Fazenda Novo Futuro", etat: "Mato Grosso" },
+            { sif: "SIF0162", commune: "Nova Mutum", nom: "Fazenda Novo Futuro", etat: "Mato Grosso" },
+            { sif: "SIF0140", commune: "Nova Mutum", nom: "Rancho da Paz", etat: "Mato Grosso" },
+            { sif: "SIF0170", commune: "Nova Mutum", nom: "Rancho da Paz", etat: "Mato Grosso" },
+            { sif: "SIF0136", commune: "Nova Mutum", nom: "Rancho dos Cedros", etat: "Mato Grosso" },
+            { sif: "SIF0166", commune: "Nova Mutum", nom: "Rancho dos Cedros", etat: "Mato Grosso" },
+            { sif: "SIF0138", commune: "Nova Mutum", nom: "Sítio Beira Rio", etat: "Mato Grosso" },
+            { sif: "SIF0168", commune: "Nova Mutum", nom: "Sítio Beira Rio", etat: "Mato Grosso" },
+            { sif: "SIF0134", commune: "Nova Mutum", nom: "Sítio do Mato", etat: "Mato Grosso" },
+            { sif: "SIF0164", commune: "Nova Mutum", nom: "Sítio do Mato", etat: "Mato Grosso" },
+            { sif: "SIF0180", commune: "Rondonópolis", nom: "Fazenda da Esperança", etat: "Mato Grosso" },
+            { sif: "SIF0176", commune: "Rondonópolis", nom: "Fazenda do Sossego", etat: "Mato Grosso" },
+            { sif: "SIF0172", commune: "Rondonópolis", nom: "Rancho Novo Horizonte", etat: "Mato Grosso" },
+            { sif: "SIF0174", commune: "Rondonópolis", nom: "Sítio Verdejante", etat: "Mato Grosso" },
+            { sif: "SIF0178", commune: "Rondonópolis", nom: "Vale do Cedro", etat: "Mato Grosso" },
+            { sif: "SIF0182", commune: "Sinop", nom: "Fazenda Boa Esperança", etat: "Mato Grosso" },
+            { sif: "SIF0188", commune: "Sinop", nom: "Fazenda Rio Claro", etat: "Mato Grosso" },
+            { sif: "SIF0190", commune: "Sinop", nom: "Rancho das Flores", etat: "Mato Grosso" },
+            { sif: "SIF0186", commune: "Sinop", nom: "Rancho do Sol", etat: "Mato Grosso" },
+            { sif: "SIF0184", commune: "Sinop", nom: "Sítio Bela Vista", etat: "Mato Grosso" },
+            { sif: "SIF0196", commune: "Sorriso", nom: "Fazenda Boa Safra", etat: "Mato Grosso" },
+            { sif: "SIF0192", commune: "Sorriso", nom: "Fazenda Novo Horizonte", etat: "Mato Grosso" },
+            { sif: "SIF0200", commune: "Sorriso", nom: "Rancho da Paz", etat: "Mato Grosso" },
+            { sif: "SIF0198", commune: "Sorriso", nom: "Sítio Bela Flor", etat: "Mato Grosso" },
+            { sif: "SIF0194", commune: "Sorriso", nom: "Vale das Estrelas", etat: "Mato Grosso" },
+            { sif: "SIF0204", commune: "Tangará da Serra", nom: "Fazenda Esperança Verde", etat: "Mato Grosso" },
+            { sif: "SIF0208", commune: "Tangará da Serra", nom: "Fazenda Santa Luzia", etat: "Mato Grosso" },
+            { sif: "SIF0202", commune: "Tangará da Serra", nom: "Rancho Bela Terra", etat: "Mato Grosso" },
+            { sif: "SIF0206", commune: "Tangará da Serra", nom: "Rancho do Horizonte", etat: "Mato Grosso" },
+            { sif: "SIF0210", commune: "Tangará da Serra", nom: "Rancho Encantado", etat: "Mato Grosso" },
+            { sif: "SIF0214", commune: "Várzea Grande", nom: "Fazenda Boa Vista", etat: "Mato Grosso" },
+            { sif: "SIF0212", commune: "Várzea Grande", nom: "Rancho Verdejante", etat: "Mato Grosso" },
+            { sif: "SIF0216", commune: "Várzea Grande", nom: "Sítio das Orquídeas", etat: "Mato Grosso" },
+            { sif: "SIF0220", commune: "Várzea Grande", nom: "Sítio Encantado", etat: "Mato Grosso" },
+            { sif: "SIF0218", commune: "Várzea Grande", nom: "Vale do Rio Claro", etat: "Mato Grosso" },
+            { sif: "SIF0516", commune: "Alfenas", nom: "Fazenda Flor do Campo", etat: "Minas Gerais" },
+            { sif: "SIF0517", commune: "Alfenas", nom: "Rancho Vale Verde", etat: "Minas Gerais" },
+            { sif: "SIF0518", commune: "Alfenas", nom: "Sítio Santa Maria", etat: "Minas Gerais" },
+            { sif: "SIF0519", commune: "Araguari", nom: "Fazenda Bela Vista", etat: "Minas Gerais" },
+            { sif: "SIF0520", commune: "Araguari", nom: "Rancho dos Pinheiros", etat: "Minas Gerais" },
+            { sif: "SIF0521", commune: "Araguari", nom: "Sítio Boa Esperança", etat: "Minas Gerais" },
+            { sif: "SIF0525", commune: "Janaúba", nom: "Fazenda Boa Esperança", etat: "Minas Gerais" },
+            { sif: "SIF0526", commune: "Janaúba", nom: "Rancho Santa Luzia", etat: "Minas Gerais" },
+            { sif: "SIF0527", commune: "Janaúba", nom: "Sítio Riacho Fundo", etat: "Minas Gerais" },
+            { sif: "SIF0513", commune: "Lavras", nom: "Fazenda Riacho Doce", etat: "Minas Gerais" },
+            { sif: "SIF0515", commune: "Lavras", nom: "Sítio Lagoa Bonita", etat: "Minas Gerais" },
+            { sif: "SIF0504", commune: "Montes Claros", nom: "Fazenda Encantada", etat: "Minas Gerais" },
+            { sif: "SIF0505", commune: "Montes Claros", nom: "Rancho Lago Azul", etat: "Minas Gerais" },
+            { sif: "SIF0506", commune: "Montes Claros", nom: "Sítio Boa Vista", etat: "Minas Gerais" },
+            { sif: "SIF0501", commune: "Paracatu", nom: "Fazenda Nova Esperança", etat: "Minas Gerais" },
+            { sif: "SIF0502", commune: "Paracatu", nom: "Rancho Riacho Verde", etat: "Minas Gerais" },
+            { sif: "SIF0503", commune: "Paracatu", nom: "Sítio Santa Clara", etat: "Minas Gerais" },
+            { sif: "SIF0492", commune: "Patos de Minas", nom: "Fazenda Campo Belo", etat: "Minas Gerais" },
+            { sif: "SIF0493", commune: "Patos de Minas", nom: "Rancho Bela Vista", etat: "Minas Gerais" },
+            { sif: "SIF0494", commune: "Patos de Minas", nom: "Sítio Lagoa Serena", etat: "Minas Gerais" },
+            { sif: "SIF0507", commune: "Pouso Alegre", nom: "Fazenda dos Ipês", etat: "Minas Gerais" },
+            { sif: "SIF0508", commune: "Pouso Alegre", nom: "Rancho do Bosque", etat: "Minas Gerais" },
+            { sif: "SIF0509", commune: "Pouso Alegre", nom: "Sítio da Serra", etat: "Minas Gerais" },
+            { sif: "SIF0510", commune: "São Gotardo", nom: "Fazenda Santo Antônio", etat: "Minas Gerais" },
+            { sif: "SIF0512", commune: "São Gotardo", nom: "Sítio das Palmeiras", etat: "Minas Gerais" },
+            { sif: "SIF0498", commune: "Uberlândia", nom: "Fazenda Três Lagoas", etat: "Minas Gerais" },
+            { sif: "SIF0500", commune: "Uberlândia", nom: "Sítio Vale do Sol", etat: "Minas Gerais" },
+            { sif: "SIF0495", commune: "Unaí", nom: "Fazenda dos Coqueiros", etat: "Minas Gerais" },
+            { sif: "SIF0496", commune: "Unaí", nom: "Rancho das Palmeiras", etat: "Minas Gerais" },
+            { sif: "SIF0497", commune: "Unaí", nom: "Sítio Santa Luzia", etat: "Minas Gerais" },
+            { sif: "SIF0522", commune: "Viçosa", nom: "Fazenda Três Rios", etat: "Minas Gerais" },
+            { sif: "SIF0524", commune: "Viçosa", nom: "Sítio do Vale Azul", etat: "Minas Gerais" },
+            { sif: "SIF0536", commune: "Altamira", nom: "Sítio Vale do Sol", etat: "Pará" },
+            { sif: "SIF0557", commune: "Bragança", nom: "Sítio Lagoa Serena", etat: "Pará" },
+            { sif: "SIF0554", commune: "Castanhal", nom: "Sítio dos Lírios", etat: "Pará" },
+            { sif: "SIF0545", commune: "Itaituba", nom: "Sítio dos Coqueiros", etat: "Pará" },
+            { sif: "SIF0539", commune: "Marabá", nom: "Sítio das Palmeiras", etat: "Pará" },
+            { sif: "SIF0548", commune: "Novo Progresso", nom: "Sítio Riacho Doce", etat: "Pará" },
+            { sif: "SIF0530", commune: "Paragominas", nom: "Sítio Boa Esperança", etat: "Pará" },
+            { sif: "SIF0542", commune: "Redenção", nom: "Sítio Encantado", etat: "Pará" },
+            { sif: "SIF0533", commune: "Santarém", nom: "Sítio Três Palmeiras", etat: "Pará" },
+            { sif: "SIF0551", commune: "Tucuruí", nom: "Sítio Bela Vista", etat: "Pará" },
+            { sif: "SIF0564", commune: "Cajazeiras", nom: "Fazenda Estrela do Norte", etat: "Paraíba" },
+            { sif: "SIF0565", commune: "Cajazeiras", nom: "Rancho Encantado", etat: "Paraíba" },
+            { sif: "SIF0573", commune: "Catolé do Rocha", nom: "Fazenda Verde Vale", etat: "Paraíba" },
+            { sif: "SIF0574", commune: "Catolé do Rocha", nom: "Rancho Lago Azul", etat: "Paraíba" },
+            { sif: "SIF0582", commune: "Esperança", nom: "Fazenda Rio Verde", etat: "Paraíba" },
+            { sif: "SIF0583", commune: "Esperança", nom: "Rancho da Serra", etat: "Paraíba" },
+            { sif: "SIF0576", commune: "Itaporanga", nom: "Fazenda Riacho Fundo", etat: "Paraíba" },
+            { sif: "SIF0577", commune: "Itaporanga", nom: "Rancho do Sol Nascente", etat: "Paraíba" },
+            { sif: "SIF0579", commune: "Monteiro", nom: "Fazenda dos Cedros", etat: "Paraíba" },
+            { sif: "SIF0580", commune: "Monteiro", nom: "Rancho Vale Encantado", etat: "Paraíba" },
+            { sif: "SIF0581", commune: "Monteiro", nom: "Sítio Boa Vista", etat: "Paraíba" },
+            { sif: "SIF0558", commune: "Patos", nom: "Fazenda Vale Bonito", etat: "Paraíba" },
+            { sif: "SIF0559", commune: "Patos", nom: "Rancho Três Rios", etat: "Paraíba" },
+            { sif: "SIF0560", commune: "Patos", nom: "Sítio das Flores", etat: "Paraíba" },
+            { sif: "SIF0585", commune: "Picuí", nom: "Fazenda Flor do Campo", etat: "Paraíba" },
+            { sif: "SIF0586", commune: "Picuí", nom: "Rancho Santa Fé", etat: "Paraíba" },
+            { sif: "SIF0570", commune: "Pombal", nom: "Fazenda Riacho Doce", etat: "Paraíba" },
+            { sif: "SIF0571", commune: "Pombal", nom: "Rancho Santa Maria", etat: "Paraíba" },
+            { sif: "SIF0567", commune: "São Bento", nom: "Fazenda São Francisco", etat: "Paraíba" },
+            { sif: "SIF0568", commune: "São Bento", nom: "Rancho dos Coqueiros", etat: "Paraíba" },
+            { sif: "SIF0569", commune: "São Bento", nom: "Sítio dos Lírios", etat: "Paraíba" },
+            { sif: "SIF0561", commune: "Sousa", nom: "Fazenda Boa Vista", etat: "Paraíba" },
+            { sif: "SIF0562", commune: "Sousa", nom: "Rancho Verdejante", etat: "Paraíba" },
+            { sif: "SIF0597", commune: "Ariquemes", nom: "Sítio da Luz", etat: "Rondônia" },
+            { sif: "SIF0595", commune: "Cacoal", nom: "Sítio Verde e Amarelo", etat: "Rondônia" },
+            { sif: "SIF0603", commune: "Jaru", nom: "Sítio das Flores", etat: "Rondônia" },
+            { sif: "SIF0590", commune: "Ji-Paraná", nom: "Fazendinha do Lago", etat: "Rondônia" },
+            { sif: "SIF0601", commune: "Nova Mamoré", nom: "Sítio da Floresta", etat: "Rondônia" },
+            { sif: "SIF0593", commune: "Porto Velho", nom: "Fazenda São Jorge", etat: "Rondônia" },
+            { sif: "SIF0599", commune: "Rolim de Moura", nom: "Sítio do Vale", etat: "Rondônia" },
+            { sif: "SIF0605", commune: "Boa Vista", nom: "Sítio Verdejante", etat: "Roraima" },
+            { sif: "SIF0609", commune: "Caracaraí", nom: "Fazenda do Vale", etat: "Roraima" },
+            { sif: "SIF0611", commune: "Mucajaí", nom: "Fazenda Verde de Mucajaí", etat: "Roraima" },
+            { sif: "SIF0613", commune: "Normandia", nom: "Fazenda Rio Verde", etat: "Roraima" }
+        ];
+
+        function searchFarm() {
+            const sifInput = document.getElementById("sifNumber").value;
+            const resultDiv = document.getElementById("result");
+
+            if (!sifInput) return;
+
+            const formattedSif = sifInput.toUpperCase().startsWith("SIF") ? sifInput.toUpperCase() : "SIF" + sifInput.padStart(4, "0");
+            const farm = farmsData.find(farm => farm.sif === formattedSif);
+
+            document.getElementById("displaySif").textContent = formattedSif;
+
+            if (farm) {
+                document.getElementById("displayName").textContent = farm.nom;
+                document.getElementById("displayName").classList.remove("unknown-sif");
+                document.getElementById("displayState").textContent = farm.etat;
+                document.getElementById("displayCity").textContent = farm.commune;
+            } else {
+                document.getElementById("displayName").textContent = "SIF inconnu";
+                document.getElementById("displayName").classList.add("unknown-sif");
+                document.getElementById("displayState").textContent = "";
+                document.getElementById("displayCity").textContent = "";
+            }
+
+            resultDiv.style.visibility = "visible";
+        }
+    </script>
+</body>
+</html>
