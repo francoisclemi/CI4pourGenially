@@ -1,4 +1,3 @@
-let markers = []; // Déclaration de la variable globale pour les marqueurs
 
 document.getElementById('submit').addEventListener('click', function() {
     const lat = parseFloat(document.getElementById('latitude').value);
