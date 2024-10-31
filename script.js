@@ -1,18 +1,20 @@
-// Déclare markers une seule fois en dehors de la fonction
-let markers = []; 
+// Déclare map en tant que variable globale
+let map;
+let markers = [];
 
 document.getElementById('submit').addEventListener('click', function() {
     const lat = parseFloat(document.getElementById('latitude').value);
     const lon = parseFloat(document.getElementById('longitude').value);
-    const apiKey = 'YOUR_API_KEY'; // Remplace par ta clé API valide
+    const apiKey = 'fdd6dcf89555f8033a00cf0116de4656'; // Remplace par ta clé API valide
 
     if (isNaN(lat) || isNaN(lon)) {
         alert("Veuillez entrer des coordonnées valides !");
         return;
     }
 
-    if (typeof map === 'undefined') {
-        window.map = L.map('map').setView([lat, lon], 10);
+    // Initialise la carte si elle n'a pas encore été créée
+    if (!map) {
+        map = L.map('map').setView([lat, lon], 10);
         L.tileLayer('https://{s}.s3.amazonaws.com/satellite/{z}/{x}/{y}.jpg', {
             maxZoom: 18,
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
