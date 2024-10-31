@@ -4,7 +4,7 @@ let markers = []; // Étape 2 : Déclaration de la variable
 document.getElementById('submit').addEventListener('click', function() {
     const lat = parseFloat(document.getElementById('latitude').value);
     const lon = parseFloat(document.getElementById('longitude').value);
-    const apiKey = 'YOUR_API_KEY'; // Remplace 'YOUR_API_KEY' par ta clé API
+    const apiKey = 'fdd6dcf89555f8033a00cf0116de4656'; // Remplace 'YOUR_API_KEY' par ta clé API
 
     // Vérifier si les coordonnées sont valides
     if (isNaN(lat) || isNaN(lon)) {
