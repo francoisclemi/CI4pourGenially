@@ -1,8 +1,10 @@
+// Déclare markers une seule fois en dehors de la fonction
+let markers = []; 
 
 document.getElementById('submit').addEventListener('click', function() {
     const lat = parseFloat(document.getElementById('latitude').value);
     const lon = parseFloat(document.getElementById('longitude').value);
-    const apiKey = 'fdd6dcf89555f8033a00cf0116de4656'; // Remplace par ta clé API valide
+    const apiKey = 'YOUR_API_KEY'; // Remplace par ta clé API valide
 
     if (isNaN(lat) || isNaN(lon)) {
         alert("Veuillez entrer des coordonnées valides !");
@@ -34,6 +36,7 @@ document.getElementById('submit').addEventListener('click', function() {
             return response.json();
         })
         .then(data => {
+            // Supprime tous les anciens marqueurs
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
 
