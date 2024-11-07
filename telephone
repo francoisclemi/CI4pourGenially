@@ -1,0 +1,296 @@
+<html><head><base href="/">
+<meta charset="UTF-8">
+<style>
+.phone {
+    width: 300px;
+    height: 650px;
+    background: #1a1a1a;
+    border-radius: 40px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.status-bar {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    padding: 0 15px;
+    margin-top: 10px;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.screen {
+    width: 100%;
+    height: 80px;
+    background: #333;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#display {
+    color: white;
+    font-size: 24px;
+    font-family: 'Digital', sans-serif;
+    letter-spacing: 2px;
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.key {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 20px;
+    font-size: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    aspect-ratio: 1;
+}
+
+.key:hover {
+    background: #444;
+    transform: scale(1.1);
+}
+
+.key:active {
+    background: #555;
+    transform: scale(0.95);
+}
+
+.call-button {
+    background: #4CAF50;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.call-button:hover {
+    background: #45a049;
+}
+
+.call-button.hang-up {
+    background: #ff4444;
+}
+
+.call-button.hang-up:hover {
+    background: #cc0000;
+}
+
+.timer {
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    text-align: center;
+    margin: 10px 0;
+    height: 25px;
+}
+
+.notch {
+    width: 150px;
+    height: 25px;
+    background: black;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+@keyframes calling {
+    0% { background: #4CAF50; }
+    50% { background: #45a049; }
+    100% { background: #4CAF50; }
+}
+
+.calling {
+    animation: calling 1s infinite;
+}
+</style>
+</head>
+<body>
+<div class="phone">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="clock">12:00</span>
+        </div>
+        <div class="status-right">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M2 22h20V2L2 22z M20 20h-3V9.83l3-3V20z M14 20h-3v-9.17l3-3V20z M8 20H5v-5.17l3-3V20z"/>
+            </svg>
+        </div>
+    </div>
+    <div class="screen">
+        <div id="display"></div>
+    </div>
+    <div class="timer" id="call-timer"></div>
+    <div class="keypad">
+        <button class="key" onclick="addNumber('1')">1</button>
+        <button class="key" onclick="addNumber('2')">2</button>
+        <button class="key" onclick="addNumber('3')">3</button>
+        <button class="key" onclick="addNumber('4')">4</button>
+        <button class="key" onclick="addNumber('5')">5</button>
+        <button class="key" onclick="addNumber('6')">6</button>
+        <button class="key" onclick="addNumber('7')">7</button>
+        <button class="key" onclick="addNumber('8')">8</button>
+        <button class="key" onclick="addNumber('9')">9</button>
+        <button class="key" onclick="addNumber('+')">+</button>
+        <button class="key" onclick="addNumber('0')">0</button>
+        <button class="key" onclick="deleteNumber()">⌫</button>
+    </div>
+    <button class="call-button" onclick="makeCall()">APPELER</button>
+</div>
+
+<script>
+let number = '';
+let currentSound = null;
+let timerInterval = null;
+let startTime;
+let sounds = {
+    'dial': new Audio('https://assets.mixkit.co/sfx/preview/mixkit-phone-dial-tone-2860.mp3'),
+    'calling': new Audio('https://assets.mixkit.co/sfx/preview/mixkit-phone-ringing-dial-tone-1310.mp3'),
+    'error': new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3')
+};
+
+// Liste des numéros spéciaux avec leurs mp3 et noms de contacts associés
+const phoneDirectory = {
+    '123': {
+        name: 'DJ Music',
+        audio: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3'
+    },
+    '321': {
+        name: 'Galaxy Radio',
+        audio: 'https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/theme_01.mp3'
+    }
+};
+
+function updateTimer() {
+    const now = new Date().getTime();
+    const elapsed = now - startTime;
+    const seconds = Math.floor((elapsed / 1000) % 60);
+    const minutes = Math.floor((elapsed / (1000 * 60)) % 60);
+    document.getElementById('call-timer').innerText = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startTimer() {
+    startTime = new Date().getTime();
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('call-timer').innerText = '';
+    }
+}
+
+function addNumber(num) {
+    number += num;
+    document.getElementById('display').innerText = number;
+    sounds.dial.currentTime = 0;
+    sounds.dial.play();
+}
+
+function deleteNumber() {
+    if (number.length > 0) {
+        number = number.slice(0, -1);
+        document.getElementById('display').innerText = number;
+    }
+}
+
+function hangUp() {
+    if (currentSound) {
+        currentSound.pause();
+        currentSound.currentTime = 0;
+        currentSound = null;
+    }
+    const callButton = document.querySelector('.call-button');
+    callButton.classList.remove('calling', 'hang-up');
+    callButton.innerText = 'APPELER';
+    callButton.onclick = makeCall;
+    number = '';
+    document.getElementById('display').innerText = '';
+    stopTimer();
+}
+
+function makeCall() {
+    const callButton = document.querySelector('.call-button');
+    
+    if (number.length === 0) {
+        sounds.error.play();
+        alert('Veuillez entrer un numéro');
+        return;
+    }
+
+    callButton.classList.add('calling', 'hang-up');
+    callButton.innerText = 'RACCROCHER';
+    callButton.onclick = hangUp;
+
+    if (phoneDirectory[number]) {
+        currentSound = new Audio(phoneDirectory[number].audio);
+        currentSound.play();
+        startTimer();
+        document.getElementById('display').innerText = phoneDirectory[number].name;
+        currentSound.onended = function() {
+            hangUp();
+        };
+    } else {
+        currentSound = sounds.calling;
+        currentSound.play();
+        document.getElementById('display').innerText = 'Numéro inconnu';
+        startTimer();
+        currentSound.onended = function() {
+            hangUp();
+        };
+    }
+}
+
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${hours}:${minutes}`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+</body></html>
