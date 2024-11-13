@@ -29,20 +29,22 @@
         }).addTo(map);
 
         async function fetchFireData() {
-            const lat = document.getElementById("latitude").value;
-            const lon = document.getElementById("longitude").value;
-            const radius = 50;  // Rayon de recherche en kilomètres
+    const lat = document.getElementById("latitude").value;
+    const lon = document.getElementById("longitude").value;
+    const radius = 50;  // Rayon de recherche en kilomètres
+    const startDate = "2020-01-01";  // Date de début pour les feux
 
-            const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/fdd6dcf89555f8033a00cf0116de4656?latitude=${lat}&longitude=${lon}&radius=${radius}&fireType=all`;
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/fdd6dcf89555f8033a00cf0116de4656?latitude=${lat}&longitude=${lon}&radius=${radius}&fireType=all&startDate=${startDate}`;
 
-            try {
-                const response = await fetch(url);
-                const data = await response.text();
-                displayFireData(data, lat, lon);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des données : ", error);
-            }
-        }
+    try {
+        const response = await fetch(url);
+        const data = await response.text();
+        displayFireData(data, lat, lon);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des données : ", error);
+    }
+}
+
 
         function displayFireData(data, lat, lon) {
             // Effacer les marqueurs existants
