@@ -34,7 +34,8 @@
       var apiKey = 'ba985b05872ec63f614928c2d93ff589';
 
       // Construire l'URL de la carte WMS
-      var url = wmsUrl + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=-180,-90,180,90&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=' + startDate + '/' + endDate + '&key=' + apiKey;
+      var bbox = `-180,-90,180,90`;
+      var url = `${wmsUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=${bbox}&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=${startDate}/${endDate}&key=${apiKey}`;
 
       // Ajouter la couche WMS à la carte
       var wmsLayer = L.tileLayer.wms(url, {
