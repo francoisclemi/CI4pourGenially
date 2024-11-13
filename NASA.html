@@ -14,7 +14,7 @@
   <input type="date" id="startDate" value="2021-01-01">
   <label for="endDate">Date de fin :</label>
   <input type="date" id="endDate" value="2021-01-13">
-  <button onclick="getFireData()">Afficher les feux de forêt</button>
+  <button onclick="getFireDataUrl()">Afficher l'URL WMS</button>
   <div id="map" style="height: 600px;"></div>
 
   <script>
@@ -24,8 +24,8 @@
       attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
     }).addTo(map);
 
-    // Fonction pour récupérer les feux de forêt à partir de l'API
-    function getFireData() {
+    // Fonction pour récupérer l'URL WMS
+    function getFireDataUrl() {
       var latitude = parseFloat(document.getElementById('latitude').value);
       var longitude = parseFloat(document.getElementById('longitude').value);
       var startDate = document.getElementById('startDate').value;
@@ -37,14 +37,8 @@
       var bbox = `-180,-90,180,90`;
       var url = `${wmsUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=${bbox}&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=${startDate}/${endDate}&key=${apiKey}`;
 
-      // Ajouter la couche WMS à la carte
-      var wmsLayer = L.tileLayer.wms(url, {
-        transparent: true,
-        format: 'image/png'
-      }).addTo(map);
-
-      // Centrer la carte sur les coordonnées entrées
-      map.setView([latitude, longitude], 8);
+      // Afficher l'URL dans la console
+      console.log(url);
     }
   </script>
 </body>
