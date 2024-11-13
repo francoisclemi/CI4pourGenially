@@ -1,74 +1,50 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Feux de Forêt - NASA FIRMS</title>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css"/>
-    <style>
-        #map { height: 500px; width: 100%; }
-        body { font-family: Arial, sans-serif; }
-    </style>
+  <title>Carte des feux de forêt</title>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 <body>
-    <h2>Afficher les Feux de Forêt (NASA FIRMS)</h2>
-    <label for="latitude">Latitude :</label>
-    <input type="number" id="latitude" step="0.0001" required>
-    <label for="longitude">Longitude :</label>
-    <input type="number" id="longitude" step="0.0001" required>
-    <button onclick="fetchFireData()">Afficher les feux de forêt</button>
-    <div id="map"></div>
+  <label for="latitude">Latitude :</label>
+  <input type="number" id="latitude" step="0.0001" value="-10">
+  <label for="longitude">Longitude :</label>
+  <input type="number" id="longitude" step="0.0001" value="-55">
+  <label for="startDate">Date de début :</label>
+  <input type="date" id="startDate" value="2021-01-01">
+  <label for="endDate">Date de fin :</label>
+  <input type="date" id="endDate" value="2021-01-13">
+  <button onclick="getFireData()">Afficher les feux de forêt</button>
+  <div id="map" style="height: 600px;"></div>
 
-    <script>
-        // Initialisation de la carte avec MapTiler Satellite Layer
-        let map = L.map('map').setView([0, 0], 2);
+  <script>
+    // Initialisation de la carte Leaflet
+    var map = L.map('map').setView([-10, -55], 5);
+    L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=cg1oTGylkVWBYghNwXph', {
+      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+    }).addTo(map);
 
-        L.tileLayer(`https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph`, {
-            maxZoom: 20,
-            attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> contributors'
-        }).addTo(map);
+    // Fonction pour récupérer les feux de forêt à partir de l'API
+    function getFireData() {
+      var latitude = parseFloat(document.getElementById('latitude').value);
+      var longitude = parseFloat(document.getElementById('longitude').value);
+      var startDate = document.getElementById('startDate').value;
+      var endDate = document.getElementById('endDate').value;
+      var wmsUrl = 'https://firms.modaps.eosdis.nasa.gov/wms/';
+      var apiKey = 'ba985b05872ec63f614928c2d93ff589';
 
-        async function fetchFireData() {
-    const lat = document.getElementById("latitude").value;
-    const lon = document.getElementById("longitude").value;
-    const radius = 50;  // Rayon de recherche en kilomètres
-    const startDate = "2020-01-01";  // Date de début pour les feux
+      // Construire l'URL de la carte WMS
+      var url = wmsUrl + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=-180,-90,180,90&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=' + startDate + '/' + endDate + '&key=' + apiKey;
 
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/fdd6dcf89555f8033a00cf0116de4656?latitude=${lat}&longitude=${lon}&radius=${radius}&fireType=all&startDate=${startDate}`;
+      // Ajouter la couche WMS à la carte
+      var wmsLayer = L.tileLayer.wms(url, {
+        transparent: true,
+        format: 'image/png'
+      }).addTo(map);
 
-    try {
-        const response = await fetch(url);
-        const data = await response.text();
-        displayFireData(data, lat, lon);
-    } catch (error) {
-        console.error("Erreur lors de la récupération des données : ", error);
+      // Centrer la carte sur les coordonnées entrées
+      map.setView([latitude, longitude], 8);
     }
-}
-
-
-        function displayFireData(data, lat, lon) {
-            // Effacer les marqueurs existants
-            map.eachLayer(layer => {
-                if (layer instanceof L.Circle) layer.remove();
-            });
-
-            // Centrer la carte sur les coordonnées spécifiées
-            map.setView([lat, lon], 7);
-
-            const firePoints = data.split('\n').slice(1).map(line => line.split(','));
-
-            firePoints.forEach(fire => {
-                if (fire[0] && fire[1]) {
-                    const fireLat = parseFloat(fire[0]);
-                    const fireLon = parseFloat(fire[1]);
-                    L.circle([fireLat, fireLon], {
-                        color: 'red',
-                        radius: 5000,
-                        fillOpacity: 0.5
-                    }).addTo(map).bindPopup(`<b>Feu détecté</b><br>Latitude: ${fireLat}<br>Longitude: ${fireLon}`);
-                }
-            });
-        }
-    </script>
+  </script>
 </body>
 </html>
