@@ -22,57 +22,72 @@
   </style>
 </head>
 <body>
+  <div>
+    <label for="latitude">Latitude :</label>
+    <input type="number" id="latitude" step="0.0001" value="-10.7435">
+    <label for="longitude">Longitude :</label>
+    <input type="number" id="longitude" step="0.0001" value="-59.3761">
+    <button onclick="zoomToCoordinates()">Zoom sur la zone</button>
+  </div>
   <div class="button-container">
-    <button class="month-button" onclick="updateMap(2024, 9)">Octobre 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 8)">Septembre 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 7)">Août 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 6)">Juillet 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 5)">Juin 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 4)">Mai 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 3)">Avril 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 2)">Mars 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 1)">Février 2024</button>
-    <button class="month-button" onclick="updateMap(2024, 0)">Janvier 2024</button>
-    <button class="month-button" onclick="updateMap(2023, 11)">Décembre 2023</button>
-    <button class="month-button" onclick="updateMap(2023, 10)">Novembre 2023</button>
+    <button class="month-button" onclick="updateMap(2023)">2023 - Tous les feux</button>
+    <button class="month-button" onclick="updateMap(2022)">2022 - Tous les feux</button>
   </div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
     // Initialisation de la carte Leaflet
-    var map = L.map('map').setView([0, 0], 2);
+    var map = L.map('map').setView([-10.7435, -59.3761], 13);
 
     // Ajout du fond de carte
     L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
       attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
     }).addTo(map);
 
-    // Fonction pour centrer la carte et ajouter les feux de forêt pour un mois spécifique
-    function updateMap(year, month) {
-      // Calcul des dates de début et de fin du mois
-      var startDate = new Date(year, month, 1);
-      var endDate = new Date(year, month + 1, 0);
-      
-      // Formatage des dates
-      var startDateFormatted = startDate.toISOString().split('T')[0];
-      var endDateFormatted = endDate.toISOString().split('T')[0];
+    // Fonction pour zoomer sur les coordonnées entrées
+    function zoomToCoordinates() {
+      var lat = parseFloat(document.getElementById('latitude').value);
+      var lon = parseFloat(document.getElementById('longitude').value);
+      map.setView([lat, lon], 13); // Zoom sur la zone à un niveau de zoom de 5
+    }
 
-      // URL WMS pour récupérer les feux
-      var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/fires_modis_24/`;
-      var fireLayer = L.tileLayer.wms(wmsUrl, {
-        layers: 'FIRMS:GFO_ACTIVE_FIRES',
-        format: 'image/png',
-        transparent: true,
-        time: `${startDateFormatted}/${endDateFormatted}`,
-        attribution: 'FIRMS Fire Data'
+    // Fonction pour ajouter les feux de chaque mois d'une année
+    function updateMap(year) {
+      var months = [
+        { month: 0, name: "Janvier" },
+        { month: 1, name: "Février" },
+        { month: 2, name: "Mars" },
+        { month: 3, name: "Avril" },
+        { month: 4, name: "Mai" },
+        { month: 5, name: "Juin" },
+        { month: 6, name: "Juillet" },
+        { month: 7, name: "Août" },
+        { month: 8, name: "Septembre" },
+        { month: 9, name: "Octobre" },
+        { month: 10, name: "Novembre" },
+        { month: 11, name: "Décembre" }
+      ];
+
+      months.forEach(function(month) {
+        var startDate = new Date(year, month.month, 1);
+        var endDate = new Date(year, month.month + 1, 0);
+        
+        var startDateFormatted = startDate.toISOString().split('T')[0];
+        var endDateFormatted = endDate.toISOString().split('T')[0];
+
+        // URL WMS pour récupérer les feux
+        var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/fires_viirs_7/`;
+        var fireLayer = L.tileLayer.wms(wmsUrl, {
+          layers: 'FIRMS:GFO_ACTIVE_FIRES',
+          format: 'image/png',
+          transparent: true,
+          time: `${startDateFormatted}/${endDateFormatted}`,
+          attribution: 'FIRMS Fire Data'
+        });
+
+        fireLayer.addTo(map);
       });
-
-      // Centrer la carte sur une position par défaut
-      map.setView([0, 0], 2);
-
-      // Ajouter la couche des feux de forêt à la carte
-      fireLayer.addTo(map);
     }
   </script>
 </body>
