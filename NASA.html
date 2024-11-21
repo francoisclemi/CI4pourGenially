@@ -1,45 +1,65 @@
-// retour d'url à analyser : https://firms.modaps.eosdis.nasa.gov/wms/?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=-180,-90,180,90&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=2021-01-01/2021-01-13&key=ba985b05872ec63f614928c2d93ff589<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-  <title>Carte des feux de forêt</title>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Feux de Forêt</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <label for="latitude">Latitude :</label>
-  <input type="number" id="latitude" step="0.0001" value="-10">
-  <label for="longitude">Longitude :</label>
-  <input type="number" id="longitude" step="0.0001" value="-55">
-  <label for="startDate">Date de début :</label>
-  <input type="date" id="startDate" value="2021-01-01">
-  <label for="endDate">Date de fin :</label>
-  <input type="date" id="endDate" value="2021-01-13">
-  <button onclick="getFireDataUrl()">Afficher l'URL WMS</button>
-  <div id="map" style="height: 600px;"></div>
+    <h2>Carte des Feux de Forêt</h2>
+    <label for="latitude">Latitude :</label>
+    <input type="number" id="latitude" step="0.0001" value="-10">
+    <label for="longitude">Longitude :</label>
+    <input type="number" id="longitude" step="0.0001" value="-55">
+    <label for="startDate">Date de début :</label>
+    <input type="date" id="startDate" value="2021-01-01">
+    <label for="endDate">Date de fin :</label>
+    <input type="date" id="endDate" value="2021-01-13">
+    <button onclick="addFireLayer()">Afficher les feux de forêt</button>
+    <div id="map"></div>
 
-  <script>
-    // Initialisation de la carte Leaflet
-    var map = L.map('map').setView([-10, -55], 5);
-    L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
-      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
-    }).addTo(map);
+    <script>
+        // Initialisation de la carte
+        const map = L.map('map').setView([-10, -55], 5);
+        L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
+            attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a>'
+        }).addTo(map);
 
-    // Fonction pour récupérer l'URL WMS
-    function getFireDataUrl() {
-      var latitude = parseFloat(document.getElementById('latitude').value);
-      var longitude = parseFloat(document.getElementById('longitude').value);
-      var startDate = document.getElementById('startDate').value;
-      var endDate = document.getElementById('endDate').value;
-      var wmsUrl = 'https://firms.modaps.eosdis.nasa.gov/wms/';
-      var apiKey = 'ba985b05872ec63f614928c2d93ff589';
+        // Fonction pour ajouter le calque des feux de forêt
+        function addFireLayer() {
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
-      // Construire l'URL de la carte WMS
-      var bbox = `-180,-90,180,90`;
-      var url = `${wmsUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GFO_ACTIVE_FIRES&STYLES=&BBOX=${bbox}&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=${startDate}/${endDate}&key=${apiKey}`;
+            // Construction de l'URL WMS
+            const wmsUrl = 'https://firms.modaps.eosdis.nasa.gov/wms/';
+            const apiKey = 'fdd6dcf89555f8033a00cf0116de4656';
+            const bbox = `-180,-90,180,90`; // Affiche tous les feux du globe
+            const url = `${wmsUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=FIRMS:GEO_ACTIVE_FIRES&STYLES=&BBOX=${bbox}&WIDTH=1024&HEIGHT=512&FORMAT=image/png&TIME=${startDate}/${endDate}&key=${apiKey}`;
 
-      // Afficher l'URL dans la console
-      console.log(url);
-    }
-  </script>
+            // Ajout du calque WMS à la carte
+            const fireLayer = L.tileLayer.wms(wmsUrl, {
+                layers: 'FIRMS:GEO_ACTIVE_FIRES',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.1',
+                time: `${startDate}/${endDate}`
+            });
+
+            fireLayer.addTo(map);
+
+            // Centrer la carte sur les coordonnées données
+            map.setView([latitude, longitude], 5);
+        }
+    </script>
 </body>
 </html>
