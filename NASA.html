@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carte des feux de forêt</title>
+  <title>Carte des Feux</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <style>
     #map {
       height: 600px;
+    }
+    .input-container {
+      margin-bottom: 10px;
     }
     .button-container {
       display: flex;
@@ -22,73 +25,102 @@
   </style>
 </head>
 <body>
-  <div>
-    <label for="latitude">Latitude :</label>
-    <input type="number" id="latitude" step="0.0001" value="-10.7435">
-    <label for="longitude">Longitude :</label>
-    <input type="number" id="longitude" step="0.0001" value="-59.3761">
-    <button onclick="zoomToCoordinates()">Zoom sur la zone</button>
+  <h1>Carte des Feux</h1>
+
+  <!-- Coordonnées GPS -->
+  <div class="input-container">
+    <label for="latitude">Latitude : </label>
+    <input type="number" id="latitude" step="0.01" value="-10.7435" placeholder="Ex : -14.235">
+    <label for="longitude">Longitude : </label>
+    <input type="number" id="longitude" step="0.01" value="-59.3761" placeholder="Ex : -51.925">
+    <button onclick="setCoordinates()">Centrer la carte</button>
   </div>
-  <div class="button-container">
-    <button class="month-button" onclick="updateMap(2023)">2023 - Tous les feux</button>
-    <button class="month-button" onclick="updateMap(2022)">2022 - Tous les feux</button>
-  </div>
+
   <div id="map"></div>
+
+  <!-- Boutons pour les mois -->
+  <div class="button-container">
+    <button class="month-button" onclick="updateMap('2019-10-01', '2019-10-31')">Octobre 2019</button>
+    <button class="month-button" onclick="updateMap('2019-09-01', '2019-09-30')">Septembre 2019</button>
+    <button class="month-button" onclick="updateMap('2019-08-01', '2019-08-31')">Août 2019</button>
+    <button class="month-button" onclick="updateMap('2019-07-01', '2019-07-31')">Juillet 2019</button>
+    <button class="month-button" onclick="updateMap('2019-06-01', '2019-06-30')">Juin 2019</button>
+    <button class="month-button" onclick="updateMap('2019-05-01', '2019-05-31')">Mai 2019</button>
+    <button class="month-button" onclick="updateMap('2019-04-01', '2019-04-30')">Avril 2019</button>
+    <button class="month-button" onclick="updateMap('2019-03-01', '2019-03-31')">Mars 2019</button>
+    <button class="month-button" onclick="updateMap('2019-02-01', '2019-02-29')">Février 2019</button>
+    <button class="month-button" onclick="updateMap('2019-01-01', '2019-01-31')">Janvier 2019</button>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
-    // Initialisation de la carte Leaflet
-    var map = L.map('map').setView([-10.7435, -59.3761], 13);
+  var map;
+  var currentFireLayer;
 
-    // Ajout du fond de carte
+  // Initialisation de la carte
+  function initializeMap() {
+    map = L.map('map').setView([-10.7435, -59.3761], 13);
+
+    // Ajout du fond de carte satellite
     L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
       attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
     }).addTo(map);
+  }
 
-    // Fonction pour zoomer sur les coordonnées entrées
-    function zoomToCoordinates() {
-      var lat = parseFloat(document.getElementById('latitude').value);
-      var lon = parseFloat(document.getElementById('longitude').value);
-      map.setView([lat, lon], 13); // Zoom sur la zone à un niveau de zoom de 5
+  // Mettre à jour la carte avec les données de feux
+  function updateMap(startDate, endDate) {
+    if (!map) {
+      alert('Veuillez d\'abord initialiser la carte.');
+      return;
     }
 
-    // Fonction pour ajouter les feux de chaque mois d'une année
-    function updateMap(year) {
-      var months = [
-        { month: 0, name: "Janvier" },
-        { month: 1, name: "Février" },
-        { month: 2, name: "Mars" },
-        { month: 3, name: "Avril" },
-        { month: 4, name: "Mai" },
-        { month: 5, name: "Juin" },
-        { month: 6, name: "Juillet" },
-        { month: 7, name: "Août" },
-        { month: 8, name: "Septembre" },
-        { month: 9, name: "Octobre" },
-        { month: 10, name: "Novembre" },
-        { month: 11, name: "Décembre" }
-      ];
-
-      months.forEach(function(month) {
-        var startDate = new Date(year, month.month, 1);
-        var endDate = new Date(year, month.month + 1, 0);
-        
-        var startDateFormatted = startDate.toISOString().split('T')[0];
-        var endDateFormatted = endDate.toISOString().split('T')[0];
-
-        // URL WMS pour récupérer les feux
-        var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/fires_viirs_7/`;
-        var fireLayer = L.tileLayer.wms(wmsUrl, {
-          layers: 'FIRMS:GFO_ACTIVE_FIRES',
-          format: 'image/png',
-          transparent: true,
-          time: `${startDateFormatted}/${endDateFormatted}`,
-          attribution: 'FIRMS Fire Data'
-        });
-
-        fireLayer.addTo(map);
-      });
+    if (currentFireLayer) {
+      map.removeLayer(currentFireLayer);
     }
-  </script>
+
+    // Obtenir les limites visibles de la carte
+    var bounds = map.getBounds();
+    var bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+
+    // URL WMS combinée
+    var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/?`;
+
+    // Ajouter le layer WMS avec les nouveaux paramètres
+    currentFireLayer = L.tileLayer.wms(wmsUrl, {
+      layers: 'fires_viirs,fires_modis',
+      format: 'image/png',
+      transparent: true,
+      time: `${startDate}/${endDate}`,
+      bbox: bbox,
+      colors: '240+40+40,250+200+50', // Couleurs personnalisées
+      size: '20,20', // Taille des points
+      attribution: 'FIRMS Fire Data'
+    });
+
+    currentFireLayer.addTo(map);
+  }
+
+
+
+  // Initialisation de la carte
+  initializeMap();
+  
+  function setCoordinates() {
+  var lat = parseFloat(document.getElementById('latitude').value);
+  var lon = parseFloat(document.getElementById('longitude').value);
+
+  if (isNaN(lat) || isNaN(lon)) {
+    alert('Veuillez entrer des coordonnées GPS valides.');
+    return;
+  }
+
+  if (!map) {
+    initializeMap();
+  }
+
+  map.setView([lat, lon], 12); // Zoom par défaut
+}
+</script>
+
 </body>
 </html>
