@@ -44,7 +44,7 @@
       map.setView([lat, lon], 5);
 
       // URL WMS pour récupérer les feux
-      var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/fires_viirs_24/`;
+      var wmsUrl = `https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/ba985b05872ec63f614928c2d93ff589/fires_viirs_7/`;
       var fireLayer = L.tileLayer.wms(wmsUrl, {
         layers: 'FIRMS:GFO_ACTIVE_FIRES',
         format: 'image/png',
