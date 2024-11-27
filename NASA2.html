@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <h2>NASA FIRMS et Fermes</h2>
+    Latitude: <input type="number" id="latitude" placeholder="Latitude" step="any"><br>
+    Longitude: <input type="number" id="longitude" placeholder="Longitude" step="any"><br>
+    <button onclick="zoomOnCoordinates()">Centrer et Zoomer sur les coordonnées</button>
+
+    <title>Carte avec fond Satellite</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // Initialisation de la carte
+var map = L.map('map').setView([-8.0261, -50.0336], 5); // Centrer sur le brésil avec un zoom de 5
+
+    // Ajout du fond de carte satellite
+    L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
+        attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
+    }).addTo(map);
+
+    // Icône de carré rouge pour les feux
+    var fireIcon = L.divIcon({
+        className: 'fire-icon',
+        html: '<div style="width: 15px; height: 15px; background-color: red;"></div>',
+        iconSize: [15, 15]
+    });
+
+    // Icône épingle bleue standard pour les fermes
+    var farmIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+    });
+
+    // Fonction pour centrer et zoomer sur les coordonnées saisies
+    function zoomOnCoordinates() {
+        var lat = parseFloat(document.getElementById('latitude').value);
+        var lon = parseFloat(document.getElementById('longitude').value);
+
+        // Vérification que les coordonnées sont valides
+        if (!isNaN(lat) && !isNaN(lon)) {
+            map.setView([lat, lon], 15);
+        } else {
+            alert("Veuillez entrer des coordonnées valides.");
+        }
+    }
+// Fonction pour calculer la date en soustrayant des jours à la date actuelle
+function getDateNDaysAgo(daysAgo) {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - daysAgo); // Soustraire les jours
+    return currentDate.toISOString().split('T')[0]; // Retourner la date au format YYYY-MM-DD
+}
+    // Exemple de données pour feux et fermes
+    
+    var fireData = [
+  
+      {latitude: -9.8184 , longitude: -66.8969 , date: 571},{latitude: -9.8224 , longitude: -66.8929 , date: 227},{latitude: -9.8284 , longitude: -66.9019 , date: 517},{latitude: -9.8154 , longitude: -66.8959 , date: 269},{latitude: -9.866632414 , longitude: -66.87613969 , date: 676},{latitude: -9.811745264 , longitude: -66.90792501 , date: 392},{latitude: -9.810230698 , longitude: -66.92649318 , date: 507},{latitude: -9.860783969 , longitude: -66.87802204 , date: 101},
+  {latitude: -9.8201 , longitude: -66.893 , date: 898},{latitude: -9.8241 , longitude: -66.889 , date: 49},{latitude: -9.8301 , longitude: -66.898 , date: 869},{latitude: -9.8171 , longitude: -66.892 , date: 202},{latitude: -9.820096846 , longitude: -66.87816127 , date: 7},{latitude: -9.866867593 , longitude: -66.92505646 , date: 595},{latitude: -9.799286347 , longitude: -66.87743356 , date: 390},{latitude: -9.781950874 , longitude: -66.89566266 , date: 126},
+
+
+
+  {latitude: -10.9857 , longitude: -68.7447 , date: 459},{latitude: -10.9897 , longitude: -68.7407 , date: 875},{latitude: -10.9957 , longitude: -68.7497 , date: 330},{latitude: -10.9827 , longitude: -68.7437 , date: 492},{latitude: -11.02791518 , longitude: -68.75131934 , date: 602},{latitude: -11.00025061 , longitude: -68.77600126 , date: 59},{latitude: -10.9855084 , longitude: -68.76156389 , date: 604},{latitude: -10.97864736 , longitude: -68.75112178 , date: 75},
+  {latitude: -10.9825 , longitude: -68.7405 , date: 297},{latitude: -10.9865 , longitude: -68.7365 , date: 388},{latitude: -10.9925 , longitude: -68.7455 , date: 777},{latitude: -10.9795 , longitude: -68.7395 , date: 50},{latitude: -10.98091242 , longitude: -68.7125309 , date: 550},{latitude: -11.02134504 , longitude: -68.74856255 , date: 643},{latitude: -11.01983944 , longitude: -68.72248109 , date: 120},{latitude: -11.00776502 , longitude: -68.72555516 , date: 166},
+
+
+  {latitude: -10.567 , longitude: -67.6829 , date: 292},{latitude: -10.571 , longitude: -67.6789 , date: 245},{latitude: -10.577 , longitude: -67.6879 , date: 807},{latitude: -10.564 , longitude: -67.6819 , date: 234},{latitude: -10.56790912 , longitude: -67.70900559 , date: 508},{latitude: -10.54902092 , longitude: -67.65618105 , date: 190},{latitude: -10.58860344 , longitude: -67.67115934 , date: 180},{latitude: -10.54467687 , longitude: -67.71036495 , date: 22},
+  {latitude: -10.5684 , longitude: -67.6818 , date: 318},{latitude: -10.5724 , longitude: -67.6778 , date: 893},{latitude: -10.5784 , longitude: -67.6868 , date: 443},{latitude: -10.5654 , longitude: -67.6808 , date: 689},{latitude: -10.59045357 , longitude: -67.72393904 , date: 688},{latitude: -10.5789834 , longitude: -67.68890444 , date: 282},{latitude: -10.57249724 , longitude: -67.64182646 , date: 512},{latitude: -10.52850584 , longitude: -67.69244058 , date: 496},
+
+
+  {latitude: -7.6235 , longitude: -72.6761 , date: 657},{latitude: -7.6275 , longitude: -72.6721 , date: 876},{latitude: -7.6335 , longitude: -72.6811 , date: 124},{latitude: -7.6205 , longitude: -72.6751 , date: 613},{latitude: -7.614865481 , longitude: -72.65783366 , date: 711},{latitude: -7.672363455 , longitude: -72.67815557 , date: 781},{latitude: -7.633165204 , longitude: -72.70245561 , date: 207},{latitude: -7.640803344 , longitude: -72.69911173 , date: 481},
+  {latitude: -7.6173 , longitude: -72.6715 , date: 536},{latitude: -7.6213 , longitude: -72.6675 , date: 78},{latitude: -7.6273 , longitude: -72.6765 , date: 392},{latitude: -7.6143 , longitude: -72.6705 , date: 762},{latitude: -7.621693626 , longitude: -72.70561676 , date: 359},{latitude: -7.64206683 , longitude: -72.66267107 , date: 740},{latitude: -7.577683156 , longitude: -72.64575155 , date: 73},{latitude: -7.638716989 , longitude: -72.68066333 , date: 624},
+
+
+  {latitude: -11.0223 , longitude: -68.7452 , date: 149},{latitude: -11.0263 , longitude: -68.7412 , date: 544},{latitude: -11.0323 , longitude: -68.7502 , date: 62},{latitude: -11.0193 , longitude: -68.7442 , date: 32},{latitude: -10.99781491 , longitude: -68.76565419 , date: 362},{latitude: -11.04203287 , longitude: -68.7746504 , date: 713},{latitude: -11.01635638 , longitude: -68.74139653 , date: 891},{latitude: -11.00006975 , longitude: -68.7166142 , date: 669},
+  {latitude: -11.0214 , longitude: -68.7443 , date: 379},{latitude: -11.0254 , longitude: -68.7403 , date: 648},{latitude: -11.0314 , longitude: -68.7493 , date: 315},{latitude: -11.0184 , longitude: -68.7433 , date: 671},{latitude: -11.00144452 , longitude: -68.71910032 , date: 376},{latitude: -11.03945895 , longitude: -68.70758337 , date: 310},{latitude: -11.02082433 , longitude: -68.75663084 , date: 547},{latitude: -11.03274825 , longitude: -68.74111486 , date: 727},
+
+
+  {latitude: -8.1573 , longitude: -70.3445 , date: 716},{latitude: -8.1613 , longitude: -70.3405 , date: 130},{latitude: -8.1673 , longitude: -70.3495 , date: 726},{latitude: -8.1543 , longitude: -70.3435 , date: 89},{latitude: -8.172787047 , longitude: -70.34336854 , date: 269},{latitude: -8.138899035 , longitude: -70.30398331 , date: 315},{latitude: -8.184867916 , longitude: -70.36967929 , date: 117},{latitude: -8.203220488 , longitude: -70.38629035 , date: 415},
+  {latitude: -8.1591 , longitude: -70.3456 , date: 618},{latitude: -8.1631 , longitude: -70.3416 , date: 71},{latitude: -8.1691 , longitude: -70.3506 , date: 199},{latitude: -8.1561 , longitude: -70.3446 , date: 68},{latitude: -8.153808379 , longitude: -70.34824827 , date: 820},{latitude: -8.179020698 , longitude: -70.36525031 , date: 862},{latitude: -8.163227166 , longitude: -70.36972971 , date: 535},{latitude: -8.147744112 , longitude: -70.30551286 , date: 843},
+
+
+  {latitude: -10.3277 , longitude: -67.1804 , date: 210},{latitude: -10.3317 , longitude: -67.1764 , date: 59},{latitude: -10.3377 , longitude: -67.1854 , date: 749},{latitude: -10.3247 , longitude: -67.1794 , date: 74},{latitude: -10.31178539 , longitude: -67.22230008 , date: 192},{latitude: -10.31057437 , longitude: -67.15076061 , date: 226},{latitude: -10.34474148 , longitude: -67.21368557 , date: 619},{latitude: -10.37305496 , longitude: -67.21425938 , date: 637},
+  {latitude: -10.3264 , longitude: -67.1812 , date: 649},{latitude: -10.3304 , longitude: -67.1772 , date: 755},{latitude: -10.3364 , longitude: -67.1862 , date: 59},{latitude: -10.3234 , longitude: -67.1802 , date: 441},{latitude: -10.29975371 , longitude: -67.17723599 , date: 763},{latitude: -10.3042869 , longitude: -67.17436366 , date: 195},{latitude: -10.30531575 , longitude: -67.1917562 , date: 715},{latitude: -10.31577319 , longitude: -67.21642399 , date: 171},
+
+
+
+  {latitude: -9.9683 , longitude: -67.8238 , date: 520},{latitude: -9.9723 , longitude: -67.8198 , date: 876},{latitude: -9.9783 , longitude: -67.8288 , date: 290},{latitude: -9.9653 , longitude: -67.8228 , date: 335},{latitude: -9.946140236 , longitude: -67.84125672 , date: 787},{latitude: -9.95660475 , longitude: -67.78864173 , date: 231},{latitude: -10.00124007 , longitude: -67.85923787 , date: 143},{latitude: -9.930168109 , longitude: -67.83027061 , date: 497},
+  {latitude: -9.978 , longitude: -67.8186 , date: 299},{latitude: -9.982 , longitude: -67.8146 , date: 584},{latitude: -9.988 , longitude: -67.8236 , date: 798},{latitude: -9.975 , longitude: -67.8176 , date: 276},{latitude: -10.00120652 , longitude: -67.79837437 , date: 662},{latitude: -9.969366674 , longitude: -67.79800826 , date: 623},{latitude: -9.957055937 , longitude: -67.82208525 , date: 893},{latitude: -9.952409712 , longitude: -67.84397002 , date: 356},
+
+
+  {latitude: -9.0608 , longitude: -68.657 , date: 836},{latitude: -9.0648 , longitude: -68.653 , date: 298},{latitude: -9.0708 , longitude: -68.662 , date: 52},{latitude: -9.0578 , longitude: -68.656 , date: 792},{latitude: -9.030580189 , longitude: -68.61864256 , date: 539},{latitude: -9.031156077 , longitude: -68.67488545 , date: 315},{latitude: -9.096264183 , longitude: -68.69687717 , date: 707},{latitude: -9.049704527 , longitude: -68.69388278 , date: 527},
+  {latitude: -9.0595 , longitude: -68.6583 , date: 850},{latitude: -9.0635 , longitude: -68.6543 , date: 51},{latitude: -9.0695 , longitude: -68.6633 , date: 818},{latitude: -9.0565 , longitude: -68.6573 , date: 642},{latitude: -9.035025833 , longitude: -68.62976954 , date: 280},{latitude: -9.026282582 , longitude: -68.66857766 , date: 311},{latitude: -9.059304907 , longitude: -68.62651003 , date: 412},{latitude: -9.084613874 , longitude: -68.64235533 , date: 535},
+
+  {latitude: -8.1549 , longitude: -70.7628 , date: 342},{latitude: -8.1589 , longitude: -70.7588 , date: 630},{latitude: -8.1649 , longitude: -70.7678 , date: 284},{latitude: -8.1519 , longitude: -70.7618 , date: 723},{latitude: -8.203618106 , longitude: -70.7976569 , date: 494},{latitude: -8.135851099 , longitude: -70.79401948 , date: 782},{latitude: -8.190452779 , longitude: -70.7613304 , date: 857},{latitude: -8.188463589 , longitude: -70.80548764 , date: 648},
+
+  {latitude: -8.1593 , longitude: -70.7637 , date: 136},{latitude: -8.1633 , longitude: -70.7597 , date: 583},{latitude: -8.1693 , longitude: -70.7687 , date: 691},{latitude: -8.1563 , longitude: -70.7627 , date: 395},{latitude: -8.124201917 , longitude: -70.75805213 , date: 6},{latitude: -8.126439729 , longitude: -70.74032133 , date: 335},{latitude: -8.172068874 , longitude: -70.79446583 , date: 218},{latitude: -8.191209384 , longitude: -70.78809093 , date: 512},
+
+
+
+  {latitude: -9.7506 , longitude: -36.6627 , date: 743},{latitude: -9.7546 , longitude: -36.6587 , date: 74},{latitude: -9.7606 , longitude: -36.6677 , date: 456},{latitude: -9.7476 , longitude: -36.6617 , date: 791},{latitude: -9.779378856 , longitude: -36.64436268 , date: 497},{latitude: -9.793528989 , longitude: -36.64412195 , date: 631},{latitude: -9.744789597 , longitude: -36.67326826 , date: 264},{latitude: -9.799381755 , longitude: -36.6802685 , date: 784},
+  {latitude: -9.7532 , longitude: -36.6583 , date: 72},{latitude: -9.7572 , longitude: -36.6543 , date: 181},{latitude: -9.7632 , longitude: -36.6633 , date: 736},{latitude: -9.7502 , longitude: -36.6573 , date: 563},{latitude: -9.796823747 , longitude: -36.6692474 , date: 170},{latitude: -9.781735032 , longitude: -36.65663474 , date: 544},{latitude: -9.745183368 , longitude: -36.64056648 , date: 687},{latitude: -9.749209018 , longitude: -36.68605161 , date: 273},
+
+  {latitude: -9.7785 , longitude: -36.3538 , date: 42},{latitude: -9.7825 , longitude: -36.3498 , date: 416},{latitude: -9.7885 , longitude: -36.3588 , date: 723},{latitude: -9.7755 , longitude: -36.3528 , date: 134},{latitude: -9.814807232 , longitude: -36.36275366 , date: 421},{latitude: -9.802370304 , longitude: -36.32330053 , date: 243},{latitude: -9.764481746 , longitude: -36.34103771 , date: 454},{latitude: -9.746743634 , longitude: -36.37364433 , date: 853},
+
+
+
+  {latitude: -9.3041 , longitude: -35.9383 , date: 747},{latitude: -9.3081 , longitude: -35.9343 , date: 383},{latitude: -9.3141 , longitude: -35.9433 , date: 354},{latitude: -9.3011 , longitude: -35.9373 , date: 496},{latitude: -9.34886651 , longitude: -35.90405162 , date: 197},{latitude: -9.348551487 , longitude: -35.91303457 , date: 887},{latitude: -9.286129674 , longitude: -35.91804575 , date: 464},{latitude: -9.279720428 , longitude: -35.93330736 , date: 420},
+
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -9.7793 , longitude: -36.0944 , date: 631},{latitude: -9.7833 , longitude: -36.0904 , date: 784},{latitude: -9.7893 , longitude: -36.0994 , date: 53},{latitude: -9.7763 , longitude: -36.0934 , date: 252},{latitude: -9.75819911 , longitude: -36.10422481 , date: 137},{latitude: -9.826321085 , longitude: -36.06823182 , date: 587},{latitude: -9.78507529 , longitude: -36.1383684 , date: 886},{latitude: -9.809569658 , longitude: -36.10184612 , date: 432},
+  {latitude: -9.8982 , longitude: -36.3467 , date: 230},{latitude: -9.9022 , longitude: -36.3427 , date: 466},{latitude: -9.9082 , longitude: -36.3517 , date: 122},{latitude: -9.8952 , longitude: -36.3457 , date: 599},{latitude: -9.938838911 , longitude: -36.33475158 , date: 134},{latitude: -9.883960579 , longitude: -36.30665078 , date: 119},{latitude: -9.910698133 , longitude: -36.39178896 , date: 298},{latitude: -9.889395608 , longitude: -36.38799094 , date: 656},
+
+
+
+
+
+  {latitude: 0.8628 , longitude: -51.1753 , date: 691},{latitude: 0.8588 , longitude: -51.1713 , date: 297},{latitude: 0.8528 , longitude: -51.1803 , date: 383},{latitude: 0.8658 , longitude: -51.1743 , date: 488},{latitude: 0.8590185004 , longitude: -51.15573077 , date: 623},{latitude: 0.8233542579 , longitude: -51.1618578 , date: 450},{latitude: 0.8955581969 , longitude: -51.17041355 , date: 650},{latitude: 0.8765384007 , longitude: -51.17723314 , date: 560},
+  {latitude: 0.8649 , longitude: -51.1739 , date: 593},{latitude: 0.8609 , longitude: -51.1699 , date: 792},{latitude: 0.8549 , longitude: -51.1789 , date: 546},{latitude: 0.8679 , longitude: -51.1729 , date: 785},{latitude: 0.8367869467 , longitude: -51.13329575 , date: 851},{latitude: 0.8596133718 , longitude: -51.17919459 , date: 542},{latitude: 0.8927746652 , longitude: -51.13585223 , date: 46},{latitude: 0.8976814468 , longitude: -51.15057178 , date: 514},
+
+
+  {latitude: 0.6091 , longitude: -50.6832 , date: 225},{latitude: 0.6051 , longitude: -50.6792 , date: 827},{latitude: 0.5991 , longitude: -50.6882 , date: 507},{latitude: 0.6121 , longitude: -50.6822 , date: 250},{latitude: 0.6251008082 , longitude: -50.68781289 , date: 230},{latitude: 0.642511672 , longitude: -50.71600585 , date: 463},{latitude: 0.5679358908 , longitude: -50.6599989 , date: 419},{latitude: 0.6385786368 , longitude: -50.64462148 , date: 86},
+
+
+  {latitude: -0.8977 , longitude: -52.4601 , date: 351},{latitude: -0.9017 , longitude: -52.4561 , date: 840},{latitude: -0.9077 , longitude: -52.4651 , date: 677},{latitude: -0.8947 , longitude: -52.4591 , date: 161},{latitude: -0.88664504 , longitude: -52.46596818 , date: 167},{latitude: -0.8745763641 , longitude: -52.4529203 , date: 321},{latitude: -0.8747208145 , longitude: -52.4493777 , date: 265},{latitude: -0.8982471562 , longitude: -52.46275993 , date: 668},
+
+
+  {latitude: 0.0331 , longitude: -51.0705 , date: 438},{latitude: 0.0291 , longitude: -51.0665 , date: 266},{latitude: 0.0231 , longitude: -51.0755 , date: 491},{latitude: 0.0361 , longitude: -51.0695 , date: 589},{latitude: 0.03605416941 , longitude: -51.07139893 , date: 662},{latitude: 0.01860026146 , longitude: -51.07465269 , date: 326},{latitude: 0.05357317148 , longitude: -51.0656823 , date: 256},{latitude: 0.004066423262 , longitude: -51.04203333 , date: 123},
+  {latitude: 0.0355 , longitude: -51.0696 , date: 712},{latitude: 0.0315 , longitude: -51.0656 , date: 28},{latitude: 0.0255 , longitude: -51.0746 , date: 726},{latitude: 0.0385 , longitude: -51.0686 , date: 378},{latitude: -0.003675185062 , longitude: -51.06390461 , date: 248},{latitude: -0.01420307002 , longitude: -51.11250143 , date: 91},{latitude: 0.02931253503 , longitude: -51.03939623 , date: 530},{latitude: 0.05121921087 , longitude: -51.09878958 , date: 473},
+
+  {latitude: -0.1085 , longitude: -51.2796 , date: 119},{latitude: -0.1125 , longitude: -51.2756 , date: 296},{latitude: -0.1185 , longitude: -51.2846 , date: 556},{latitude: -0.1055 , longitude: -51.2786 , date: 377},{latitude: -0.1478216123 , longitude: -51.24791168 , date: 126},{latitude: -0.1212500655 , longitude: -51.25651512 , date: 532},{latitude: -0.1555923409 , longitude: -51.31828835 , date: 513},{latitude: -0.09081146247 , longitude: -51.28891913 , date: 392},
+  {latitude: -0.1102 , longitude: -51.2808 , date: 861},{latitude: -0.1142 , longitude: -51.2768 , date: 741},{latitude: -0.1202 , longitude: -51.2858 , date: 358},{latitude: -0.1072 , longitude: -51.2798 , date: 334},{latitude: -0.1209477656 , longitude: -51.26571133 , date: 344},{latitude: -0.07058004255 , longitude: -51.26149063 , date: 450},{latitude: -0.1123168299 , longitude: -51.30364886 , date: 265},{latitude: -0.1034887771 , longitude: -51.30924507 , date: 452},
+  {latitude: 0.7831 , longitude: -51.9447 , date: 246},{latitude: 0.7791 , longitude: -51.9407 , date: 711},{latitude: 0.7731 , longitude: -51.9497 , date: 296},{latitude: 0.7861 , longitude: -51.9437 , date: 299},{latitude: 0.7982397405 , longitude: -51.99108651 , date: 40},{latitude: 0.7513415899 , longitude: -51.96097622 , date: 836},{latitude: 0.8123647054 , longitude: -51.94445983 , date: 880},{latitude: 0.7501483297 , longitude: -51.94457509 , date: 582},
+  {latitude: 0.7859 , longitude: -51.9466 , date: 10},{latitude: 0.7819 , longitude: -51.9426 , date: 706},{latitude: 0.7759 , longitude: -51.9516 , date: 308},{latitude: 0.7889 , longitude: -51.9456 , date: 231},{latitude: 0.749335598 , longitude: -51.91029457 , date: 27},{latitude: 0.7972607144 , longitude: -51.91512645 , date: 759},{latitude: 0.8046597405 , longitude: -51.97760832 , date: 290},{latitude: 0.7503017967 , longitude: -51.95950628 , date: 584},
+  {latitude: 0.7844 , longitude: -51.9453 , date: 416},{latitude: 0.7804 , longitude: -51.9413 , date: 710},{latitude: 0.7744 , longitude: -51.9503 , date: 135},{latitude: 0.7874 , longitude: -51.9443 , date: 526},{latitude: 0.7491314405 , longitude: -51.91444148 , date: 715},{latitude: 0.7553952931 , longitude: -51.96950869 , date: 169},{latitude: 0.7498304533 , longitude: -51.9460367 , date: 671},{latitude: 0.8206776882 , longitude: -51.92782413 , date: 770},
+  {latitude: 0.7192 , longitude: -51.4138 , date: 353},{latitude: 0.7152 , longitude: -51.4098 , date: 763},{latitude: 0.7092 , longitude: -51.4188 , date: 169},{latitude: 0.7222 , longitude: -51.4128 , date: 550},{latitude: 0.736764399 , longitude: -51.41628124 , date: 474},{latitude: 0.7192736169 , longitude: -51.37475997 , date: 86},{latitude: 0.680423481 , longitude: -51.38360515 , date: 292},{latitude: 0.6972911321 , longitude: -51.39968432 , date: 285},
+  {latitude: 0.7206 , longitude: -51.4147 , date: 661},{latitude: 0.7166 , longitude: -51.4107 , date: 96},{latitude: 0.7106 , longitude: -51.4197 , date: 463},{latitude: 0.7236 , longitude: -51.4137 , date: 624},{latitude: 0.7103221348 , longitude: -51.42877908 , date: 863},{latitude: 0.7532588313 , longitude: -51.42575602 , date: 580},{latitude: 0.679633426 , longitude: -51.39522481 , date: 675},{latitude: 0.7007370908 , longitude: -51.39024017 , date: 447},
+
+  {latitude: 1.5133 , longitude: -50.9034 , date: 236},{latitude: 1.5093 , longitude: -50.8994 , date: 188},{latitude: 1.5033 , longitude: -50.9084 , date: 550},{latitude: 1.5163 , longitude: -50.9024 , date: 858},{latitude: 1.544264706 , longitude: -50.87095354 , date: 699},{latitude: 1.522039879 , longitude: -50.9451855 , date: 511},{latitude: 1.505222308 , longitude: -50.88176338 , date: 755},{latitude: 1.503017085 , longitude: -50.93368198 , date: 634},
+  {latitude: 1.5145 , longitude: -50.9047 , date: 30},{latitude: 1.5105 , longitude: -50.9007 , date: 315},{latitude: 1.5045 , longitude: -50.9097 , date: 494},{latitude: 1.5175 , longitude: -50.9037 , date: 225},{latitude: 1.491427224 , longitude: -50.92179041 , date: 201},{latitude: 1.475164065 , longitude: -50.86677704 , date: 863},{latitude: 1.553113452 , longitude: -50.86329164 , date: 92},{latitude: 1.508923814 , longitude: -50.86903996 , date: 550},
+
+  {latitude: -3.5743 , longitude: -59.1254 , date: 816},{latitude: -3.5783 , longitude: -59.1214 , date: 763},{latitude: -3.5843 , longitude: -59.1304 , date: 559},{latitude: -3.5713 , longitude: -59.1244 , date: 26},{latitude: -3.545596224 , longitude: -59.13294404 , date: 147},{latitude: -3.560303452 , longitude: -59.08565925 , date: 109},{latitude: -3.553556993 , longitude: -59.1108546 , date: 54},{latitude: -3.561250075 , longitude: -59.13124205 , date: 167},
+  {latitude: -3.5846 , longitude: -59.1399 , date: 158},{latitude: -3.5886 , longitude: -59.1359 , date: 219},{latitude: -3.5946 , longitude: -59.1449 , date: 771},{latitude: -3.5816 , longitude: -59.1389 , date: 885},{latitude: -3.54790135 , longitude: -59.13505714 , date: 80},{latitude: -3.570106567 , longitude: -59.12758733 , date: 170},{latitude: -3.576194345 , longitude: -59.15953788 , date: 405},{latitude: -3.590919882 , longitude: -59.12102526 , date: 321},
+
+  {latitude: -3.2109 , longitude: -59.8116 , date: 790},{latitude: -3.2149 , longitude: -59.8076 , date: 672},{latitude: -3.2209 , longitude: -59.8166 , date: 121},{latitude: -3.2079 , longitude: -59.8106 , date: 693},{latitude: -3.194116607 , longitude: -59.80216079 , date: 461},{latitude: -3.254674273 , longitude: -59.82851276 , date: 155},{latitude: -3.195986046 , longitude: -59.7933191 , date: 189},{latitude: -3.2603152 , longitude: -59.77369839 , date: 108},
+  {latitude: -3.2187 , longitude: -59.8234 , date: 716},{latitude: -3.2227 , longitude: -59.8194 , date: 645},{latitude: -3.2287 , longitude: -59.8284 , date: 354},{latitude: -3.2157 , longitude: -59.8224 , date: 246},{latitude: -3.186651787 , longitude: -59.81565217 , date: 733},{latitude: -3.204024135 , longitude: -59.81278488 , date: 678},{latitude: -3.214178748 , longitude: -59.85800675 , date: 201},{latitude: -3.201060322 , longitude: -59.83184384 , date: 851},
+
+  {latitude: -4.0953 , longitude: -63.1482 , date: 337},{latitude: -4.0993 , longitude: -63.1442 , date: 329},{latitude: -4.1053 , longitude: -63.1532 , date: 451},{latitude: -4.0923 , longitude: -63.1472 , date: 156},{latitude: -4.12165556 , longitude: -63.16243716 , date: 472},{latitude: -4.093001965 , longitude: -63.18119443 , date: 234},{latitude: -4.071212726 , longitude: -63.10918479 , date: 749},{latitude: -4.120859212 , longitude: -63.17439143 , date: 543},
+
+  {latitude: -4.0874 , longitude: -63.1317 , date: 815},{latitude: -4.0914 , longitude: -63.1277 , date: 579},{latitude: -4.0974 , longitude: -63.1367 , date: 200},{latitude: -4.0844 , longitude: -63.1307 , date: 835},{latitude: -4.136614049 , longitude: -63.12197283 , date: 25},{latitude: -4.087731262 , longitude: -63.12779308 , date: 311},{latitude: -4.117299905 , longitude: -63.13803603 , date: 301},{latitude: -4.098870361 , longitude: -63.166591 , date: 806},
+  {latitude: -7.5203 , longitude: -63.0528 , date: 133},{latitude: -7.5243 , longitude: -63.0488 , date: 700},{latitude: -7.5303 , longitude: -63.0578 , date: 837},{latitude: -7.5173 , longitude: -63.0518 , date: 531},{latitude: -7.483478802 , longitude: -63.07096824 , date: 34},{latitude: -7.547615549 , longitude: -63.07839137 , date: 252},{latitude: -7.550523654 , longitude: -63.03376338 , date: 763},{latitude: -7.566256336 , longitude: -63.07886588 , date: 30},
+
+  {latitude: -7.5004 , longitude: -63.0395 , date: 149},{latitude: -7.5044 , longitude: -63.0355 , date: 452},{latitude: -7.5104 , longitude: -63.0445 , date: 132},{latitude: -7.4974 , longitude: -63.0385 , date: 676},{latitude: -7.52441221 , longitude: -63.0477777 , date: 526},{latitude: -7.497552959 , longitude: -63.06740046 , date: 62},{latitude: -7.521985177 , longitude: -63.00217805 , date: 446},{latitude: -7.479167756 , longitude: -63.07781265 , date: 266},
+  {latitude: -3.2904 , longitude: -60.1956 , date: 736},{latitude: -3.2944 , longitude: -60.1916 , date: 369},{latitude: -3.3004 , longitude: -60.2006 , date: 724},{latitude: -3.2874 , longitude: -60.1946 , date: 186},{latitude: -3.266173246 , longitude: -60.24047049 , date: 629},{latitude: -3.303389744 , longitude: -60.20593953 , date: 120},{latitude: -3.276511004 , longitude: -60.21045036 , date: 312},{latitude: -3.28654912 , longitude: -60.22584022 , date: 795},
+  {latitude: -3.2766 , longitude: -60.1833 , date: 502},{latitude: -3.2806 , longitude: -60.1793 , date: 26},{latitude: -3.2866 , longitude: -60.1883 , date: 506},{latitude: -3.2736 , longitude: -60.1823 , date: 845},{latitude: -3.311959757 , longitude: -60.18979076 , date: 381},{latitude: -3.240901447 , longitude: -60.21816078 , date: 792},{latitude: -3.264037836 , longitude: -60.14669643 , date: 133},{latitude: -3.300175914 , longitude: -60.21704954 , date: 513},
+
+  {latitude: -3.1336 , longitude: -58.4388 , date: 529},{latitude: -3.1376 , longitude: -58.4348 , date: 672},{latitude: -3.1436 , longitude: -58.4438 , date: 419},{latitude: -3.1306 , longitude: -58.4378 , date: 772},{latitude: -3.153559435 , longitude: -58.44468619 , date: 146},{latitude: -3.168444781 , longitude: -58.47277908 , date: 88},{latitude: -3.15852084 , longitude: -58.39994335 , date: 671},{latitude: -3.101472233 , longitude: -58.46578535 , date: 304},
+  {latitude: -3.1497 , longitude: -58.4542 , date: 56},{latitude: -3.1537 , longitude: -58.4502 , date: 863},{latitude: -3.1597 , longitude: -58.4592 , date: 739},{latitude: -3.1467 , longitude: -58.4532 , date: 830},{latitude: -3.170891375 , longitude: -58.49235703 , date: 458},{latitude: -3.1604721 , longitude: -58.47597025 , date: 439},{latitude: -3.180537831 , longitude: -58.49116792 , date: 696},{latitude: -3.142377149 , longitude: -58.48400686 , date: 314},
+
+  {latitude: -3.3067 , longitude: -60.6325 , date: 418},{latitude: -3.3107 , longitude: -60.6285 , date: 663},{latitude: -3.3167 , longitude: -60.6375 , date: 841},{latitude: -3.3037 , longitude: -60.6315 , date: 333},{latitude: -3.328757307 , longitude: -60.61569729 , date: 359},{latitude: -3.280877411 , longitude: -60.63823379 , date: 829},{latitude: -3.339508562 , longitude: -60.64135827 , date: 413},{latitude: -3.278355711 , longitude: -60.60070835 , date: 333},
+
+
+  {latitude: -3.3717 , longitude: -57.7063 , date: 864},{latitude: -3.3757 , longitude: -57.7023 , date: 545},{latitude: -3.3817 , longitude: -57.7113 , date: 97},{latitude: -3.3687 , longitude: -57.7053 , date: 289},{latitude: -3.401486617 , longitude: -57.73497363 , date: 478},{latitude: -3.417479419 , longitude: -57.70206986 , date: 711},{latitude: -3.383633733 , longitude: -57.74097203 , date: 884},{latitude: -3.345902267 , longitude: -57.6809667 , date: 648},
+
+  {latitude: -3.3608 , longitude: -57.7205 , date: 78},{latitude: -3.3648 , longitude: -57.7165 , date: 828},{latitude: -3.3708 , longitude: -57.7255 , date: 378},{latitude: -3.3578 , longitude: -57.7195 , date: 660},{latitude: -3.342144908 , longitude: -57.75923455 , date: 85},{latitude: -3.399781617 , longitude: -57.7586965 , date: 120},{latitude: -3.402497779 , longitude: -57.71207961 , date: 398},{latitude: -3.360898928 , longitude: -57.68402258 , date: 53},
+
+  {latitude: -2.6175 , longitude: -56.7403 , date: 601},{latitude: -2.6215 , longitude: -56.7363 , date: 483},{latitude: -2.6275 , longitude: -56.7453 , date: 51},{latitude: -2.6145 , longitude: -56.7393 , date: 62},{latitude: -2.663772668 , longitude: -56.78034864 , date: 58},{latitude: -2.577925159 , longitude: -56.73258018 , date: 710},{latitude: -2.628921595 , longitude: -56.77187656 , date: 288},{latitude: -2.595696957 , longitude: -56.74615127 , date: 744},
+
+  {latitude: -3.3608 , longitude: -64.6883 , date: 624},{latitude: -3.3648 , longitude: -64.6843 , date: 202},{latitude: -3.3708 , longitude: -64.6933 , date: 759},{latitude: -3.3578 , longitude: -64.6873 , date: 473},{latitude: -3.381170824 , longitude: -64.68495503 , date: 854},{latitude: -3.37805003 , longitude: -64.73446526 , date: 137},{latitude: -3.346007946 , longitude: -64.73281394 , date: 777},{latitude: -3.329727492 , longitude: -64.68582119 , date: 401},
+
+
+
+  {latitude: -12.1965 , longitude: -45.0214 , date: 52},{latitude: -12.2005 , longitude: -45.0174 , date: 896},{latitude: -12.2065 , longitude: -45.0264 , date: 793},{latitude: -12.1935 , longitude: -45.0204 , date: 40},{latitude: -12.2173276 , longitude: -45.02438869 , date: 297},{latitude: -12.22838119 , longitude: -44.99187487 , date: 698},{latitude: -12.24611321 , longitude: -45.06611954 , date: 161},{latitude: -12.19367423 , longitude: -45.04717275 , date: 138},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -12.0307 , longitude: -45.7481 , date: 367},{latitude: -12.0347 , longitude: -45.7441 , date: 687},{latitude: -12.0407 , longitude: -45.7531 , date: 96},{latitude: -12.0277 , longitude: -45.7471 , date: 518},{latitude: -11.99737656 , longitude: -45.72790207 , date: 27},{latitude: -12.07952438 , longitude: -45.78753336 , date: 601},{latitude: -11.99501551 , longitude: -45.76219124 , date: 568},{latitude: -12.0176905 , longitude: -45.73502728 , date: 113},
+
+
+
+
+
+
+  {latitude: -10.4339 , longitude: -40.1987 , date: 612},{latitude: -10.4379 , longitude: -40.1947 , date: 386},{latitude: -10.4439 , longitude: -40.2037 , date: 894},{latitude: -10.4309 , longitude: -40.1977 , date: 564},{latitude: -10.45547756 , longitude: -40.22756541 , date: 861},{latitude: -10.47552061 , longitude: -40.19420861 , date: 468},{latitude: -10.43099736 , longitude: -40.22662941 , date: 370},{latitude: -10.41115057 , longitude: -40.18567079 , date: 598},
+
+  {latitude: -14.8659 , longitude: -40.8456 , date: 664},{latitude: -14.8699 , longitude: -40.8416 , date: 240},{latitude: -14.8759 , longitude: -40.8506 , date: 544},{latitude: -14.8629 , longitude: -40.8446 , date: 533},{latitude: -14.899499 , longitude: -40.88587896 , date: 343},{latitude: -14.85310869 , longitude: -40.84010717 , date: 813},{latitude: -14.8447264 , longitude: -40.88791513 , date: 292},{latitude: -14.88256073 , longitude: -40.85119912 , date: 26},
+  {latitude: -4.3642 , longitude: -39.3207 , date: 254},{latitude: -4.3682 , longitude: -39.3167 , date: 105},{latitude: -4.3742 , longitude: -39.3257 , date: 618},{latitude: -4.3612 , longitude: -39.3197 , date: 855},{latitude: -4.399707876 , longitude: -39.35437344 , date: 315},{latitude: -4.400473463 , longitude: -39.36312768 , date: 743},{latitude: -4.337505128 , longitude: -39.29476288 , date: 871},{latitude: -4.328538123 , longitude: -39.32891371 , date: 358},
+
+
+
+  {latitude: -5.1824 , longitude: -40.6903 , date: 875},{latitude: -5.1864 , longitude: -40.6863 , date: 32},{latitude: -5.1924 , longitude: -40.6953 , date: 19},{latitude: -5.1794 , longitude: -40.6893 , date: 109},{latitude: -5.227796104 , longitude: -40.66396523 , date: 30},{latitude: -5.174974478 , longitude: -40.70786561 , date: 90},{latitude: -5.19820233 , longitude: -40.73278592 , date: 520},{latitude: -5.217636451 , longitude: -40.71176839 , date: 793},
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -5.0795 , longitude: -38.3876 , date: 517},{latitude: -5.0835 , longitude: -38.3836 , date: 254},{latitude: -5.0895 , longitude: -38.3926 , date: 37},{latitude: -5.0765 , longitude: -38.3866 , date: 562},{latitude: -5.079791367 , longitude: -38.37171578 , date: 256},{latitude: -5.072540903 , longitude: -38.36008927 , date: 68},{latitude: -5.055825832 , longitude: -38.35996975 , date: 850},{latitude: -5.104082919 , longitude: -38.35130229 , date: 572},
+
+
+
+
+
+
+
+
+  {latitude: -3.7003 , longitude: -40.3504 , date: 188},{latitude: -3.7043 , longitude: -40.3464 , date: 155},{latitude: -3.7103 , longitude: -40.3554 , date: 843},{latitude: -3.6973 , longitude: -40.3494 , date: 252},{latitude: -3.732258295 , longitude: -40.32413026 , date: 743},{latitude: -3.681038508 , longitude: -40.31645628 , date: 235},{latitude: -3.673625247 , longitude: -40.37868067 , date: 308},{latitude: -3.709247747 , longitude: -40.37031635 , date: 353},
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -20.6183 , longitude: -41.1932 , date: 329},{latitude: -20.6223 , longitude: -41.1892 , date: 489},{latitude: -20.6283 , longitude: -41.1982 , date: 341},{latitude: -20.6153 , longitude: -41.1922 , date: 366},{latitude: -20.63389224 , longitude: -41.18080019 , date: 884},{latitude: -20.60765467 , longitude: -41.17736927 , date: 816},{latitude: -20.59853681 , longitude: -41.21466825 , date: 174},{latitude: -20.61154809 , longitude: -41.23519593 , date: 480},
+
+
+  {latitude: -19.5224 , longitude: -40.6392 , date: 540},{latitude: -19.5264 , longitude: -40.6352 , date: 149},{latitude: -19.5324 , longitude: -40.6442 , date: 549},{latitude: -19.5194 , longitude: -40.6382 , date: 836},{latitude: -19.56082087 , longitude: -40.62395284 , date: 149},{latitude: -19.50180042 , longitude: -40.62730707 , date: 26},{latitude: -19.52883861 , longitude: -40.6445467 , date: 171},{latitude: -19.50388977 , longitude: -40.67483581 , date: 421},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -20.3148 , longitude: -41.1467 , date: 783},{latitude: -20.3188 , longitude: -41.1427 , date: 751},{latitude: -20.3248 , longitude: -41.1517 , date: 642},{latitude: -20.3118 , longitude: -41.1457 , date: 613},{latitude: -20.36095563 , longitude: -41.14956588 , date: 463},{latitude: -20.35756234 , longitude: -41.16938483 , date: 521},{latitude: -20.30759987 , longitude: -41.1892067 , date: 779},{latitude: -20.32790238 , longitude: -41.1422031 , date: 749},
+
+
+
+
+
+
+
+
+  {latitude: -16.7681 , longitude: -47.6267 , date: 198},{latitude: -16.7721 , longitude: -47.6227 , date: 574},{latitude: -16.7781 , longitude: -47.6317 , date: 93},{latitude: -16.7651 , longitude: -47.6257 , date: 448},{latitude: -16.748116 , longitude: -47.586756 , date: 457},{latitude: -16.75984564 , longitude: -47.64209478 , date: 614},{latitude: -16.73355749 , longitude: -47.67239895 , date: 637},{latitude: -16.73358785 , longitude: -47.63409362 , date: 244},
+
+
+  {latitude: -18.0226 , longitude: -49.3708 , date: 233},{latitude: -18.0266 , longitude: -49.3668 , date: 883},{latitude: -18.0326 , longitude: -49.3758 , date: 530},{latitude: -18.0196 , longitude: -49.3698 , date: 501},{latitude: -17.99136869 , longitude: -49.3989494 , date: 601},{latitude: -17.99251875 , longitude: -49.41885598 , date: 841},{latitude: -18.01468432 , longitude: -49.40151226 , date: 710},{latitude: -18.0079353 , longitude: -49.37213674 , date: 354},
+
+
+
+
+
+  {latitude: -17.5767 , longitude: -52.5633 , date: 164},{latitude: -17.5807 , longitude: -52.5593 , date: 260},{latitude: -17.5867 , longitude: -52.5683 , date: 712},{latitude: -17.5737 , longitude: -52.5623 , date: 862},{latitude: -17.60638286 , longitude: -52.59566278 , date: 476},{latitude: -17.55543611 , longitude: -52.59700497 , date: 354},{latitude: -17.60621815 , longitude: -52.57478293 , date: 384},{latitude: -17.60965203 , longitude: -52.56681211 , date: 710},
+
+
+
+
+
+  {latitude: -13.4517 , longitude: -49.1604 , date: 265},{latitude: -13.4557 , longitude: -49.1564 , date: 267},{latitude: -13.4617 , longitude: -49.1654 , date: 760},{latitude: -13.4487 , longitude: -49.1594 , date: 776},{latitude: -13.4671695 , longitude: -49.19206648 , date: 746},{latitude: -13.44793025 , longitude: -49.19267192 , date: 612},{latitude: -13.47160262 , longitude: -49.19215129 , date: 253},{latitude: -13.44200183 , longitude: -49.12542588 , date: 102},
+
+
+  {latitude: -17.7952 , longitude: -50.9308 , date: 231},{latitude: -17.7992 , longitude: -50.9268 , date: 731},{latitude: -17.8052 , longitude: -50.9358 , date: 519},{latitude: -17.7922 , longitude: -50.9298 , date: 800},{latitude: -17.78388144 , longitude: -50.88579471 , date: 592},{latitude: -17.834832 , longitude: -50.9448459 , date: 758},{latitude: -17.81607154 , longitude: -50.9445701 , date: 397},{latitude: -17.8293101 , longitude: -50.95393796 , date: 860},
+
+
+  {latitude: -14.5382 , longitude: -49.1451 , date: 525},{latitude: -14.5422 , longitude: -49.1411 , date: 673},{latitude: -14.5482 , longitude: -49.1501 , date: 435},{latitude: -14.5352 , longitude: -49.1441 , date: 492},{latitude: -14.51694924 , longitude: -49.1483182 , date: 813},{latitude: -14.54283317 , longitude: -49.18912679 , date: 736},{latitude: -14.5768608 , longitude: -49.13552402 , date: 262},{latitude: -14.55572791 , longitude: -49.13787974 , date: 432},
+
+
+  {latitude: -4.9511 , longitude: -47.5014 , date: 294},{latitude: -4.9551 , longitude: -47.4974 , date: 844},{latitude: -4.9611 , longitude: -47.5064 , date: 534},{latitude: -4.9481 , longitude: -47.5004 , date: 725},{latitude: -4.933837841 , longitude: -47.48028924 , date: 119},{latitude: -4.950243003 , longitude: -47.5363495 , date: 119},{latitude: -5.000377061 , longitude: -47.45835391 , date: 779},{latitude: -4.980278657 , longitude: -47.48827781 , date: 213},
+
+  {latitude: -4.2223 , longitude: -44.7851 , date: 579},{latitude: -4.2263 , longitude: -44.7811 , date: 23},{latitude: -4.2323 , longitude: -44.7901 , date: 684},{latitude: -4.2193 , longitude: -44.7841 , date: 900},{latitude: -4.251291275 , longitude: -44.75047169 , date: 184},{latitude: -4.254330125 , longitude: -44.78773811 , date: 721},{latitude: -4.220212399 , longitude: -44.77932761 , date: 748},{latitude: -4.201299621 , longitude: -44.81513307 , date: 89},
+  {latitude: -4.2315 , longitude: -44.7909 , date: 400},{latitude: -4.2355 , longitude: -44.7869 , date: 829},{latitude: -4.2415 , longitude: -44.7959 , date: 291},{latitude: -4.2285 , longitude: -44.7899 , date: 308},{latitude: -4.237328985 , longitude: -44.82317805 , date: 280},{latitude: -4.223905615 , longitude: -44.77630491 , date: 99},{latitude: -4.26428724 , longitude: -44.79427131 , date: 681},{latitude: -4.266745526 , longitude: -44.80443228 , date: 190},
+
+
+  {latitude: -7.5352 , longitude: -46.0403 , date: 91},{latitude: -7.5392 , longitude: -46.0363 , date: 179},{latitude: -7.5452 , longitude: -46.0453 , date: 482},{latitude: -7.5322 , longitude: -46.0393 , date: 845},{latitude: -7.501389131 , longitude: -46.03261102 , date: 453},{latitude: -7.500218773 , longitude: -46.06377566 , date: 435},{latitude: -7.561299031 , longitude: -46.04729192 , date: 367},{latitude: -7.521983679 , longitude: -46.01773359 , date: 190},
+
+
+  {latitude: -5.5092 , longitude: -45.2503 , date: 50},{latitude: -5.5132 , longitude: -45.2463 , date: 715},{latitude: -5.5192 , longitude: -45.2553 , date: 174},{latitude: -5.5062 , longitude: -45.2493 , date: 292},{latitude: -5.516400289 , longitude: -45.26869646 , date: 636},{latitude: -5.475097503 , longitude: -45.28576475 , date: 144},{latitude: -5.496155338 , longitude: -45.2537421 , date: 409},{latitude: -5.55341552 , longitude: -45.28319469 , date: 403},
+  {latitude: -5.5058 , longitude: -45.2469 , date: 149},{latitude: -5.5098 , longitude: -45.2429 , date: 587},{latitude: -5.5158 , longitude: -45.2519 , date: 8},{latitude: -5.5028 , longitude: -45.2459 , date: 236},{latitude: -5.497111024 , longitude: -45.28608229 , date: 252},{latitude: -5.467171262 , longitude: -45.22963097 , date: 363},{latitude: -5.537446623 , longitude: -45.23814134 , date: 156},{latitude: -5.551467433 , longitude: -45.21416295 , date: 532},
+
+  {latitude: -3.7451 , longitude: -43.3674 , date: 525},{latitude: -3.7491 , longitude: -43.3634 , date: 209},{latitude: -3.7551 , longitude: -43.3724 , date: 630},{latitude: -3.7421 , longitude: -43.3664 , date: 295},{latitude: -3.733893329 , longitude: -43.33028974 , date: 137},{latitude: -3.722190747 , longitude: -43.36497415 , date: 329},{latitude: -3.760364671 , longitude: -43.38798156 , date: 267},{latitude: -3.768623772 , longitude: -43.37090256 , date: 455},
+
+
+  {latitude: -4.458 , longitude: -43.8907 , date: 10},{latitude: -4.462 , longitude: -43.8867 , date: 658},{latitude: -4.468 , longitude: -43.8957 , date: 22},{latitude: -4.455 , longitude: -43.8897 , date: 200},{latitude: -4.436536016 , longitude: -43.84922978 , date: 125},{latitude: -4.445757437 , longitude: -43.91847568 , date: 803},{latitude: -4.500160786 , longitude: -43.87129582 , date: 702},{latitude: -4.447309458 , longitude: -43.93388347 , date: 125},
+
+
+  {latitude: -5.8291 , longitude: -46.1516 , date: 487},{latitude: -5.8331 , longitude: -46.1476 , date: 29},{latitude: -5.8391 , longitude: -46.1566 , date: 125},{latitude: -5.8261 , longitude: -46.1506 , date: 762},{latitude: -5.869460032 , longitude: -46.14868753 , date: 820},{latitude: -5.7934667 , longitude: -46.1117702 , date: 437},{latitude: -5.844155928 , longitude: -46.17833146 , date: 172},{latitude: -5.875187845 , longitude: -46.12445474 , date: 643},
+  {latitude: -5.8259 , longitude: -46.1483 , date: 468},{latitude: -5.8299 , longitude: -46.1443 , date: 668},{latitude: -5.8359 , longitude: -46.1533 , date: 519},{latitude: -5.8229 , longitude: -46.1473 , date: 878},{latitude: -5.853662003 , longitude: -46.18688875 , date: 371},{latitude: -5.825909271 , longitude: -46.12046919 , date: 677},{latitude: -5.807709791 , longitude: -46.1139111 , date: 557},{latitude: -5.80142144 , longitude: -46.13283955 , date: 387},
+
+
+  {latitude: -5.516 , longitude: -47.4761 , date: 650},{latitude: -5.52 , longitude: -47.4721 , date: 900},{latitude: -5.526 , longitude: -47.4811 , date: 580},{latitude: -5.513 , longitude: -47.4751 , date: 743},{latitude: -5.556428588 , longitude: -47.49407379 , date: 253},{latitude: -5.518237051 , longitude: -47.46188627 , date: 656},{latitude: -5.55509898 , longitude: -47.5035784 , date: 499},{latitude: -5.551454303 , longitude: -47.51197991 , date: 708},
+
+  {latitude: -4.5807 , longitude: -44.5961 , date: 200},{latitude: -4.5847 , longitude: -44.5921 , date: 337},{latitude: -4.5907 , longitude: -44.6011 , date: 189},{latitude: -4.5777 , longitude: -44.5951 , date: 271},{latitude: -4.556332507 , longitude: -44.62962178 , date: 647},{latitude: -4.623819039 , longitude: -44.64071347 , date: 828},{latitude: -4.544507733 , longitude: -44.58722959 , date: 623},{latitude: -4.553426674 , longitude: -44.58416409 , date: 93},
+
+
+  {latitude: -3.6764 , longitude: -45.3903 , date: 20},{latitude: -3.6804 , longitude: -45.3863 , date: 647},{latitude: -3.6864 , longitude: -45.3953 , date: 50},{latitude: -3.6734 , longitude: -45.3893 , date: 505},{latitude: -3.686199461 , longitude: -45.40995268 , date: 768},{latitude: -3.703651617 , longitude: -45.4370274 , date: 21},{latitude: -3.653433842 , longitude: -45.36316112 , date: 386},{latitude: -3.706839759 , longitude: -45.35348336 , date: 565},
+  {latitude: -3.6718 , longitude: -45.3865 , date: 548},{latitude: -3.6758 , longitude: -45.3825 , date: 811},{latitude: -3.6818 , longitude: -45.3915 , date: 741},{latitude: -3.6688 , longitude: -45.3855 , date: 633},{latitude: -3.700168046 , longitude: -45.35144665 , date: 765},{latitude: -3.63765939 , longitude: -45.34612475 , date: 435},{latitude: -3.639878501 , longitude: -45.38582111 , date: 795},{latitude: -3.682394129 , longitude: -45.35057137 , date: 645},
+
+
+
+  {latitude: -9.8756 , longitude: -56.0812 , date: 877},{latitude: -9.8796 , longitude: -56.0772 , date: 834},{latitude: -9.8856 , longitude: -56.0862 , date: 442},{latitude: -9.8726 , longitude: -56.0802 , date: 255},{latitude: -9.91955919 , longitude: -56.12080671 , date: 492},{latitude: -9.885005079 , longitude: -56.08190755 , date: 546},{latitude: -9.871744472 , longitude: -56.05414983 , date: 406},{latitude: -9.868849433 , longitude: -56.03854846 , date: 835},
+
+  {latitude: -9.8719 , longitude: -56.0807 , date: 393},{latitude: -9.8759 , longitude: -56.0767 , date: 293},{latitude: -9.8819 , longitude: -56.0857 , date: 96},{latitude: -9.8689 , longitude: -56.0797 , date: 107},{latitude: -9.879092133 , longitude: -56.09246956 , date: 489},{latitude: -9.861376495 , longitude: -56.06380794 , date: 541},{latitude: -9.888770703 , longitude: -56.06307879 , date: 771},{latitude: -9.885901023 , longitude: -56.10527091 , date: 555},
+  {latitude: -9.8759 , longitude: -56.0875 , date: 425},{latitude: -9.8799 , longitude: -56.0835 , date: 151},{latitude: -9.8859 , longitude: -56.0925 , date: 131},{latitude: -9.8729 , longitude: -56.0865 , date: 855},{latitude: -9.886314249 , longitude: -56.10595279 , date: 393},{latitude: -9.840431504 , longitude: -56.05211244 , date: 787},{latitude: -9.90098112 , longitude: -56.06599892 , date: 145},{latitude: -9.886059111 , longitude: -56.0802394 , date: 510},
+
+
+
+
+  {latitude: -9.8699 , longitude: -56.0852 , date: 64},{latitude: -9.8739 , longitude: -56.0812 , date: 109},{latitude: -9.8799 , longitude: -56.0902 , date: 358},{latitude: -9.8669 , longitude: -56.0842 , date: 672},{latitude: -9.892613272 , longitude: -56.12140567 , date: 367},{latitude: -9.894998909 , longitude: -56.05289728 , date: 680},{latitude: -9.901066917 , longitude: -56.05137615 , date: 140},{latitude: -9.912700383 , longitude: -56.0424755 , date: 57},
+
+  {latitude: -9.872 , longitude: -56.0962 , date: 87},{latitude: -9.876 , longitude: -56.0922 , date: 203},{latitude: -9.882 , longitude: -56.1012 , date: 243},{latitude: -9.869 , longitude: -56.0952 , date: 289},{latitude: -9.889712432 , longitude: -56.11092905 , date: 320},{latitude: -9.900032761 , longitude: -56.14122709 , date: 474},{latitude: -9.863895789 , longitude: -56.05729141 , date: 731},{latitude: -9.90797672 , longitude: -56.09589345 , date: 599},
+
+  {latitude: -9.8765 , longitude: -56.0829 , date: 428},{latitude: -9.8805 , longitude: -56.0789 , date: 480},{latitude: -9.8865 , longitude: -56.0879 , date: 303},{latitude: -9.8735 , longitude: -56.0819 , date: 148},{latitude: -9.914371093 , longitude: -56.10553244 , date: 268},{latitude: -9.890866284 , longitude: -56.11108301 , date: 502},{latitude: -9.890686934 , longitude: -56.07787054 , date: 719},{latitude: -9.852627106 , longitude: -56.07924595 , date: 706},
+  {latitude: -9.88 , longitude: -56.0878 , date: 877},{latitude: -9.884 , longitude: -56.0838 , date: 202},{latitude: -9.89 , longitude: -56.0928 , date: 323},{latitude: -9.877 , longitude: -56.0868 , date: 537},{latitude: -9.886363235 , longitude: -56.10815247 , date: 455},{latitude: -9.91461593 , longitude: -56.04533404 , date: 371},{latitude: -9.907255665 , longitude: -56.09102743 , date: 283},{latitude: -9.918208648 , longitude: -56.12991389 , date: 534},
+  {latitude: -9.8748 , longitude: -56.0835 , date: 851},{latitude: -9.8788 , longitude: -56.0795 , date: 618},{latitude: -9.8848 , longitude: -56.0885 , date: 514},{latitude: -9.8718 , longitude: -56.0825 , date: 161},{latitude: -9.902724896 , longitude: -56.12754977 , date: 583},{latitude: -9.84894938 , longitude: -56.11446535 , date: 548},{latitude: -9.894494765 , longitude: -56.07224231 , date: 141},{latitude: -9.883974688 , longitude: -56.12964634 , date: 64},
+
+  {latitude: -9.8745 , longitude: -56.0859 , date: 336},{latitude: -9.8785 , longitude: -56.0819 , date: 21},{latitude: -9.8845 , longitude: -56.0909 , date: 746},{latitude: -9.8715 , longitude: -56.0849 , date: 574},{latitude: -9.910952625 , longitude: -56.10809061 , date: 654},{latitude: -9.910324004 , longitude: -56.1163446 , date: 376},{latitude: -9.838537362 , longitude: -56.12920311 , date: 631},{latitude: -9.904867024 , longitude: -56.04958272 , date: 139},
+  {latitude: -13.4852 , longitude: -58.3025 , date: 522},{latitude: -13.4892 , longitude: -58.2985 , date: 468},{latitude: -13.4952 , longitude: -58.3075 , date: 698},{latitude: -13.4822 , longitude: -58.3015 , date: 428},{latitude: -13.4765203 , longitude: -58.30257772 , date: 467},{latitude: -13.47720814 , longitude: -58.30535999 , date: 778},{latitude: -13.52199108 , longitude: -58.32679901 , date: 300},{latitude: -13.52519792 , longitude: -58.27625366 , date: 897},
+  {latitude: -12.327 , longitude: -57.1228 , date: 696},{latitude: -12.331 , longitude: -57.1188 , date: 358},{latitude: -12.337 , longitude: -57.1278 , date: 264},{latitude: -12.324 , longitude: -57.1218 , date: 132},{latitude: -12.36760641 , longitude: -57.10858052 , date: 778},{latitude: -12.32645065 , longitude: -57.1656567 , date: 821},{latitude: -12.30537107 , longitude: -57.13344271 , date: 375},{latitude: -12.37345761 , longitude: -57.11430114 , date: 144},
+  {latitude: -13.3361 , longitude: -58.6194 , date: 407},{latitude: -13.3401 , longitude: -58.6154 , date: 723},{latitude: -13.3461 , longitude: -58.6244 , date: 891},{latitude: -13.3331 , longitude: -58.6184 , date: 784},{latitude: -13.38208582 , longitude: -58.58562855 , date: 151},{latitude: -13.32524215 , longitude: -58.65156521 , date: 726},{latitude: -13.35782628 , longitude: -58.58372281 , date: 705},{latitude: -13.30852951 , longitude: -58.62021082 , date: 808},
+  {latitude: -13.3771 , longitude: -58.305 , date: 497},{latitude: -13.3811 , longitude: -58.301 , date: 835},{latitude: -13.3871 , longitude: -58.31 , date: 427},{latitude: -13.3741 , longitude: -58.304 , date: 113},{latitude: -13.4036795 , longitude: -58.30472001 , date: 711},{latitude: -13.34646725 , longitude: -58.34960275 , date: 14},{latitude: -13.42465843 , longitude: -58.35184194 , date: 228},{latitude: -13.35911673 , longitude: -58.28262242 , date: 418},
+
+
+  {latitude: -12.3874 , longitude: -57.6153 , date: 282},{latitude: -12.3914 , longitude: -57.6113 , date: 713},{latitude: -12.3974 , longitude: -57.6203 , date: 808},{latitude: -12.3844 , longitude: -57.6143 , date: 824},{latitude: -12.38964985 , longitude: -57.63186517 , date: 569},{latitude: -12.34773987 , longitude: -57.58698901 , date: 807},{latitude: -12.35731209 , longitude: -57.61111197 , date: 597},{latitude: -12.40232242 , longitude: -57.65940342 , date: 228},
+
+  {latitude: -12.4829 , longitude: -58.2323 , date: 578},{latitude: -12.4869 , longitude: -58.2283 , date: 226},{latitude: -12.4929 , longitude: -58.2373 , date: 280},{latitude: -12.4799 , longitude: -58.2313 , date: 264},{latitude: -12.51267432 , longitude: -58.20257715 , date: 230},{latitude: -12.48093028 , longitude: -58.2278149 , date: 406},{latitude: -12.45444229 , longitude: -58.21907777 , date: 736},{latitude: -12.46913575 , longitude: -58.26128719 , date: 847},
+  {latitude: -12.4851 , longitude: -57.1615 , date: 205},{latitude: -12.4891 , longitude: -57.1575 , date: 393},{latitude: -12.4951 , longitude: -57.1665 , date: 869},{latitude: -12.4821 , longitude: -57.1605 , date: 520},{latitude: -12.47236466 , longitude: -57.19921815 , date: 318},{latitude: -12.44863508 , longitude: -57.1618908 , date: 491},{latitude: -12.48709805 , longitude: -57.11990422 , date: 134},{latitude: -12.51426509 , longitude: -57.16244584 , date: 807},
+
+  {latitude: -13.102 , longitude: -57.224 , date: 95},{latitude: -13.106 , longitude: -57.22 , date: 774},{latitude: -13.112 , longitude: -57.229 , date: 550},{latitude: -13.099 , longitude: -57.223 , date: 238},{latitude: -13.12312698 , longitude: -57.23909925 , date: 201},{latitude: -13.11797755 , longitude: -57.19014825 , date: 21},{latitude: -13.13124252 , longitude: -57.19599731 , date: 128},{latitude: -13.15019584 , longitude: -57.23284812 , date: 416},
+  {latitude: -13.1287 , longitude: -57.2124 , date: 88},{latitude: -13.1327 , longitude: -57.2084 , date: 311},{latitude: -13.1387 , longitude: -57.2174 , date: 14},{latitude: -13.1257 , longitude: -57.2114 , date: 477},{latitude: -13.14019534 , longitude: -57.19454212 , date: 344},{latitude: -13.10507501 , longitude: -57.21617253 , date: 881},{latitude: -13.11682321 , longitude: -57.19867251 , date: 343},{latitude: -13.13119923 , longitude: -57.24514165 , date: 246},
+  {latitude: -12.4138 , longitude: -57.4751 , date: 462},{latitude: -12.4178 , longitude: -57.4711 , date: 411},{latitude: -12.4238 , longitude: -57.4801 , date: 38},{latitude: -12.4108 , longitude: -57.4741 , date: 16},{latitude: -12.39900681 , longitude: -57.51712386 , date: 27},{latitude: -12.37846553 , longitude: -57.48237181 , date: 608},{latitude: -12.38618247 , longitude: -57.43480649 , date: 472},{latitude: -12.42012281 , longitude: -57.50072367 , date: 300},
+
+  {latitude: -12.5592 , longitude: -58.1101 , date: 771},{latitude: -12.5632 , longitude: -58.1061 , date: 107},{latitude: -12.5692 , longitude: -58.1151 , date: 845},{latitude: -12.5562 , longitude: -58.1091 , date: 161},{latitude: -12.55272282 , longitude: -58.14963409 , date: 272},{latitude: -12.59718342 , longitude: -58.1230457 , date: 238},{latitude: -12.59676003 , longitude: -58.12551193 , date: 125},{latitude: -12.55885468 , longitude: -58.13193644 , date: 454},
+
+
+  {latitude: -10.7385 , longitude: -59.3741 , date: 466},{latitude: -10.7425 , longitude: -59.3701 , date: 780},{latitude: -10.7485 , longitude: -59.3791 , date: 238},{latitude: -10.7355 , longitude: -59.3731 , date: 811},{latitude: -10.78379053 , longitude: -59.34443614 , date: 870},{latitude: -10.72093386 , longitude: -59.33404473 , date: 472},{latitude: -10.7220987 , longitude: -59.33452589 , date: 796},{latitude: -10.76087786 , longitude: -59.38398935 , date: 384},
+
+  {latitude: -13.2369 , longitude: -58.6366 , date: 274},{latitude: -13.2409 , longitude: -58.6326 , date: 158},{latitude: -13.2469 , longitude: -58.6416 , date: 807},{latitude: -13.2339 , longitude: -58.6356 , date: 59},{latitude: -13.23114814 , longitude: -58.63474417 , date: 247},{latitude: -13.19753104 , longitude: -58.64346563 , date: 845},{latitude: -13.22234245 , longitude: -58.62289451 , date: 112},{latitude: -13.2642352 , longitude: -58.63503362 , date: 451},
+  {latitude: -15.8736 , longitude: -52.256 , date: 472},{latitude: -15.8776 , longitude: -52.252 , date: 561},{latitude: -15.8836 , longitude: -52.261 , date: 56},{latitude: -15.8706 , longitude: -52.255 , date: 611},{latitude: -15.85198182 , longitude: -52.24172076 , date: 197},{latitude: -15.88301176 , longitude: -52.25022736 , date: 221},{latitude: -15.89921617 , longitude: -52.30094245 , date: 37},{latitude: -15.8910693 , longitude: -52.26847453 , date: 398},
+
+  {latitude: -15.875 , longitude: -52.2589 , date: 777},{latitude: -15.879 , longitude: -52.2549 , date: 144},{latitude: -15.885 , longitude: -52.2639 , date: 410},{latitude: -15.872 , longitude: -52.2579 , date: 879},{latitude: -15.84944651 , longitude: -52.22359615 , date: 170},{latitude: -15.85454156 , longitude: -52.28307326 , date: 755},{latitude: -15.89403854 , longitude: -52.28629733 , date: 217},{latitude: -15.88112909 , longitude: -52.26388725 , date: 693},
+  {latitude: -15.8732 , longitude: -52.2613 , date: 213},{latitude: -15.8772 , longitude: -52.2573 , date: 256},{latitude: -15.8832 , longitude: -52.2663 , date: 855},{latitude: -15.8702 , longitude: -52.2603 , date: 375},{latitude: -15.88883144 , longitude: -52.25500333 , date: 866},{latitude: -15.91698218 , longitude: -52.23974497 , date: 623},{latitude: -15.847201 , longitude: -52.296975 , date: 19},{latitude: -15.84167965 , longitude: -52.2973454 , date: 93},
+
+  {latitude: -15.8725 , longitude: -52.2578 , date: 62},{latitude: -15.8765 , longitude: -52.2538 , date: 492},{latitude: -15.8825 , longitude: -52.2628 , date: 526},{latitude: -15.8695 , longitude: -52.2568 , date: 420},{latitude: -15.88272294 , longitude: -52.22236683 , date: 292},{latitude: -15.90415926 , longitude: -52.2665225 , date: 457},{latitude: -15.85237616 , longitude: -52.29794483 , date: 330},{latitude: -15.86065269 , longitude: -52.22558965 , date: 774},
+
+
+  {latitude: -15.8742 , longitude: -52.2574 , date: 333},{latitude: -15.8782 , longitude: -52.2534 , date: 499},{latitude: -15.8842 , longitude: -52.2624 , date: 834},{latitude: -15.8712 , longitude: -52.2564 , date: 323},{latitude: -15.85897573 , longitude: -52.29762149 , date: 565},{latitude: -15.90756988 , longitude: -52.22413244 , date: 482},{latitude: -15.92281922 , longitude: -52.28821151 , date: 134},{latitude: -15.89859003 , longitude: -52.28167526 , date: 349},
+  {latitude: -15.8718 , longitude: -52.2585 , date: 205},{latitude: -15.8758 , longitude: -52.2545 , date: 322},{latitude: -15.8818 , longitude: -52.2635 , date: 14},{latitude: -15.8688 , longitude: -52.2575 , date: 346},{latitude: -15.87344274 , longitude: -52.25250741 , date: 367},{latitude: -15.907848 , longitude: -52.25608691 , date: 458},{latitude: -15.91634631 , longitude: -52.30368149 , date: 532},{latitude: -15.8704591 , longitude: -52.24063662 , date: 406},
+
+
+
+
+  {latitude: -15.8764 , longitude: -52.2609 , date: 56},{latitude: -15.8804 , longitude: -52.2569 , date: 276},{latitude: -15.8864 , longitude: -52.2659 , date: 865},{latitude: -15.8734 , longitude: -52.2599 , date: 129},{latitude: -15.85450437 , longitude: -52.21868131 , date: 811},{latitude: -15.89476322 , longitude: -52.29507344 , date: 684},{latitude: -15.83780535 , longitude: -52.28383687 , date: 733},{latitude: -15.85074983 , longitude: -52.24657688 , date: 693},
+  {latitude: -15.8758 , longitude: -52.2566 , date: 297},{latitude: -15.8798 , longitude: -52.2526 , date: 589},{latitude: -15.8858 , longitude: -52.2616 , date: 680},{latitude: -15.8728 , longitude: -52.2556 , date: 6},{latitude: -15.85577072 , longitude: -52.22425899 , date: 72},{latitude: -15.85313211 , longitude: -52.24501524 , date: 205},{latitude: -15.84110448 , longitude: -52.25330107 , date: 453},{latitude: -15.87255874 , longitude: -52.24970947 , date: 538},
+
+
+
+  {latitude: -15.8754 , longitude: -52.2559 , date: 163},{latitude: -15.8794 , longitude: -52.2519 , date: 501},{latitude: -15.8854 , longitude: -52.2609 , date: 425},{latitude: -15.8724 , longitude: -52.2549 , date: 741},{latitude: -15.90839214 , longitude: -52.28857571 , date: 819},{latitude: -15.90743171 , longitude: -52.29559798 , date: 799},{latitude: -15.87368561 , longitude: -52.23083156 , date: 743},{latitude: -15.85065211 , longitude: -52.22971808 , date: 718},
+  {latitude: -12.6284 , longitude: -57.3087 , date: 396},{latitude: -12.6324 , longitude: -57.3047 , date: 219},{latitude: -12.6384 , longitude: -57.3137 , date: 506},{latitude: -12.6254 , longitude: -57.3077 , date: 397},{latitude: -12.59324702 , longitude: -57.29179389 , date: 544},{latitude: -12.62923781 , longitude: -57.31514461 , date: 152},{latitude: -12.67624146 , longitude: -57.31206462 , date: 634},{latitude: -12.6781742 , longitude: -57.34494758 , date: 166},
+  {latitude: -13.6171 , longitude: -57.4172 , date: 361},{latitude: -13.6211 , longitude: -57.4132 , date: 616},{latitude: -13.6271 , longitude: -57.4222 , date: 469},{latitude: -13.6141 , longitude: -57.4162 , date: 845},{latitude: -13.60918292 , longitude: -57.39317807 , date: 502},{latitude: -13.66474765 , longitude: -57.40140192 , date: 204},{latitude: -13.62075712 , longitude: -57.38073916 , date: 854},{latitude: -13.66113885 , longitude: -57.41136762 , date: 69},
+  {latitude: -13.2231 , longitude: -58.4061 , date: 106},{latitude: -13.2271 , longitude: -58.4021 , date: 858},{latitude: -13.2331 , longitude: -58.4111 , date: 65},{latitude: -13.2201 , longitude: -58.4051 , date: 451},{latitude: -13.20963819 , longitude: -58.40434115 , date: 297},{latitude: -13.21654563 , longitude: -58.37513215 , date: 604},{latitude: -13.21129262 , longitude: -58.42101709 , date: 566},{latitude: -13.21872104 , longitude: -58.36768229 , date: 85},
+  {latitude: -12.1983 , longitude: -57.4695 , date: 668},{latitude: -12.2023 , longitude: -57.4655 , date: 300},{latitude: -12.2083 , longitude: -57.4745 , date: 23},{latitude: -12.1953 , longitude: -57.4685 , date: 181},{latitude: -12.23310664 , longitude: -57.48769658 , date: 64},{latitude: -12.20369108 , longitude: -57.44152186 , date: 81},{latitude: -12.21802478 , longitude: -57.43607557 , date: 403},{latitude: -12.16912474 , longitude: -57.50196149 , date: 244},
+
+
+
+
+
+  {latitude: -12.316 , longitude: -57.4119 , date: 485},{latitude: -12.32 , longitude: -57.4079 , date: 783},{latitude: -12.326 , longitude: -57.4169 , date: 828},{latitude: -12.313 , longitude: -57.4109 , date: 441},{latitude: -12.33132075 , longitude: -57.36921328 , date: 890},{latitude: -12.34693617 , longitude: -57.42422314 , date: 690},{latitude: -12.28883338 , longitude: -57.41623946 , date: 41},{latitude: -12.2900606 , longitude: -57.45206013 , date: 683},
+
+  {latitude: -12.4851 , longitude: -57.1615 , date: 20},{latitude: -12.4891 , longitude: -57.1575 , date: 749},{latitude: -12.4951 , longitude: -57.1665 , date: 182},{latitude: -12.4821 , longitude: -57.1605 , date: 577},{latitude: -12.48529615 , longitude: -57.15935064 , date: 453},{latitude: -12.48843373 , longitude: -57.1358302 , date: 821},{latitude: -12.46038342 , longitude: -57.17748382 , date: 762},{latitude: -12.48813222 , longitude: -57.12837233 , date: 816},
+  {latitude: -12.2147 , longitude: -57.5882 , date: 513},{latitude: -12.2187 , longitude: -57.5842 , date: 68},{latitude: -12.2247 , longitude: -57.5932 , date: 106},{latitude: -12.2117 , longitude: -57.5872 , date: 52},{latitude: -12.19796219 , longitude: -57.55094405 , date: 380},{latitude: -12.25760723 , longitude: -57.61747652 , date: 333},{latitude: -12.25466963 , longitude: -57.56540098 , date: 471},{latitude: -12.19820608 , longitude: -57.56257126 , date: 208},
+  {latitude: -12.4829 , longitude: -58.2323 , date: 368},{latitude: -12.4869 , longitude: -58.2283 , date: 351},{latitude: -12.4929 , longitude: -58.2373 , date: 303},{latitude: -12.4799 , longitude: -58.2313 , date: 38},{latitude: -12.48326343 , longitude: -58.24586251 , date: 263},{latitude: -12.52140033 , longitude: -58.27894687 , date: 32},{latitude: -12.4471584 , longitude: -58.25009246 , date: 5},{latitude: -12.46283814 , longitude: -58.27814093 , date: 116},
+
+  {latitude: -13.5624 , longitude: -57.3163 , date: 826},{latitude: -13.5664 , longitude: -57.3123 , date: 45},{latitude: -13.5724 , longitude: -57.3213 , date: 615},{latitude: -13.5594 , longitude: -57.3153 , date: 377},{latitude: -13.53324186 , longitude: -57.30416064 , date: 870},{latitude: -13.52775765 , longitude: -57.30578784 , date: 21},{latitude: -13.56494088 , longitude: -57.28539658 , date: 291},{latitude: -13.52482689 , longitude: -57.31650434 , date: 833},
+  {latitude: -13.3771 , longitude: -58.305 , date: 760},{latitude: -13.3811 , longitude: -58.301 , date: 262},{latitude: -13.3871 , longitude: -58.31 , date: 786},{latitude: -13.3741 , longitude: -58.304 , date: 672},{latitude: -13.34210024 , longitude: -58.26950864 , date: 574},{latitude: -13.42149012 , longitude: -58.35227684 , date: 115},{latitude: -13.37429163 , longitude: -58.29743665 , date: 337},{latitude: -13.35877871 , longitude: -58.26857974 , date: 404},
+
+
+
+
+
+
+  {latitude: -13.6706 , longitude: -58.2471 , date: 535},{latitude: -13.6746 , longitude: -58.2431 , date: 661},{latitude: -13.6806 , longitude: -58.2521 , date: 801},{latitude: -13.6676 , longitude: -58.2461 , date: 572},{latitude: -13.69501762 , longitude: -58.26669252 , date: 273},{latitude: -13.65347762 , longitude: -58.25578794 , date: 886},{latitude: -13.69450595 , longitude: -58.23105008 , date: 187},{latitude: -13.67194308 , longitude: -58.2113823 , date: 475},
+
+  {latitude: -13.2369 , longitude: -58.6366 , date: 279},{latitude: -13.2409 , longitude: -58.6326 , date: 647},{latitude: -13.2469 , longitude: -58.6416 , date: 663},{latitude: -13.2339 , longitude: -58.6356 , date: 647},{latitude: -13.20903378 , longitude: -58.64541499 , date: 535},{latitude: -13.22165292 , longitude: -58.67810638 , date: 87},{latitude: -13.26065777 , longitude: -58.61986214 , date: 379},{latitude: -13.21728666 , longitude: -58.60918802 , date: 188},
+  {latitude: -12.4138 , longitude: -57.4751 , date: 631},{latitude: -12.4178 , longitude: -57.4711 , date: 628},{latitude: -12.4238 , longitude: -57.4801 , date: 684},{latitude: -12.4108 , longitude: -57.4741 , date: 598},{latitude: -12.44849822 , longitude: -57.44504895 , date: 671},{latitude: -12.39444389 , longitude: -57.50513394 , date: 23},{latitude: -12.38089575 , longitude: -57.43139523 , date: 601},{latitude: -12.39537517 , longitude: -57.45738163 , date: 760},
+  {latitude: -12.3874 , longitude: -57.6153 , date: 130},{latitude: -12.3914 , longitude: -57.6113 , date: 295},{latitude: -12.3974 , longitude: -57.6203 , date: 694},{latitude: -12.3844 , longitude: -57.6143 , date: 271},{latitude: -12.43392193 , longitude: -57.58222576 , date: 701},{latitude: -12.43356265 , longitude: -57.64619761 , date: 876},{latitude: -12.4170472 , longitude: -57.60546497 , date: 208},{latitude: -12.40587587 , longitude: -57.6385284 , date: 657},
+  {latitude: -13.3361 , longitude: -58.6194 , date: 82},{latitude: -13.3401 , longitude: -58.6154 , date: 27},{latitude: -13.3461 , longitude: -58.6244 , date: 110},{latitude: -13.3331 , longitude: -58.6184 , date: 266},{latitude: -13.31240332 , longitude: -58.63376649 , date: 301},{latitude: -13.38443766 , longitude: -58.61830688 , date: 743},{latitude: -13.31865788 , longitude: -58.60811987 , date: 157},{latitude: -13.30219404 , longitude: -58.65065141 , date: 695},
+
+
+  {latitude: -13.4852 , longitude: -58.3025 , date: 213},{latitude: -13.4892 , longitude: -58.2985 , date: 112},{latitude: -13.4952 , longitude: -58.3075 , date: 833},{latitude: -13.4822 , longitude: -58.3015 , date: 192},{latitude: -13.46594478 , longitude: -58.27536104 , date: 226},{latitude: -13.52655592 , longitude: -58.30860779 , date: 223},{latitude: -13.48533451 , longitude: -58.28983434 , date: 807},{latitude: -13.5140876 , longitude: -58.32669436 , date: 433},
+  {latitude: -13.102 , longitude: -57.224 , date: 151},{latitude: -13.106 , longitude: -57.22 , date: 660},{latitude: -13.112 , longitude: -57.229 , date: 253},{latitude: -13.099 , longitude: -57.223 , date: 749},{latitude: -13.1091039 , longitude: -57.26791638 , date: 158},{latitude: -13.11106185 , longitude: -57.18471427 , date: 611},{latitude: -13.09226956 , longitude: -57.19108583 , date: 683},{latitude: -13.12932899 , longitude: -57.20935119 , date: 669},
+
+
+  {latitude: -12.327 , longitude: -57.1228 , date: 264},{latitude: -12.331 , longitude: -57.1188 , date: 571},{latitude: -12.337 , longitude: -57.1278 , date: 899},{latitude: -12.324 , longitude: -57.1218 , date: 455},{latitude: -12.3095878 , longitude: -57.11940618 , date: 766},{latitude: -12.32047186 , longitude: -57.1104481 , date: 468},{latitude: -12.29275902 , longitude: -57.13710919 , date: 714},{latitude: -12.29233852 , longitude: -57.11313353 , date: 263},
+
+  {latitude: -13.4986 , longitude: -58.1284 , date: 326},{latitude: -13.5026 , longitude: -58.1244 , date: 419},{latitude: -13.5086 , longitude: -58.1334 , date: 154},{latitude: -13.4956 , longitude: -58.1274 , date: 168},{latitude: -13.48963643 , longitude: -58.1129483 , date: 632},{latitude: -13.50576693 , longitude: -58.16329491 , date: 210},{latitude: -13.48397243 , longitude: -58.15441252 , date: 825},{latitude: -13.49158634 , longitude: -58.16138461 , date: 156},
+
+  {latitude: -12.2102 , longitude: -57.1673 , date: 677},{latitude: -12.2142 , longitude: -57.1633 , date: 117},{latitude: -12.2202 , longitude: -57.1723 , date: 519},{latitude: -12.2072 , longitude: -57.1663 , date: 694},{latitude: -12.21411632 , longitude: -57.18485186 , date: 554},{latitude: -12.20016183 , longitude: -57.18652402 , date: 488},{latitude: -12.22061722 , longitude: -57.19711885 , date: 182},{latitude: -12.20668354 , longitude: -57.20585861 , date: 657},
+
+  {latitude: -12.1673 , longitude: -57.3281 , date: 794},{latitude: -12.1713 , longitude: -57.3241 , date: 456},{latitude: -12.1773 , longitude: -57.3331 , date: 192},{latitude: -12.1643 , longitude: -57.3271 , date: 498},{latitude: -12.17904622 , longitude: -57.29379387 , date: 306},{latitude: -12.13432058 , longitude: -57.33386359 , date: 362},{latitude: -12.15497882 , longitude: -57.3068259 , date: 307},{latitude: -12.15488202 , longitude: -57.36255775 , date: 15},
+
+  {latitude: -13.6276 , longitude: -58.2695 , date: 320},{latitude: -13.6316 , longitude: -58.2655 , date: 547},{latitude: -13.6376 , longitude: -58.2745 , date: 145},{latitude: -13.6246 , longitude: -58.2685 , date: 729},{latitude: -13.63759817 , longitude: -58.26511639 , date: 130},{latitude: -13.61638694 , longitude: -58.31651902 , date: 390},{latitude: -13.59915783 , longitude: -58.24778146 , date: 177},{latitude: -13.61806682 , longitude: -58.28629857 , date: 201},
+  {latitude: -13.6529 , longitude: -58.255 , date: 27},{latitude: -13.6569 , longitude: -58.251 , date: 107},{latitude: -13.6629 , longitude: -58.26 , date: 600},{latitude: -13.6499 , longitude: -58.254 , date: 538},{latitude: -13.61526471 , longitude: -58.2379828 , date: 697},{latitude: -13.70257408 , longitude: -58.23352481 , date: 25},{latitude: -13.66158476 , longitude: -58.22065263 , date: 611},{latitude: -13.6561332 , longitude: -58.28418658 , date: 771},
+  {latitude: -13.6038 , longitude: -58.1061 , date: 206},{latitude: -13.6078 , longitude: -58.1021 , date: 779},{latitude: -13.6138 , longitude: -58.1111 , date: 633},{latitude: -13.6008 , longitude: -58.1051 , date: 120},{latitude: -13.64903799 , longitude: -58.10299102 , date: 684},{latitude: -13.6295244 , longitude: -58.10363289 , date: 403},{latitude: -13.57669276 , longitude: -58.10365963 , date: 325},{latitude: -13.63554895 , longitude: -58.07362282 , date: 538},
+  {latitude: -13.2536 , longitude: -58.2282 , date: 489},{latitude: -13.2576 , longitude: -58.2242 , date: 353},{latitude: -13.2636 , longitude: -58.2332 , date: 516},{latitude: -13.2506 , longitude: -58.2272 , date: 667},{latitude: -13.29750774 , longitude: -58.19452399 , date: 195},{latitude: -13.23049554 , longitude: -58.23079348 , date: 61},{latitude: -13.23561883 , longitude: -58.23998388 , date: 554},{latitude: -13.26631452 , longitude: -58.19863575 , date: 104},
+
+
+
+  {latitude: -15.5928 , longitude: -56.1062 , date: 792},{latitude: -15.5968 , longitude: -56.1022 , date: 505},{latitude: -15.6028 , longitude: -56.1112 , date: 131},{latitude: -15.5898 , longitude: -56.1052 , date: 215},{latitude: -15.61879325 , longitude: -56.1384398 , date: 462},{latitude: -15.60111199 , longitude: -56.10547614 , date: 120},{latitude: -15.61689226 , longitude: -56.13346869 , date: 431},{latitude: -15.64266594 , longitude: -56.12401175 , date: 821},
+  {latitude: -15.5928 , longitude: -56.1062 , date: 705},{latitude: -15.5968 , longitude: -56.1022 , date: 40},{latitude: -15.6028 , longitude: -56.1112 , date: 359},{latitude: -15.5898 , longitude: -56.1052 , date: 442},{latitude: -15.61420347 , longitude: -56.13982587 , date: 695},{latitude: -15.61329178 , longitude: -56.08694929 , date: 454},{latitude: -15.58674292 , longitude: -56.14148116 , date: 765},{latitude: -15.57178911 , longitude: -56.14752146 , date: 212},
+  {latitude: -15.5914 , longitude: -56.0973 , date: 446},{latitude: -15.5954 , longitude: -56.0933 , date: 302},{latitude: -15.6014 , longitude: -56.1023 , date: 533},{latitude: -15.5884 , longitude: -56.0963 , date: 402},{latitude: -15.64071818 , longitude: -56.10068862 , date: 539},{latitude: -15.62022116 , longitude: -56.06804539 , date: 699},{latitude: -15.56649942 , longitude: -56.12484055 , date: 94},{latitude: -15.56283968 , longitude: -56.08202492 , date: 754},
+  {latitude: -15.5914 , longitude: -56.0973 , date: 479},{latitude: -15.5954 , longitude: -56.0933 , date: 94},{latitude: -15.6014 , longitude: -56.1023 , date: 713},{latitude: -15.5884 , longitude: -56.0963 , date: 888},{latitude: -15.5878511 , longitude: -56.09178046 , date: 382},{latitude: -15.60533476 , longitude: -56.14064907 , date: 729},{latitude: -15.56900815 , longitude: -56.1351835 , date: 511},{latitude: -15.57955377 , longitude: -56.1430049 , date: 85},
+  {latitude: -15.5959 , longitude: -56.1025 , date: 875},{latitude: -15.5999 , longitude: -56.0985 , date: 620},{latitude: -15.6059 , longitude: -56.1075 , date: 373},{latitude: -15.5929 , longitude: -56.1015 , date: 169},{latitude: -15.6019219 , longitude: -56.08727432 , date: 172},{latitude: -15.57610661 , longitude: -56.14289405 , date: 415},{latitude: -15.63771711 , longitude: -56.08033125 , date: 436},{latitude: -15.57988909 , longitude: -56.1115283 , date: 171},
+  {latitude: -15.5959 , longitude: -56.1025 , date: 99},{latitude: -15.5999 , longitude: -56.0985 , date: 378},{latitude: -15.6059 , longitude: -56.1075 , date: 777},{latitude: -15.5929 , longitude: -56.1015 , date: 87},{latitude: -15.64410331 , longitude: -56.05849013 , date: 762},{latitude: -15.62458884 , longitude: -56.1011944 , date: 817},{latitude: -15.63425242 , longitude: -56.08868795 , date: 546},{latitude: -15.64251143 , longitude: -56.15055309 , date: 548},
+
+
+
+
+
+
+
+
+
+
+  {latitude: -15.5926 , longitude: -56.0962 , date: 63},{latitude: -15.5966 , longitude: -56.0922 , date: 483},{latitude: -15.6026 , longitude: -56.1012 , date: 553},{latitude: -15.5896 , longitude: -56.0952 , date: 700},{latitude: -15.62440048 , longitude: -56.07343148 , date: 528},{latitude: -15.55988229 , longitude: -56.06666528 , date: 659},{latitude: -15.56728902 , longitude: -56.10939799 , date: 125},{latitude: -15.57705489 , longitude: -56.05589968 , date: 418},
+  {latitude: -15.5926 , longitude: -56.0962 , date: 834},{latitude: -15.5966 , longitude: -56.0922 , date: 97},{latitude: -15.6026 , longitude: -56.1012 , date: 423},{latitude: -15.5896 , longitude: -56.0952 , date: 604},{latitude: -15.59908604 , longitude: -56.09724597 , date: 471},{latitude: -15.60667641 , longitude: -56.10588173 , date: 472},{latitude: -15.63700642 , longitude: -56.10620476 , date: 215},{latitude: -15.63764069 , longitude: -56.10185915 , date: 57},
+  {latitude: -15.5941 , longitude: -56.0981 , date: 53},{latitude: -15.5981 , longitude: -56.0941 , date: 609},{latitude: -15.6041 , longitude: -56.1031 , date: 203},{latitude: -15.5911 , longitude: -56.0971 , date: 10},{latitude: -15.6352426 , longitude: -56.10023892 , date: 500},{latitude: -15.59433809 , longitude: -56.05821027 , date: 387},{latitude: -15.57555329 , longitude: -56.06843878 , date: 194},{latitude: -15.57330141 , longitude: -56.0580151 , date: 431},
+  {latitude: -15.5941 , longitude: -56.0981 , date: 855},{latitude: -15.5981 , longitude: -56.0941 , date: 753},{latitude: -15.6041 , longitude: -56.1031 , date: 751},{latitude: -15.5911 , longitude: -56.0971 , date: 756},{latitude: -15.62059415 , longitude: -56.07737763 , date: 506},{latitude: -15.60716604 , longitude: -56.13411635 , date: 84},{latitude: -15.57522393 , longitude: -56.09834669 , date: 352},{latitude: -15.61641762 , longitude: -56.14546819 , date: 161},
+
+
+
+
+
+
+
+
+
+
+  {latitude: -13.0623 , longitude: -55.9151 , date: 499},{latitude: -13.0663 , longitude: -55.9111 , date: 389},{latitude: -13.0723 , longitude: -55.9201 , date: 446},{latitude: -13.0593 , longitude: -55.9141 , date: 35},{latitude: -13.07818413 , longitude: -55.89599119 , date: 77},{latitude: -13.08868723 , longitude: -55.93158024 , date: 340},{latitude: -13.03912927 , longitude: -55.92074537 , date: 497},{latitude: -13.06434673 , longitude: -55.8942678 , date: 310},
+  {latitude: -13.0623 , longitude: -55.9151 , date: 641},{latitude: -13.0663 , longitude: -55.9111 , date: 404},{latitude: -13.0723 , longitude: -55.9201 , date: 735},{latitude: -13.0593 , longitude: -55.9141 , date: 695},{latitude: -13.07209849 , longitude: -55.93262095 , date: 545},{latitude: -13.02375253 , longitude: -55.91666799 , date: 686},{latitude: -13.04096049 , longitude: -55.92777619 , date: 382},{latitude: -13.05318101 , longitude: -55.93738274 , date: 340},
+  {latitude: -13.0592 , longitude: -55.9207 , date: 363},{latitude: -13.0632 , longitude: -55.9167 , date: 878},{latitude: -13.0692 , longitude: -55.9257 , date: 156},{latitude: -13.0562 , longitude: -55.9197 , date: 18},{latitude: -13.06607581 , longitude: -55.94746464 , date: 35},{latitude: -13.09862589 , longitude: -55.91889772 , date: 398},{latitude: -13.10480243 , longitude: -55.92800938 , date: 514},{latitude: -13.05245394 , longitude: -55.90431831 , date: 709},
+  {latitude: -13.0592 , longitude: -55.9207 , date: 328},{latitude: -13.0632 , longitude: -55.9167 , date: 763},{latitude: -13.0692 , longitude: -55.9257 , date: 890},{latitude: -13.0562 , longitude: -55.9197 , date: 320},{latitude: -13.03605722 , longitude: -55.92595325 , date: 744},{latitude: -13.03589373 , longitude: -55.89430636 , date: 145},{latitude: -13.0527306 , longitude: -55.90068979 , date: 719},{latitude: -13.03569436 , longitude: -55.91368264 , date: 677},
+  {latitude: -13.0631 , longitude: -55.9182 , date: 671},{latitude: -13.0671 , longitude: -55.9142 , date: 840},{latitude: -13.0731 , longitude: -55.9232 , date: 836},{latitude: -13.0601 , longitude: -55.9172 , date: 751},{latitude: -13.09647874 , longitude: -55.96458288 , date: 100},{latitude: -13.09693809 , longitude: -55.90976248 , date: 673},{latitude: -13.09603126 , longitude: -55.88006521 , date: 744},{latitude: -13.03033833 , longitude: -55.89288988 , date: 636},
+  {latitude: -13.0631 , longitude: -55.9182 , date: 151},{latitude: -13.0671 , longitude: -55.9142 , date: 414},{latitude: -13.0731 , longitude: -55.9232 , date: 883},{latitude: -13.0601 , longitude: -55.9172 , date: 206},{latitude: -13.10386625 , longitude: -55.877998 , date: 725},{latitude: -13.11112481 , longitude: -55.91259045 , date: 714},{latitude: -13.08539858 , longitude: -55.89310547 , date: 795},{latitude: -13.02873926 , longitude: -55.87508374 , date: 827},
+  {latitude: -13.0584 , longitude: -55.9195 , date: 307},{latitude: -13.0624 , longitude: -55.9155 , date: 133},{latitude: -13.0684 , longitude: -55.9245 , date: 631},{latitude: -13.0554 , longitude: -55.9185 , date: 252},{latitude: -13.04734899 , longitude: -55.94300569 , date: 550},{latitude: -13.03011445 , longitude: -55.90499424 , date: 784},{latitude: -13.03451711 , longitude: -55.90696427 , date: 694},{latitude: -13.03825657 , longitude: -55.9028792 , date: 175},
+  {latitude: -13.0584 , longitude: -55.9195 , date: 491},{latitude: -13.0624 , longitude: -55.9155 , date: 771},{latitude: -13.0684 , longitude: -55.9245 , date: 797},{latitude: -13.0554 , longitude: -55.9185 , date: 270},{latitude: -13.10736287 , longitude: -55.94614243 , date: 211},{latitude: -13.0277809 , longitude: -55.95043105 , date: 114},{latitude: -13.09162425 , longitude: -55.91522334 , date: 828},{latitude: -13.05820949 , longitude: -55.91689069 , date: 566},
+  {latitude: -13.0578 , longitude: -55.9218 , date: 542},{latitude: -13.0618 , longitude: -55.9178 , date: 479},{latitude: -13.0678 , longitude: -55.9268 , date: 868},{latitude: -13.0548 , longitude: -55.9208 , date: 423},{latitude: -13.04117293 , longitude: -55.94147736 , date: 863},{latitude: -13.0596625 , longitude: -55.9206579 , date: 74},{latitude: -13.03318616 , longitude: -55.898315 , date: 526},{latitude: -13.08457269 , longitude: -55.91499183 , date: 406},
+  {latitude: -13.0578 , longitude: -55.9218 , date: 390},{latitude: -13.0618 , longitude: -55.9178 , date: 527},{latitude: -13.0678 , longitude: -55.9268 , date: 72},{latitude: -13.0548 , longitude: -55.9208 , date: 673},{latitude: -13.07173337 , longitude: -55.88888337 , date: 692},{latitude: -13.08199018 , longitude: -55.94529311 , date: 357},{latitude: -13.06070623 , longitude: -55.93492631 , date: 25},{latitude: -13.05829557 , longitude: -55.9550637 , date: 213},
+  {latitude: -13.8299 , longitude: -56.0847 , date: 170},{latitude: -13.8339 , longitude: -56.0807 , date: 258},{latitude: -13.8399 , longitude: -56.0897 , date: 485},{latitude: -13.8269 , longitude: -56.0837 , date: 236},{latitude: -13.87077564 , longitude: -56.10708378 , date: 91},{latitude: -13.79072381 , longitude: -56.1248234 , date: 334},{latitude: -13.87375302 , longitude: -56.05587727 , date: 591},{latitude: -13.87190817 , longitude: -56.10748022 , date: 167},
+  {latitude: -13.8299 , longitude: -56.0847 , date: 809},{latitude: -13.8339 , longitude: -56.0807 , date: 351},{latitude: -13.8399 , longitude: -56.0897 , date: 509},{latitude: -13.8269 , longitude: -56.0837 , date: 211},{latitude: -13.79549583 , longitude: -56.05717822 , date: 805},{latitude: -13.86633001 , longitude: -56.08307101 , date: 761},{latitude: -13.86169443 , longitude: -56.08107558 , date: 149},{latitude: -13.84409969 , longitude: -56.04387955 , date: 703},
+
+
+  {latitude: -13.8301 , longitude: -56.0864 , date: 522},{latitude: -13.8341 , longitude: -56.0824 , date: 564},{latitude: -13.8401 , longitude: -56.0914 , date: 200},{latitude: -13.8271 , longitude: -56.0854 , date: 615},{latitude: -13.86112549 , longitude: -56.10357702 , date: 379},{latitude: -13.87697404 , longitude: -56.12989613 , date: 819},{latitude: -13.83700594 , longitude: -56.04823333 , date: 877},{latitude: -13.87848373 , longitude: -56.10912873 , date: 446},
+  {latitude: -13.8301 , longitude: -56.0864 , date: 747},{latitude: -13.8341 , longitude: -56.0824 , date: 362},{latitude: -13.8401 , longitude: -56.0914 , date: 252},{latitude: -13.8271 , longitude: -56.0854 , date: 86},{latitude: -13.83581603 , longitude: -56.11543892 , date: 374},{latitude: -13.81230344 , longitude: -56.05043002 , date: 514},{latitude: -13.82735066 , longitude: -56.04454841 , date: 666},{latitude: -13.7992594 , longitude: -56.0696643 , date: 419},
+  {latitude: -13.8315 , longitude: -56.0841 , date: 296},{latitude: -13.8355 , longitude: -56.0801 , date: 361},{latitude: -13.8415 , longitude: -56.0891 , date: 871},{latitude: -13.8285 , longitude: -56.0831 , date: 846},{latitude: -13.83707097 , longitude: -56.06613125 , date: 440},{latitude: -13.84205339 , longitude: -56.06738378 , date: 681},{latitude: -13.84389699 , longitude: -56.06229355 , date: 559},{latitude: -13.87988009 , longitude: -56.077136 , date: 251},
+  {latitude: -13.8315 , longitude: -56.0841 , date: 643},{latitude: -13.8355 , longitude: -56.0801 , date: 770},{latitude: -13.8415 , longitude: -56.0891 , date: 737},{latitude: -13.8285 , longitude: -56.0831 , date: 288},{latitude: -13.83241339 , longitude: -56.04961389 , date: 708},{latitude: -13.87362882 , longitude: -56.09453069 , date: 880},{latitude: -13.8052607 , longitude: -56.13175263 , date: 741},{latitude: -13.88032741 , longitude: -56.08471194 , date: 699},
+
+
+
+
+
+
+
+
+  {latitude: -13.8265 , longitude: -56.0809 , date: 209},{latitude: -13.8305 , longitude: -56.0769 , date: 531},{latitude: -13.8365 , longitude: -56.0859 , date: 678},{latitude: -13.8235 , longitude: -56.0799 , date: 228},{latitude: -13.80744976 , longitude: -56.0916203 , date: 499},{latitude: -13.86736828 , longitude: -56.10622618 , date: 295},{latitude: -13.78953962 , longitude: -56.04343316 , date: 650},{latitude: -13.81306686 , longitude: -56.12766543 , date: 780},
+  {latitude: -13.8265 , longitude: -56.0809 , date: 100},{latitude: -13.8305 , longitude: -56.0769 , date: 163},{latitude: -13.8365 , longitude: -56.0859 , date: 785},{latitude: -13.8235 , longitude: -56.0799 , date: 73},{latitude: -13.79794211 , longitude: -56.09116373 , date: 263},{latitude: -13.85590283 , longitude: -56.05559334 , date: 61},{latitude: -13.82912297 , longitude: -56.12464592 , date: 703},{latitude: -13.86812752 , longitude: -56.09404493 , date: 342},
+  {latitude: -13.8312 , longitude: -56.0799 , date: 32},{latitude: -13.8352 , longitude: -56.0759 , date: 689},{latitude: -13.8412 , longitude: -56.0849 , date: 578},{latitude: -13.8282 , longitude: -56.0789 , date: 805},{latitude: -13.87135603 , longitude: -56.09803904 , date: 391},{latitude: -13.80547802 , longitude: -56.09226069 , date: 658},{latitude: -13.79325838 , longitude: -56.10541731 , date: 439},{latitude: -13.79235506 , longitude: -56.03696121 , date: 657},
+  {latitude: -13.8312 , longitude: -56.0799 , date: 685},{latitude: -13.8352 , longitude: -56.0759 , date: 86},{latitude: -13.8412 , longitude: -56.0849 , date: 350},{latitude: -13.8282 , longitude: -56.0789 , date: 477},{latitude: -13.80245712 , longitude: -56.09361262 , date: 246},{latitude: -13.80423397 , longitude: -56.10490105 , date: 477},{latitude: -13.82327224 , longitude: -56.06607784 , date: 274},{latitude: -13.84728879 , longitude: -56.1203387 , date: 274},
+  {latitude: -16.4599 , longitude: -54.6292 , date: 462},{latitude: -16.4639 , longitude: -54.6252 , date: 516},{latitude: -16.4699 , longitude: -54.6342 , date: 233},{latitude: -16.4569 , longitude: -54.6282 , date: 702},{latitude: -16.47830687 , longitude: -54.62748303 , date: 631},{latitude: -16.42820626 , longitude: -54.67299583 , date: 99},{latitude: -16.45000203 , longitude: -54.66626576 , date: 385},{latitude: -16.42405383 , longitude: -54.66004307 , date: 791},
+
+
+  {latitude: -16.4604 , longitude: -54.6305 , date: 301},{latitude: -16.4644 , longitude: -54.6265 , date: 751},{latitude: -16.4704 , longitude: -54.6355 , date: 834},{latitude: -16.4574 , longitude: -54.6295 , date: 700},{latitude: -16.46579424 , longitude: -54.59101049 , date: 453},{latitude: -16.45719308 , longitude: -54.62139653 , date: 548},{latitude: -16.46682624 , longitude: -54.63629171 , date: 376},{latitude: -16.49722893 , longitude: -54.67210498 , date: 319},
+  {latitude: -16.4607 , longitude: -54.6298 , date: 444},{latitude: -16.4647 , longitude: -54.6258 , date: 25},{latitude: -16.4707 , longitude: -54.6348 , date: 70},{latitude: -16.4577 , longitude: -54.6288 , date: 859},{latitude: -16.44578315 , longitude: -54.59478607 , date: 327},{latitude: -16.49410165 , longitude: -54.64522468 , date: 790},{latitude: -16.4374561 , longitude: -54.62078793 , date: 107},{latitude: -16.47440246 , longitude: -54.66157245 , date: 130},
+
+  {latitude: -16.4618 , longitude: -54.6311 , date: 575},{latitude: -16.4658 , longitude: -54.6271 , date: 585},{latitude: -16.4718 , longitude: -54.6361 , date: 624},{latitude: -16.4588 , longitude: -54.6301 , date: 500},{latitude: -16.4337826 , longitude: -54.60650967 , date: 564},{latitude: -16.50370111 , longitude: -54.59506692 , date: 578},{latitude: -16.48851089 , longitude: -54.60785493 , date: 296},{latitude: -16.44223971 , longitude: -54.6790738 , date: 847},
+
+
+  {latitude: -16.4641 , longitude: -54.6337 , date: 634},{latitude: -16.4681 , longitude: -54.6297 , date: 60},{latitude: -16.4741 , longitude: -54.6387 , date: 279},{latitude: -16.4611 , longitude: -54.6327 , date: 336},{latitude: -16.48430844 , longitude: -54.63714861 , date: 508},{latitude: -16.48458646 , longitude: -54.65716069 , date: 824},{latitude: -16.45885461 , longitude: -54.61141223 , date: 482},{latitude: -16.48975211 , longitude: -54.63581476 , date: 708},
+
+
+
+
+  {latitude: -11.8595 , longitude: -55.5084 , date: 211},{latitude: -11.8635 , longitude: -55.5044 , date: 586},{latitude: -11.8695 , longitude: -55.5134 , date: 10},{latitude: -11.8565 , longitude: -55.5074 , date: 741},{latitude: -11.819837 , longitude: -55.50645991 , date: 85},{latitude: -11.86058797 , longitude: -55.52428447 , date: 204},{latitude: -11.84159528 , longitude: -55.47990659 , date: 231},{latitude: -11.90639585 , longitude: -55.55119028 , date: 781},
+
+  {latitude: -11.8577 , longitude: -55.5092 , date: 482},{latitude: -11.8617 , longitude: -55.5052 , date: 653},{latitude: -11.8677 , longitude: -55.5142 , date: 252},{latitude: -11.8547 , longitude: -55.5082 , date: 429},{latitude: -11.88822812 , longitude: -55.5363385 , date: 108},{latitude: -11.89306893 , longitude: -55.49375147 , date: 317},{latitude: -11.87557249 , longitude: -55.47102223 , date: 550},{latitude: -11.86409096 , longitude: -55.48241547 , date: 222},
+  {latitude: -11.8581 , longitude: -55.5073 , date: 357},{latitude: -11.8621 , longitude: -55.5033 , date: 580},{latitude: -11.8681 , longitude: -55.5123 , date: 584},{latitude: -11.8551 , longitude: -55.5063 , date: 290},{latitude: -11.85313042 , longitude: -55.54155024 , date: 174},{latitude: -11.82238618 , longitude: -55.47552038 , date: 274},{latitude: -11.83171172 , longitude: -55.53089146 , date: 535},{latitude: -11.85737039 , longitude: -55.47024087 , date: 92},
+  {latitude: -11.8557 , longitude: -55.5059 , date: 39},{latitude: -11.8597 , longitude: -55.5019 , date: 234},{latitude: -11.8657 , longitude: -55.5109 , date: 467},{latitude: -11.8527 , longitude: -55.5049 , date: 392},{latitude: -11.8603683 , longitude: -55.53421558 , date: 234},{latitude: -11.83687808 , longitude: -55.50481379 , date: 333},{latitude: -11.89627765 , longitude: -55.46665906 , date: 511},{latitude: -11.87972919 , longitude: -55.50269775 , date: 612},
+  {latitude: -11.8553 , longitude: -55.5078 , date: 131},{latitude: -11.8593 , longitude: -55.5038 , date: 661},{latitude: -11.8653 , longitude: -55.5128 , date: 889},{latitude: -11.8523 , longitude: -55.5068 , date: 504},{latitude: -11.86401696 , longitude: -55.4824054 , date: 812},{latitude: -11.8688943 , longitude: -55.52158351 , date: 825},{latitude: -11.85130356 , longitude: -55.55426783 , date: 25},{latitude: -11.86179195 , longitude: -55.542009 , date: 443},
+
+
+  {latitude: -12.5273 , longitude: -55.7175 , date: 205},{latitude: -12.5313 , longitude: -55.7135 , date: 171},{latitude: -12.5373 , longitude: -55.7225 , date: 682},{latitude: -12.5243 , longitude: -55.7165 , date: 753},{latitude: -12.53829999 , longitude: -55.75384992 , date: 725},{latitude: -12.51923209 , longitude: -55.75910621 , date: 692},{latitude: -12.56744879 , longitude: -55.72945195 , date: 872},{latitude: -12.50507657 , longitude: -55.73433239 , date: 514},
+
+  {latitude: -12.5301 , longitude: -55.7188 , date: 643},{latitude: -12.5341 , longitude: -55.7148 , date: 878},{latitude: -12.5401 , longitude: -55.7238 , date: 870},{latitude: -12.5271 , longitude: -55.7178 , date: 218},{latitude: -12.51635066 , longitude: -55.75013677 , date: 635},{latitude: -12.57296027 , longitude: -55.74218062 , date: 574},{latitude: -12.53141397 , longitude: -55.69930958 , date: 350},{latitude: -12.57158765 , longitude: -55.72851301 , date: 883},
+  {latitude: -12.5278 , longitude: -55.7206 , date: 287},{latitude: -12.5318 , longitude: -55.7166 , date: 224},{latitude: -12.5378 , longitude: -55.7256 , date: 188},{latitude: -12.5248 , longitude: -55.7196 , date: 529},{latitude: -12.54432733 , longitude: -55.700049 , date: 716},{latitude: -12.50845571 , longitude: -55.6887134 , date: 100},{latitude: -12.48949106 , longitude: -55.72092061 , date: 194},{latitude: -12.57625359 , longitude: -55.73545106 , date: 660},
+
+  {latitude: -12.5264 , longitude: -55.717 , date: 830},{latitude: -12.5304 , longitude: -55.713 , date: 299},{latitude: -12.5364 , longitude: -55.722 , date: 345},{latitude: -12.5234 , longitude: -55.716 , date: 885},{latitude: -12.50193243 , longitude: -55.73532459 , date: 102},{latitude: -12.52906341 , longitude: -55.67507966 , date: 789},{latitude: -12.57193945 , longitude: -55.73918313 , date: 63},{latitude: -12.52404501 , longitude: -55.72208392 , date: 649},
+
+  {latitude: -12.5292 , longitude: -55.7186 , date: 229},{latitude: -12.5332 , longitude: -55.7146 , date: 339},{latitude: -12.5392 , longitude: -55.7236 , date: 219},{latitude: -12.5262 , longitude: -55.7176 , date: 533},{latitude: -12.53903181 , longitude: -55.749353 , date: 821},{latitude: -12.5170997 , longitude: -55.69662585 , date: 361},{latitude: -12.53603424 , longitude: -55.75455436 , date: 230},{latitude: -12.50835308 , longitude: -55.73220636 , date: 743},
+  {latitude: -14.621 , longitude: -57.4838 , date: 256},{latitude: -14.625 , longitude: -57.4798 , date: 577},{latitude: -14.631 , longitude: -57.4888 , date: 33},{latitude: -14.618 , longitude: -57.4828 , date: 570},{latitude: -14.65567809 , longitude: -57.46903695 , date: 541},{latitude: -14.60738984 , longitude: -57.44942236 , date: 464},{latitude: -14.66819437 , longitude: -57.51749434 , date: 124},{latitude: -14.59661922 , longitude: -57.50910494 , date: 311},
+
+
+
+
+
+  {latitude: -14.6207 , longitude: -57.4849 , date: 258},{latitude: -14.6247 , longitude: -57.4809 , date: 162},{latitude: -14.6307 , longitude: -57.4899 , date: 814},{latitude: -14.6177 , longitude: -57.4839 , date: 784},{latitude: -14.59642544 , longitude: -57.49339487 , date: 828},{latitude: -14.60774635 , longitude: -57.49337882 , date: 809},{latitude: -14.59655306 , longitude: -57.528983 , date: 47},{latitude: -14.61533434 , longitude: -57.48841764 , date: 812},
+  {latitude: -14.6209 , longitude: -57.4842 , date: 728},{latitude: -14.6249 , longitude: -57.4802 , date: 362},{latitude: -14.6309 , longitude: -57.4892 , date: 840},{latitude: -14.6179 , longitude: -57.4832 , date: 189},{latitude: -14.62762947 , longitude: -57.44585411 , date: 633},{latitude: -14.58854383 , longitude: -57.45972417 , date: 272},{latitude: -14.64289228 , longitude: -57.4726406 , date: 362},{latitude: -14.65626208 , longitude: -57.52384053 , date: 485},
+  {latitude: -14.6224 , longitude: -57.4846 , date: 855},{latitude: -14.6264 , longitude: -57.4806 , date: 159},{latitude: -14.6324 , longitude: -57.4896 , date: 192},{latitude: -14.6194 , longitude: -57.4836 , date: 858},{latitude: -14.60292889 , longitude: -57.49693682 , date: 801},{latitude: -14.61605656 , longitude: -57.46626126 , date: 414},{latitude: -14.65318698 , longitude: -57.47761231 , date: 735},{latitude: -14.59077331 , longitude: -57.4745978 , date: 437},
+  {latitude: -14.6212 , longitude: -57.4855 , date: 642},{latitude: -14.6252 , longitude: -57.4815 , date: 274},{latitude: -14.6312 , longitude: -57.4905 , date: 635},{latitude: -14.6182 , longitude: -57.4845 , date: 679},{latitude: -14.65578912 , longitude: -57.51542653 , date: 144},{latitude: -14.64221555 , longitude: -57.49721951 , date: 831},{latitude: -14.58228876 , longitude: -57.527683 , date: 34},{latitude: -14.61039509 , longitude: -57.47456978 , date: 346},
+  {latitude: -15.6411 , longitude: -55.998 , date: 839},{latitude: -15.6451 , longitude: -55.994 , date: 252},{latitude: -15.6511 , longitude: -56.003 , date: 514},{latitude: -15.6381 , longitude: -55.997 , date: 751},{latitude: -15.60191476 , longitude: -55.95885402 , date: 305},{latitude: -15.63641146 , longitude: -55.96139228 , date: 77},{latitude: -15.60536244 , longitude: -56.03380797 , date: 887},{latitude: -15.61956821 , longitude: -55.98126994 , date: 474},
+
+  {latitude: -15.6409 , longitude: -56.136 , date: 523},{latitude: -15.6449 , longitude: -56.132 , date: 368},{latitude: -15.6509 , longitude: -56.141 , date: 517},{latitude: -15.6379 , longitude: -56.135 , date: 368},{latitude: -15.61375277 , longitude: -56.10844102 , date: 726},{latitude: -15.64053371 , longitude: -56.15572624 , date: 211},{latitude: -15.6286345 , longitude: -56.12680509 , date: 373},{latitude: -15.68345532 , longitude: -56.17357052 , date: 581},
+  {latitude: -15.6418 , longitude: -56.1374 , date: 772},{latitude: -15.6458 , longitude: -56.1334 , date: 179},{latitude: -15.6518 , longitude: -56.1424 , date: 845},{latitude: -15.6388 , longitude: -56.1364 , date: 238},{latitude: -15.65374644 , longitude: -56.17448665 , date: 244},{latitude: -15.62697833 , longitude: -56.1775593 , date: 384},{latitude: -15.67722936 , longitude: -56.10767794 , date: 371},{latitude: -15.69150424 , longitude: -56.14985846 , date: 563},
+  {latitude: -15.6398 , longitude: -56.1359 , date: 107},{latitude: -15.6438 , longitude: -56.1319 , date: 768},{latitude: -15.6498 , longitude: -56.1409 , date: 563},{latitude: -15.6368 , longitude: -56.1349 , date: 171},{latitude: -15.61610621 , longitude: -56.17873627 , date: 508},{latitude: -15.61501802 , longitude: -56.09978262 , date: 464},{latitude: -15.60953653 , longitude: -56.10529188 , date: 873},{latitude: -15.62731145 , longitude: -56.12367392 , date: 340},
+
+
+  {latitude: -15.6399 , longitude: -56.1371 , date: 514},{latitude: -15.6439 , longitude: -56.1331 , date: 720},{latitude: -15.6499 , longitude: -56.1421 , date: 716},{latitude: -15.6369 , longitude: -56.1361 , date: 780},{latitude: -15.66254608 , longitude: -56.16286799 , date: 825},{latitude: -15.62559581 , longitude: -56.17370884 , date: 483},{latitude: -15.66281619 , longitude: -56.15234458 , date: 892},{latitude: -15.66690831 , longitude: -56.13503411 , date: 323},
+
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -21.244 , longitude: -45.0108 , date: 227},{latitude: -21.248 , longitude: -45.0068 , date: 60},{latitude: -21.254 , longitude: -45.0158 , date: 516},{latitude: -21.241 , longitude: -45.0098 , date: 130},{latitude: -21.22948177 , longitude: -45.00589613 , date: 15},{latitude: -21.22036031 , longitude: -45.03543576 , date: 791},{latitude: -21.26468343 , longitude: -44.96505697 , date: 808},{latitude: -21.27359597 , longitude: -44.97760052 , date: 313},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {latitude: -19.3077 , longitude: -46.0463 , date: 58},{latitude: -19.3117 , longitude: -46.0423 , date: 412},{latitude: -19.3177 , longitude: -46.0513 , date: 241},{latitude: -19.3047 , longitude: -46.0453 , date: 486},{latitude: -19.34136303 , longitude: -46.00520164 , date: 775},{latitude: -19.28126942 , longitude: -46.01078149 , date: 26},{latitude: -19.31823337 , longitude: -46.01431943 , date: 239},{latitude: -19.31277468 , longitude: -46.03395347 , date: 623},
+
+
+  {latitude: -18.9195 , longitude: -48.2811 , date: 639},{latitude: -18.9235 , longitude: -48.2771 , date: 632},{latitude: -18.9295 , longitude: -48.2861 , date: 888},{latitude: -18.9165 , longitude: -48.2801 , date: 67},{latitude: -18.95168729 , longitude: -48.25553033 , date: 39},{latitude: -18.92167097 , longitude: -48.2969982 , date: 99},{latitude: -18.91269377 , longitude: -48.27326903 , date: 807},{latitude: -18.95397558 , longitude: -48.25564353 , date: 775},
+
+
+
+
+
+  {latitude: -20.7577 , longitude: -42.8822 , date: 567},{latitude: -20.7617 , longitude: -42.8782 , date: 692},{latitude: -20.7677 , longitude: -42.8872 , date: 163},{latitude: -20.7547 , longitude: -42.8812 , date: 620},{latitude: -20.76236823 , longitude: -42.9009562 , date: 892},{latitude: -20.79989247 , longitude: -42.90370638 , date: 499},{latitude: -20.79658076 , longitude: -42.91032654 , date: 497},{latitude: -20.78510186 , longitude: -42.9018217 , date: 451},
+
+  {latitude: -3.1996 , longitude: -52.2031 , date: 218},{latitude: -3.2036 , longitude: -52.1991 , date: 566},{latitude: -3.2096 , longitude: -52.2081 , date: 705},{latitude: -3.1966 , longitude: -52.2021 , date: 707},{latitude: -3.24847987 , longitude: -52.23063514 , date: 542},{latitude: -3.164278439 , longitude: -52.24034986 , date: 349},{latitude: -3.172625092 , longitude: -52.18348984 , date: 385},{latitude: -3.197122401 , longitude: -52.19995588 , date: 761},
+  {latitude: -3.2059 , longitude: -52.2078 , date: 60},{latitude: -3.2099 , longitude: -52.2038 , date: 187},{latitude: -3.2159 , longitude: -52.2128 , date: 710},{latitude: -3.2029 , longitude: -52.2068 , date: 787},{latitude: -3.235688078 , longitude: -52.22481388 , date: 731},{latitude: -3.236904204 , longitude: -52.21750339 , date: 728},{latitude: -3.180038613 , longitude: -52.17969818 , date: 862},{latitude: -3.214465718 , longitude: -52.2044318 , date: 526},
+
+  {latitude: -1.0484 , longitude: -46.7625 , date: 606},{latitude: -1.0524 , longitude: -46.7585 , date: 322},{latitude: -1.0584 , longitude: -46.7675 , date: 630},{latitude: -1.0454 , longitude: -46.7615 , date: 125},{latitude: -1.033647234 , longitude: -46.79832102 , date: 489},{latitude: -1.09489481 , longitude: -46.7743052 , date: 144},{latitude: -1.03920536 , longitude: -46.75972511 , date: 735},{latitude: -1.076070069 , longitude: -46.80189072 , date: 860},
+  {latitude: -1.0542 , longitude: -46.7678 , date: 122},{latitude: -1.0582 , longitude: -46.7638 , date: 804},{latitude: -1.0642 , longitude: -46.7728 , date: 583},{latitude: -1.0512 , longitude: -46.7668 , date: 760},{latitude: -1.025515925 , longitude: -46.77271656 , date: 512},{latitude: -1.044404078 , longitude: -46.75547394 , date: 164},{latitude: -1.085486718 , longitude: -46.76733687 , date: 777},{latitude: -1.091562498 , longitude: -46.7843543 , date: 801},
+
+  {latitude: -1.2948 , longitude: -47.9245 , date: 728},{latitude: -1.2988 , longitude: -47.9205 , date: 204},{latitude: -1.3048 , longitude: -47.9295 , date: 224},{latitude: -1.2918 , longitude: -47.9235 , date: 295},{latitude: -1.32071746 , longitude: -47.91383379 , date: 770},{latitude: -1.267912999 , longitude: -47.89680944 , date: 10},{latitude: -1.25580365 , longitude: -47.9437602 , date: 138},{latitude: -1.311088625 , longitude: -47.92289844 , date: 762},
+  {latitude: -1.2995 , longitude: -47.9281 , date: 520},{latitude: -1.3035 , longitude: -47.9241 , date: 363},{latitude: -1.3095 , longitude: -47.9331 , date: 606},{latitude: -1.2965 , longitude: -47.9271 , date: 289},{latitude: -1.295848594 , longitude: -47.88998256 , date: 254},{latitude: -1.275203765 , longitude: -47.90789213 , date: 585},{latitude: -1.30507467 , longitude: -47.90876395 , date: 781},{latitude: -1.268748218 , longitude: -47.9329992 , date: 559},
+
+  {latitude: -4.2684 , longitude: -55.9901 , date: 217},{latitude: -4.2724 , longitude: -55.9861 , date: 289},{latitude: -4.2784 , longitude: -55.9951 , date: 17},{latitude: -4.2654 , longitude: -55.9891 , date: 227},{latitude: -4.27624958 , longitude: -55.96890837 , date: 730},{latitude: -4.248811725 , longitude: -55.98861049 , date: 632},{latitude: -4.257294449 , longitude: -55.9503323 , date: 376},{latitude: -4.231551665 , longitude: -56.0025444 , date: 789},
+  {latitude: -4.2742 , longitude: -55.9954 , date: 255},{latitude: -4.2782 , longitude: -55.9914 , date: 110},{latitude: -4.2842 , longitude: -56.0004 , date: 609},{latitude: -4.2712 , longitude: -55.9944 , date: 760},{latitude: -4.264755431 , longitude: -55.97354701 , date: 679},{latitude: -4.239900841 , longitude: -55.9926464 , date: 861},{latitude: -4.319672059 , longitude: -55.95477053 , date: 192},{latitude: -4.235358002 , longitude: -56.02463498 , date: 443},
+
+  {latitude: -5.3632 , longitude: -49.1151 , date: 658},{latitude: -5.3672 , longitude: -49.1111 , date: 195},{latitude: -5.3732 , longitude: -49.1201 , date: 445},{latitude: -5.3602 , longitude: -49.1141 , date: 471},{latitude: -5.358805633 , longitude: -49.11735191 , date: 367},{latitude: -5.366496324 , longitude: -49.08935306 , date: 545},{latitude: -5.373189974 , longitude: -49.08229505 , date: 656},{latitude: -5.365187303 , longitude: -49.11376383 , date: 92},
+  {latitude: -5.3665 , longitude: -49.1186 , date: 473},{latitude: -5.3705 , longitude: -49.1146 , date: 712},{latitude: -5.3765 , longitude: -49.1236 , date: 676},{latitude: -5.3635 , longitude: -49.1176 , date: 494},{latitude: -5.415747312 , longitude: -49.12998011 , date: 17},{latitude: -5.41156572 , longitude: -49.08306111 , date: 285},{latitude: -5.361176045 , longitude: -49.10662928 , date: 467},{latitude: -5.346220555 , longitude: -49.08020383 , date: 791},
+
+  {latitude: -7.1382 , longitude: -55.3814 , date: 634},{latitude: -7.1422 , longitude: -55.3774 , date: 399},{latitude: -7.1482 , longitude: -55.3864 , date: 268},{latitude: -7.1352 , longitude: -55.3804 , date: 389},{latitude: -7.105262472 , longitude: -55.34507536 , date: 383},{latitude: -7.149606073 , longitude: -55.41245545 , date: 787},{latitude: -7.166442904 , longitude: -55.36489685 , date: 510},{latitude: -7.137698816 , longitude: -55.38181248 , date: 515},
+  {latitude: -7.1445 , longitude: -55.3867 , date: 436},{latitude: -7.1485 , longitude: -55.3827 , date: 527},{latitude: -7.1545 , longitude: -55.3917 , date: 454},{latitude: -7.1415 , longitude: -55.3857 , date: 603},{latitude: -7.131232261 , longitude: -55.41640153 , date: 602},{latitude: -7.108060243 , longitude: -55.43159823 , date: 500},{latitude: -7.106256032 , longitude: -55.39508124 , date: 409},{latitude: -7.165089454 , longitude: -55.3946807 , date: 49},
+
+  {latitude: -2.9612 , longitude: -47.3444 , date: 116},{latitude: -2.9652 , longitude: -47.3404 , date: 485},{latitude: -2.9712 , longitude: -47.3494 , date: 393},{latitude: -2.9582 , longitude: -47.3434 , date: 124},{latitude: -2.929650296 , longitude: -47.36525316 , date: 310},{latitude: -2.933995772 , longitude: -47.35189809 , date: 206},{latitude: -2.985226748 , longitude: -47.3302754 , date: 691},{latitude: -2.921878441 , longitude: -47.33731519 , date: 101},
+  {latitude: -2.9634 , longitude: -47.349 , date: 559},{latitude: -2.9674 , longitude: -47.345 , date: 131},{latitude: -2.9734 , longitude: -47.354 , date: 363},{latitude: -2.9604 , longitude: -47.348 , date: 786},{latitude: -2.943984317 , longitude: -47.35232109 , date: 448},{latitude: -2.938006702 , longitude: -47.38399452 , date: 222},{latitude: -2.970479638 , longitude: -47.35671846 , date: 274},{latitude: -2.961637758 , longitude: -47.37400121 , date: 134},
+
+  {latitude: -8.0193 , longitude: -50.0292 , date: 104},{latitude: -8.0233 , longitude: -50.0252 , date: 667},{latitude: -8.0293 , longitude: -50.0342 , date: 419},{latitude: -8.0163 , longitude: -50.0282 , date: 255},{latitude: -7.990339623 , longitude: -49.98783822 , date: 552},{latitude: -7.993831958 , longitude: -50.04159203 , date: 828},{latitude: -8.047217882 , longitude: -50.07563447 , date: 110},{latitude: -8.022183429 , longitude: -50.01595733 , date: 387},
+  {latitude: -8.0247 , longitude: -50.0355 , date: 670},{latitude: -8.0287 , longitude: -50.0315 , date: 682},{latitude: -8.0347 , longitude: -50.0405 , date: 578},{latitude: -8.0217 , longitude: -50.0345 , date: 664},{latitude: -8.011850689 , longitude: -50.01582158 , date: 869},{latitude: -8.05707351 , longitude: -49.99806605 , date: 118},{latitude: -8.047661833 , longitude: -50.07450188 , date: 648},{latitude: -8.028580571 , longitude: -50.00605438 , date: 854},
+
+  {latitude: -2.4411 , longitude: -54.7059 , date: 541},{latitude: -2.4451 , longitude: -54.7019 , date: 358},{latitude: -2.4511 , longitude: -54.7109 , date: 898},{latitude: -2.4381 , longitude: -54.7049 , date: 107},{latitude: -2.409793217 , longitude: -54.67213956 , date: 315},{latitude: -2.454160313 , longitude: -54.72947949 , date: 693},{latitude: -2.47729641 , longitude: -54.66999966 , date: 898},{latitude: -2.446868142 , longitude: -54.69514916 , date: 442},
+  {latitude: -2.4482 , longitude: -54.7115 , date: 670},{latitude: -2.4522 , longitude: -54.7075 , date: 153},{latitude: -2.4582 , longitude: -54.7165 , date: 485},{latitude: -2.4452 , longitude: -54.7105 , date: 715},{latitude: -2.461003847 , longitude: -54.7214959 , date: 192},{latitude: -2.44005293 , longitude: -54.70601528 , date: 150},{latitude: -2.408488397 , longitude: -54.74309424 , date: 598},{latitude: -2.468735796 , longitude: -54.70077067 , date: 595},
+
+  {latitude: -3.7604 , longitude: -49.6705 , date: 505},{latitude: -3.7644 , longitude: -49.6665 , date: 100},{latitude: -3.7704 , longitude: -49.6755 , date: 562},{latitude: -3.7574 , longitude: -49.6695 , date: 100},{latitude: -3.736756308 , longitude: -49.70522046 , date: 715},{latitude: -3.807233614 , longitude: -49.6433684 , date: 858},{latitude: -3.737346442 , longitude: -49.63475347 , date: 774},{latitude: -3.722757654 , longitude: -49.6533602 , date: 874},
+  {latitude: -3.7658 , longitude: -49.6761 , date: 568},{latitude: -3.7698 , longitude: -49.6721 , date: 468},{latitude: -3.7758 , longitude: -49.6811 , date: 527},{latitude: -3.7628 , longitude: -49.6751 , date: 857},{latitude: -3.727829242 , longitude: -49.69750194 , date: 262},{latitude: -3.798486596 , longitude: -49.68541916 , date: 192},{latitude: -3.755947424 , longitude: -49.67073951 , date: 616},{latitude: -3.741817457 , longitude: -49.63828479 , date: 140},
+
+
+
+  {latitude: -6.8814 , longitude: -38.5614 , date: 560},{latitude: -6.8854 , longitude: -38.5574 , date: 25},{latitude: -6.8914 , longitude: -38.5664 , date: 376},{latitude: -6.8784 , longitude: -38.5604 , date: 359},{latitude: -6.890483898 , longitude: -38.52374753 , date: 858},{latitude: -6.893009796 , longitude: -38.60786765 , date: 736},{latitude: -6.881510631 , longitude: -38.54678241 , date: 10},{latitude: -6.861437156 , longitude: -38.57344053 , date: 767},
+
+
+  {latitude: -6.3372 , longitude: -37.7418 , date: 344},{latitude: -6.3412 , longitude: -37.7378 , date: 548},{latitude: -6.3472 , longitude: -37.7468 , date: 803},{latitude: -6.3342 , longitude: -37.7408 , date: 276},{latitude: -6.385979122 , longitude: -37.74305887 , date: 334},{latitude: -6.318287419 , longitude: -37.71509027 , date: 861},{latitude: -6.359854318 , longitude: -37.76092648 , date: 891},{latitude: -6.319721666 , longitude: -37.72294479 , date: 12},
+
+
+  {latitude: -7.0195 , longitude: -35.8581 , date: 13},{latitude: -7.0235 , longitude: -35.8541 , date: 504},{latitude: -7.0295 , longitude: -35.8631 , date: 573},{latitude: -7.0165 , longitude: -35.8571 , date: 420},{latitude: -7.023489753 , longitude: -35.89728333 , date: 612},{latitude: -7.025828239 , longitude: -35.84631258 , date: 159},{latitude: -7.024223975 , longitude: -35.90482723 , date: 548},{latitude: -7.054542791 , longitude: -35.83258424 , date: 10},
+
+
+  {latitude: -7.3019 , longitude: -38.1519 , date: 308},{latitude: -7.3059 , longitude: -38.1479 , date: 328},{latitude: -7.3119 , longitude: -38.1569 , date: 551},{latitude: -7.2989 , longitude: -38.1509 , date: 814},{latitude: -7.275623303 , longitude: -38.16823485 , date: 189},{latitude: -7.335557312 , longitude: -38.12841736 , date: 880},{latitude: -7.30460133 , longitude: -38.11707228 , date: 726},{latitude: -7.349318467 , longitude: -38.19291142 , date: 727},
+
+
+
+
+
+
+
+
+  {latitude: -6.5052 , longitude: -36.3515 , date: 64},{latitude: -6.5092 , longitude: -36.3475 , date: 433},{latitude: -6.5152 , longitude: -36.3565 , date: 516},{latitude: -6.5022 , longitude: -36.3505 , date: 669},{latitude: -6.471795329 , longitude: -36.39693607 , date: 726},{latitude: -6.496348151 , longitude: -36.35193915 , date: 809},{latitude: -6.546067439 , longitude: -36.38408442 , date: 273},{latitude: -6.494344336 , longitude: -36.36488609 , date: 887},
+
+
+  {latitude: -6.7706 , longitude: -37.8019 , date: 368},{latitude: -6.7746 , longitude: -37.7979 , date: 669},{latitude: -6.7806 , longitude: -37.8069 , date: 448},{latitude: -6.7676 , longitude: -37.8009 , date: 807},{latitude: -6.734364549 , longitude: -37.81874805 , date: 671},{latitude: -6.736119275 , longitude: -37.80153523 , date: 349},{latitude: -6.780760942 , longitude: -37.83446133 , date: 669},{latitude: -6.787359907 , longitude: -37.79661725 , date: 369},
+
+
+
+
+
+  {latitude: -6.751 , longitude: -38.2303 , date: 63},{latitude: -6.755 , longitude: -38.2263 , date: 635},{latitude: -6.761 , longitude: -38.2353 , date: 698},{latitude: -6.748 , longitude: -38.2293 , date: 760},{latitude: -6.758966692 , longitude: -38.19334919 , date: 703},{latitude: -6.744432165 , longitude: -38.19939103 , date: 863},{latitude: -6.761853017 , longitude: -38.24239082 , date: 401},{latitude: -6.735620547 , longitude: -38.2608045 , date: 774},
+  {latitude: -10.23 , longitude: -62.8813 , date: 773},{latitude: -10.234 , longitude: -62.8773 , date: 13},{latitude: -10.24 , longitude: -62.8863 , date: 467},{latitude: -10.227 , longitude: -62.8803 , date: 446},{latitude: -10.19072588 , longitude: -62.92566242 , date: 642},{latitude: -10.26173078 , longitude: -62.89821522 , date: 688},{latitude: -10.26386914 , longitude: -62.8498371 , date: 614},{latitude: -10.27383877 , longitude: -62.87266561 , date: 794},
+
+  {latitude: -11.4883 , longitude: -61.4434 , date: 782},{latitude: -11.4923 , longitude: -61.4394 , date: 355},{latitude: -11.4983 , longitude: -61.4484 , date: 470},{latitude: -11.4853 , longitude: -61.4424 , date: 207},{latitude: -11.53815524 , longitude: -61.40876557 , date: 545},{latitude: -11.47792246 , longitude: -61.44790128 , date: 100},{latitude: -11.50181688 , longitude: -61.4890149 , date: 493},{latitude: -11.5166369 , longitude: -61.4760159 , date: 514},
+
+  {latitude: -10.0162 , longitude: -62.5608 , date: 885},{latitude: -10.0202 , longitude: -62.5568 , date: 330},{latitude: -10.0262 , longitude: -62.5658 , date: 446},{latitude: -10.0132 , longitude: -62.5598 , date: 501},{latitude: -10.0388735 , longitude: -62.59048659 , date: 882},{latitude: -9.985582464 , longitude: -62.53227256 , date: 818},{latitude: -9.999063744 , longitude: -62.55713173 , date: 363},{latitude: -10.05101326 , longitude: -62.58732204 , date: 527},
+
+  {latitude: -10.9615 , longitude: -61.9263 , date: 201},{latitude: -10.9655 , longitude: -61.9223 , date: 498},{latitude: -10.9715 , longitude: -61.9313 , date: 255},{latitude: -10.9585 , longitude: -61.9253 , date: 842},{latitude: -10.96514008 , longitude: -61.89871998 , date: 721},{latitude: -10.92497769 , longitude: -61.90149668 , date: 811},{latitude: -10.97232406 , longitude: -61.90490252 , date: 741},{latitude: -10.9415062 , longitude: -61.92476266 , date: 600},
+
+  {latitude: -10.9728 , longitude: -61.9432 , date: 434},{latitude: -10.9768 , longitude: -61.9392 , date: 366},{latitude: -10.9828 , longitude: -61.9482 , date: 472},{latitude: -10.9698 , longitude: -61.9422 , date: 106},{latitude: -10.99812476 , longitude: -61.92080005 , date: 403},{latitude: -10.9839968 , longitude: -61.91770882 , date: 715},{latitude: -10.94757585 , longitude: -61.98283995 , date: 35},{latitude: -10.96373639 , longitude: -61.90368779 , date: 23},
+  {latitude: -9.7422 , longitude: -63.3274 , date: 508},{latitude: -9.7462 , longitude: -63.3234 , date: 339},{latitude: -9.7522 , longitude: -63.3324 , date: 868},{latitude: -9.7392 , longitude: -63.3264 , date: 150},{latitude: -9.737202218 , longitude: -63.31748206 , date: 215},{latitude: -9.723163299 , longitude: -63.36104523 , date: 248},{latitude: -9.772505225 , longitude: -63.35088281 , date: 198},{latitude: -9.779090042 , longitude: -63.37001225 , date: 498},
+
+  {latitude: -8.7869 , longitude: -63.9095 , date: 293},{latitude: -8.7909 , longitude: -63.9055 , date: 60},{latitude: -8.7969 , longitude: -63.9145 , date: 311},{latitude: -8.7839 , longitude: -63.9085 , date: 83},{latitude: -8.833749518 , longitude: -63.94588101 , date: 703},{latitude: -8.752733151 , longitude: -63.92154575 , date: 685},{latitude: -8.768962958 , longitude: -63.89973516 , date: 377},{latitude: -8.768884714 , longitude: -63.90869772 , date: 530},
+
+  {latitude: -8.7558 , longitude: -63.9013 , date: 308},{latitude: -8.7598 , longitude: -63.8973 , date: 770},{latitude: -8.7658 , longitude: -63.9063 , date: 542},{latitude: -8.7528 , longitude: -63.9003 , date: 463},{latitude: -8.7539305 , longitude: -63.89426232 , date: 829},{latitude: -8.777284374 , longitude: -63.91446015 , date: 94},{latitude: -8.717903658 , longitude: -63.87365096 , date: 847},{latitude: -8.730147675 , longitude: -63.87534988 , date: 595},
+  {latitude: -10.233 , longitude: -62.268 , date: 537},{latitude: -10.237 , longitude: -62.264 , date: 453},{latitude: -10.243 , longitude: -62.273 , date: 202},{latitude: -10.23 , longitude: -62.267 , date: 734},{latitude: -10.23657085 , longitude: -62.26867031 , date: 151},{latitude: -10.24084112 , longitude: -62.23013824 , date: 698},{latitude: -10.21421298 , longitude: -62.25438072 , date: 373},{latitude: -10.26280124 , longitude: -62.22740776 , date: 255},
+
+  {latitude: 2.8281 , longitude: -60.6733 , date: 419},{latitude: 2.8241 , longitude: -60.6693 , date: 417},{latitude: 2.8181 , longitude: -60.6783 , date: 433},{latitude: 2.8311 , longitude: -60.6723 , date: 340},{latitude: 2.788243331 , longitude: -60.65327117 , date: 375},{latitude: 2.851650262 , longitude: -60.71044248 , date: 453},{latitude: 2.799595355 , longitude: -60.7170011 , date: 614},{latitude: 2.816351048 , longitude: -60.67719678 , date: 649},
+
+
+  {latitude: 2.4095 , longitude: -60.6518 , date: 608},{latitude: 2.4055 , longitude: -60.6478 , date: 448},{latitude: 2.3995 , longitude: -60.6568 , date: 897},{latitude: 2.4125 , longitude: -60.6508 , date: 686},{latitude: 2.410575616 , longitude: -60.66508899 , date: 31},{latitude: 2.378711837 , longitude: -60.68589596 , date: 568},{latitude: 2.402309835 , longitude: -60.64660573 , date: 175},{latitude: 2.443745254 , longitude: -60.66886345 , date: 263},
+  {latitude: 2.8492 , longitude: -60.8575 , date: 802},{latitude: 2.8452 , longitude: -60.8535 , date: 287},{latitude: 2.8392 , longitude: -60.8625 , date: 623},{latitude: 2.8522 , longitude: -60.8565 , date: 625},{latitude: 2.861213219 , longitude: -60.85107372 , date: 832},{latitude: 2.887380875 , longitude: -60.88043875 , date: 409},{latitude: 2.827720101 , longitude: -60.90129322 , date: 641},{latitude: 2.861559574 , longitude: -60.88453716 , date: 128},
+
+
+  {latitude: 2.9203 , longitude: -60.7254 , date: 505},{latitude: 2.9163 , longitude: -60.7214 , date: 552},{latitude: 2.9103 , longitude: -60.7304 , date: 813},{latitude: 2.9233 , longitude: -60.7244 , date: 142},{latitude: 2.950392379 , longitude: -60.76914649 , date: 151},{latitude: 2.926147342 , longitude: -60.70883609 , date: 560},{latitude: 2.906183783 , longitude: -60.71641609 , date: 214},{latitude: 2.891625314 , longitude: -60.69030624 , date: 448},
+  {latitude: 2.6593 , longitude: -60.6992 , date: 459},{latitude: 2.6553 , longitude: -60.6952 , date: 726},{latitude: 2.6493 , longitude: -60.7042 , date: 839},{latitude: 2.6623 , longitude: -60.6982 , date: 321},{latitude: 2.614724704 , longitude: -60.73430709 , date: 326},{latitude: 2.693403378 , longitude: -60.69947484 , date: 689},{latitude: 2.647324135 , longitude: -60.73489301 , date: 231},{latitude: 2.617701225 , longitude: -60.65982637 , date: 477},
+  {latitude: 2.655 , longitude: -60.7015 , date: 674},{latitude: 2.651 , longitude: -60.6975 , date: 529},{latitude: 2.645 , longitude: -60.7065 , date: 28},{latitude: 2.658 , longitude: -60.7005 , date: 733},{latitude: 2.664796266 , longitude: -60.7282051 , date: 711},{latitude: 2.644060276 , longitude: -60.7231048 , date: 825},{latitude: 2.693476143 , longitude: -60.7153561 , date: 406},{latitude: 2.615824992 , longitude: -60.67907895 , date: 800}
+    ];
+
+    var farmData = [
+       {latitude: -9.8234, longitude: -66.8989 , name: "Chácara dos Ipês"},
+{latitude: -9.8251, longitude: -66.8950 , name: "Fazenda Boa Vista"},
+{latitude: -9.8223, longitude: -66.8977 , name: "Fazenda Monte Verde"},
+{latitude: -9.8245, longitude: -66.8961 , name: "Sítio dos Araçás"},
+{latitude: -10.9864, longitude: -68.7480 , name: "Chácara Luz do Acre"},
+{latitude: -10.9907, longitude: -68.7467 , name: "Fazenda Bom Jesus"},
+{latitude: -10.9875, longitude: -68.7425 , name: "Sítio Três Palmeiras"},
+{latitude: -10.9924, longitude: -68.7433 , name: "Sítio Vale Verde"},
+{latitude: -10.5711, longitude: -67.6857 , name: "Chácara Sol Poente"},
+{latitude: -10.5720, longitude: -67.6849 , name: "Fazenda Rio Dourado"},
+{latitude: -10.5734, longitude: -67.6838 , name: "Fazenda São José"},
+{latitude: -10.5732, longitude: -67.6865 , name: "Sítio Lagoa Azul"},
+{latitude: -7.6276, longitude: -72.6764 , name: "Chácara da Paz"},
+{latitude: -7.6285, longitude: -72.6781 , name: "Fazenda Alto Acre"},
+{latitude: -7.6223, longitude: -72.6735 , name: "Fazenda Boa Vida"},
+{latitude: -7.6300, longitude: -72.6722 , name: "Sítio Coração da Floresta"},
+{latitude: -11.0289, longitude: -68.7491 , name: "Chácara Rio Grande"},
+{latitude: -11.0273, longitude: -68.7472 , name: "Fazenda Campo Bonito"},
+{latitude: -11.0264, longitude: -68.7463 , name: "Fazenda Nova Aliança"},
+{latitude: -11.0278, longitude: -68.7482 , name: "Sítio dos Cedros"},
+{latitude: -8.1610, longitude: -70.3489 , name: "Chácara Rio Branco"},
+{latitude: -8.1623, longitude: -70.3465 , name: "Fazenda Santo Antônio"},
+{latitude: -8.1641, longitude: -70.3476 , name: "Sítio Boa Terra"},
+{latitude: -8.1656, longitude: -70.3494 , name: "Sítio Pôr do Sol"},
+{latitude: -10.3316, longitude: -67.1845 , name: "Chácara das Palmeiras"},
+{latitude: -10.3327, longitude: -67.1824 , name: "Fazenda Boa Vista"},
+{latitude: -10.3314, longitude: -67.1832 , name: "Fazenda Ouro Verde"},
+{latitude: -10.3338, longitude: -67.1859 , name: "Sítio Vale Encantado"},
+{latitude: -10.0051, longitude: -67.8133 , name: "Chácara Sol Nascente"},
+{latitude: -9.9747, longitude: -67.8244 , name: "Fazenda Boa Esperança"},
+{latitude: -9.9733, longitude: -67.8258 , name: "Fazenda Lago Azul"},
+{latitude: -9.9830, longitude: -67.8206 , name: "Sítio Flor do Acre"},
+{latitude: -9.9905, longitude: -67.8359 , name: "Sítio Rio Verde"},
+{latitude: -9.0647, longitude: -68.6582 , name: "Chácara Sossego"},
+{latitude: -9.0658, longitude: -68.6590 , name: "Fazenda Águas Claras"},
+{latitude: -9.0645, longitude: -68.6603 , name: "Fazenda Esperança Viva"},
+{latitude: -9.0664, longitude: -68.6571 , name: "Sítio Campo Alegre"},
+{latitude: -8.1599, longitude: -70.7648 , name: "Chácara Terra Fértil"},
+{latitude: -8.1616, longitude: -70.7664 , name: "Fazenda Rio Bonito"},
+{latitude: -8.1643, longitude: -70.7657 , name: "Fazenda Vale Encantado"},
+{latitude: -8.1632, longitude: -70.7675 , name: "Sítio Morro Verde"},
+{latitude: -9.7545, longitude: -36.6632 , name: "Chácara Nova Aliança"},
+{latitude: -9.7521, longitude: -36.6616 , name: "Fazenda Boa Vista"},
+{latitude: -9.7556, longitude: -36.6647 , name: "Fazenda São Francisco"},
+{latitude: -9.7582, longitude: -36.6603 , name: "Sítio Araras"},
+{latitude: -9.7846, longitude: -36.3547 , name: "Fazenda Nova Aliança"},
+{latitude: -9.7835, longitude: -36.3558 , name: "Sítio Santa Maria"},
+{latitude: -9.3923, longitude: -37.9996 , name: "Fazenda São João"},
+{latitude: -9.3945, longitude: -37.9981 , name: "Sítio Boa Vista"},
+{latitude: -9.3077, longitude: -35.9412 , name: "Chácara das Palmeiras"},
+{latitude: -9.3091, longitude: -35.9403 , name: "Sítio Vale Verde"},
+{latitude: -9.4081, longitude: -36.6275 , name: "Chácara Nova Vida"},
+{latitude: -9.4062, longitude: -36.6312 , name: "Fazenda Monte Alegre"},
+{latitude: -9.4046, longitude: -36.6290 , name: "Sítio Vale do Sol"},
+{latitude: -10.2901, longitude: -36.5874 , name: "Chácara Horizonte Verde"},
+{latitude: -10.2893, longitude: -36.5896 , name: "Fazenda Boa Esperança"},
+{latitude: -10.2888, longitude: -36.5851 , name: "Fazenda Santa Luzia"},
+{latitude: -10.2869, longitude: -36.5862 , name: "Sítio Paraíso"},
+{latitude: -9.3722, longitude: -37.2478 , name: "Chácara Bela Vista"},
+{latitude: -9.3758, longitude: -37.2502 , name: "Fazenda Lago Azul"},
+{latitude: -9.3745, longitude: -37.2487 , name: "Sítio Flor do Sertão"},
+{latitude: -9.3734, longitude: -37.2510 , name: "Sítio Rio Grande"},
+{latitude: -9.7856, longitude: -36.0987 , name: "Fazenda Santa Cruz"},
+{latitude: -9.7843, longitude: -36.0964 , name: "Sítio dos Coqueiros"},
+{latitude: -9.9032, longitude: -36.3487 , name: "Chácara dos Pinheiros"},
+{latitude: -9.9046, longitude: -36.3501 , name: "Fazenda Rio Grande"},
+{latitude: -9.1608, longitude: -36.0251 , name: "Chácara Horizonte Azul"},
+{latitude: -9.1611, longitude: -36.0233 , name: "Fazenda Boa Esperança"},
+{latitude: -9.1635, longitude: -36.0214 , name: "Sítio Flor da Serra"},
+{latitude: 0.8583, longitude: -51.1741 , name: "Chácara Paraíso"},
+{latitude: 0.8578, longitude: -51.1773 , name: "Fazenda Boa Esperança"},
+{latitude: 0.8599, longitude: -51.1759 , name: "Sítio Campo Belo"},
+{latitude: 0.6034, longitude: -50.6879 , name: "Chácara Nova Esperança"},
+{latitude: 0.6057, longitude: -50.6865 , name: "Fazenda Santa Rosa"},
+{latitude: 0.6041, longitude: -50.6852 , name: "Sítio Campo Verde"},
+{latitude: -0.9035, longitude: -52.4632 , name: "Chácara Palmeiras"},
+{latitude: -0.9011, longitude: -52.4645 , name: "Fazenda Vale do Jari"},
+{latitude: -0.9027, longitude: -52.4621 , name: "Sítio Boa Vista"},
+{latitude: 0.0293, longitude: -51.0702 , name: "Chácara Rio Sol"},
+{latitude: 0.0348, longitude: -51.0694 , name: "Fazenda Boa Esperança"},
+{latitude: 0.0281, longitude: -51.0725 , name: "Fazenda São Lucas"},
+{latitude: 0.0305, longitude: -51.0716 , name: "Sítio Lago Verde"},
+{latitude: -0.1143, longitude: -51.2835 , name: "Chácara Nova Aliança"},
+{latitude: -0.1135, longitude: -51.2816 , name: "Fazenda Vale do Sol"},
+{latitude: -0.1152, longitude: -51.2828 , name: "Sítio dos Coqueiros"},
+{latitude: 0.7781, longitude: -51.9467 , name: "Chácara Rio Azul"},
+{latitude: 0.7809, longitude: -51.9486 , name: "Fazenda Santa Luzia"},
+{latitude: 0.7794, longitude: -51.9473 , name: "Sítio dos Pinheiros"},
+{latitude: 0.7142, longitude: -51.4158 , name: "Chácara Santa Rita"},
+{latitude: 0.7156, longitude: -51.4167 , name: "Fazenda Nova Aliança"},
+{latitude: 0.7114, longitude: -51.4137 , name: "Sítio Três Rios"},
+{latitude: 1162569, longitude: -50.9054 , name: "Chácara Nova Vida"},
+{latitude: 1166952, longitude: -50.9067 , name: "Fazenda Vale Verde"},
+{latitude: 1157456, longitude: -50.9078 , name: "Sítio Rio Branco"},
+{latitude: -3.5793, longitude: -59.1274 , name: "Fazenda Lago Verde"},
+{latitude: -3.5896, longitude: -59.1419 , name: "Rancho Vista Alegre"},
+{latitude: -3.5702, longitude: -59.1305 , name: "Sítio da Paz"},
+{latitude: -3.2159, longitude: -59.8136 , name: "Fazenda Boa Vista"},
+{latitude: -3.2237, longitude: -59.8254 , name: "Rancho do Horizonte"},
+{latitude: -3.2098, longitude: -59.8182 , name: "Sítio Floresta Encantada"},
+{latitude: -4.1003, longitude: -63.1502 , name: "Fazenda das Águas"},
+{latitude: -4.0852, longitude: -63.1418 , name: "Rancho Santa Rita"},
+{latitude: -4.0924, longitude: -63.1337 , name: "Sítio Lago Azul"},
+{latitude: -7.5253, longitude: -63.0548 , name: "Fazenda do Horizonte"},
+{latitude: -7.5147, longitude: -63.0467 , name: "Rancho Santa Cruz"},
+{latitude: -7.5054, longitude: -63.0415 , name: "Sítio Encanto do Vale"},
+{latitude: -3.2954, longitude: -60.1976 , name: "Fazenda Encantada"},
+{latitude: -3.2816, longitude: -60.1853 , name: "Rancho Verdejante"},
+{latitude: -3.2711, longitude: -60.1894 , name: "Sítio Vale do Sol"},
+{latitude: -3.1386, longitude: -58.4408 , name: "Fazenda Vista Alegre"},
+{latitude: -3.1547, longitude: -58.4562 , name: "Rancho do Norte"},
+{latitude: -3.1283, longitude: -58.4325 , name: "Sítio Paraíso"},
+{latitude: -3.3117, longitude: -60.6345 , name: "Fazenda Rio Claro"},
+{latitude: -3.2986, longitude: -60.6011 , name: "Rancho das Palmeiras"},
+{latitude: -3.2904, longitude: -60.6203 , name: "Sítio Amazonas Verde"},
+{latitude: -3.3767, longitude: -57.7083 , name: "Fazenda dos Sonhos"},
+{latitude: -3.3892, longitude: -57.7176 , name: "Rancho Bela Vista"},
+{latitude: -3.3658, longitude: -57.7225 , name: "Sítio das Palmeiras"},
+{latitude: -2.6334, longitude: -56.7312 , name: "Fazenda Rio das Flores"},
+{latitude: -2.6225, longitude: -56.7423 , name: "Rancho Beira-Mar"},
+{latitude: -2.6489, longitude: -56.7356 , name: "Sítio Boa Vista"},
+{latitude: -3.3658, longitude: -64.6903 , name: "Fazenda do Sol"},
+{latitude: -3.3511, longitude: -64.6992 , name: "Rancho Nova Esperança"},
+{latitude: -3.3546, longitude: -64.7037 , name: "Sítio da Lua"},
+{latitude: -12.1528, longitude: -44.9967 , name: "Fazenda Sol Nascente"},
+{latitude: -12.2015, longitude: -45.0234 , name: "Rancho Verde"},
+{latitude: -12.1889, longitude: -44.9832 , name: "Sítio Paraíso"},
+{latitude: -13.2489, longitude: -43.4345 , name: "Rancho da Paz"},
+{latitude: -13.2307, longitude: -43.4483 , name: "Sítio Vista Alegre"},
+{latitude: -12.6678, longitude: -39.1085 , name: "Rancho Verdejante"},
+{latitude: -12.6521, longitude: -39.1203 , name: "Sítio Boa Esperança"},
+{latitude: -11.2904, longitude: -41.8657 , name: "Fazenda Palmeiras"},
+{latitude: -11.3032, longitude: -41.8543 , name: "Sítio do Sol"},
+{latitude: -12.5297, longitude: -40.3056 , name: "Fazenda Primavera"},
+{latitude: -12.5452, longitude: -40.3149 , name: "Rancho Bonança"},
+{latitude: -11.1783, longitude: -40.5167 , name: "Fazenda Serra Dourada"},
+{latitude: -11.1654, longitude: -40.5321 , name: "Rancho Flor da Terra"},
+{latitude: -9.4203, longitude: -40.4908 , name: "Fazenda Santa Luzia"},
+{latitude: -9.4352, longitude: -40.5032 , name: "Rancho dos Ventos"},
+{latitude: -9.4578, longitude: -40.4867 , name: "Sítio das Águas"},
+{latitude: -12.0357, longitude: -45.7501 , name: "Fazenda Boa Fé"},
+{latitude: -12.0895, longitude: -45.7853 , name: "Sítio Esperança"},
+{latitude: -10.8136, longitude: -38.5092 , name: "Fazenda do Horizonte"},
+{latitude: -10.8224, longitude: -38.4965 , name: "Sítio Flor do Campo"},
+{latitude: -12.9482, longitude: -39.2719 , name: "Fazenda Três Rios"},
+{latitude: -12.9607, longitude: -39.2615 , name: "Rancho Feliz"},
+{latitude: -10.4528, longitude: -40.1889 , name: "Rancho Estrela do Norte"},
+{latitude: -10.4389, longitude: -40.2007 , name: "Sítio Encanto do Sertão"},
+{latitude: -14.8537, longitude: -40.8397 , name: "Fazenda Bela Vista"},
+{latitude: -14.8709, longitude: -40.8476 , name: "Sítio Vale Encantado"},
+{latitude: -4.3692, longitude: -39.3227 , name: "Fazenda Boa Esperança"},
+{latitude: -4.3558, longitude: -39.3104 , name: "Rancho Serra Bonita"},
+{latitude: -4.3623, longitude: -39.3149 , name: "Sítio Vale do Sol"},
+{latitude: -5.1749, longitude: -40.6786 , name: "Fazenda Morro Azul"},
+{latitude: -5.1874, longitude: -40.6923 , name: "Rancho da Esperança"},
+{latitude: -5.1825, longitude: -40.6847 , name: "Sítio da Fazenda Nova"},
+{latitude: -6.3617, longitude: -39.2975 , name: "Fazenda Santa Luzia"},
+{latitude: -6.3548, longitude: -39.3102 , name: "Rancho dos Ventos"},
+{latitude: -6.3662, longitude: -39.3038 , name: "Sítio Paraíso Sertanejo"},
+{latitude: -3.4905, longitude: -39.5828 , name: "Fazenda Lagoa Serena"},
+{latitude: -3.5052, longitude: -39.5954 , name: "Rancho das Pedras"},
+{latitude: -3.4983, longitude: -39.5896 , name: "Sítio Arco-Íris"},
+{latitude: -5.1357, longitude: -38.0842 , name: "Fazenda Encantada"},
+{latitude: -5.1463, longitude: -38.0964 , name: "Rancho da Mata Verde"},
+{latitude: -5.1422, longitude: -38.0915 , name: "Sítio das Colinas"},
+{latitude: -5.0963, longitude: -38.3762 , name: "Fazenda Lagoa Azul"},
+{latitude: -5.0845, longitude: -38.3896 , name: "Rancho do Sertão Verde"},
+{latitude: -5.0898, longitude: -38.3802 , name: "Sítio Boa Vista"},
+{latitude: -4.9714, longitude: -39.0155 , name: "Fazenda Quixadá Verde"},
+{latitude: -4.9796, longitude: -39.0278 , name: "Rancho Sertão de Ouro"},
+{latitude: -4.9652, longitude: -39.0203 , name: "Sítio Vale Encantado"},
+{latitude: -4.9345, longitude: -37.9742 , name: "Fazenda Terra Nova"},
+{latitude: -4.9456, longitude: -37.9884 , name: "Rancho da Floresta"},
+{latitude: -4.9391, longitude: -37.9823 , name: "Sítio Bela Paisagem"},
+{latitude: -3.6924, longitude: -40.3451 , name: "Fazenda Boa Esperança"},
+{latitude: -3.7053, longitude: -40.3524 , name: "Rancho das Palmeiras"},
+{latitude: -3.6889, longitude: -40.3332 , name: "Sítio da Serra"},
+{latitude: -5.9958, longitude: -40.2941 , name: "Fazenda Estrela do Sertão"},
+{latitude: -6.0102, longitude: -40.3105 , name: "Rancho Encanto do Vale"},
+{latitude: -5.9993, longitude: -40.3058 , name: "Sítio da Várzea Verde"},
+{latitude: -20.0813, longitude: -41.1295 , name: "Fazenda Novo Horizonte"},
+{latitude: -20.0946, longitude: -41.1382 , name: "Rancho Vale Encantado"},
+{latitude: -20.0882, longitude: -41.1349 , name: "Sítio Vista Bonita"},
+{latitude: -20.8483, longitude: -41.1097 , name: "Fazenda Água Clara"},
+{latitude: -20.8591, longitude: -41.1215 , name: "Rancho Vale do Sol"},
+{latitude: -20.8537, longitude: -41.1142 , name: "Sítio dos Sonhos"},
+{latitude: -20.6124, longitude: -41.1845 , name: "Fazenda Lagoa Serena"},
+{latitude: -20.6233, longitude: -41.1952 , name: "Rancho das Águas"},
+{latitude: -20.6178, longitude: -41.1894 , name: "Sítio da Montanha"},
+{latitude: -19.5387, longitude: -40.6293 , name: "Fazenda Vale Encantado"},
+{latitude: -19.5274, longitude: -40.6412 , name: "Rancho da Colina"},
+{latitude: -19.5335, longitude: -40.6357 , name: "Sítio Flor do Sertão"},
+{latitude: -20.3642, longitude: -40.6591 , name: "Fazenda da Encosta"},
+{latitude: -20.3778, longitude: -40.6687 , name: "Rancho dos Cedros"},
+{latitude: -20.3699, longitude: -40.6632 , name: "Sítio Refúgio da Paz"},
+{latitude: -19.8723, longitude: -40.8745 , name: "Fazenda Boa Esperança"},
+{latitude: -19.8856, longitude: -40.8857 , name: "Rancho dos Pioneiros"},
+{latitude: -19.8782, longitude: -40.8793 , name: "Sítio Vale do Cedro"},
+{latitude: -19.3947, longitude: -40.0653 , name: "Fazenda Rio Doce"},
+{latitude: -19.4072, longitude: -40.0718 , name: "Rancho Esperança Verde"},
+{latitude: -19.3998, longitude: -40.0619 , name: "Sítio Paraíso das Matas"},
+{latitude: -20.0291, longitude: -40.7376 , name: "Fazenda Serra Azul"},
+{latitude: -20.0362, longitude: -40.7508 , name: "Rancho Verde das Montanhas"},
+{latitude: -20.0334, longitude: -40.7429 , name: "Sítio da Cachoeira"},
+{latitude: -18.7208, longitude: -39.8605 , name: "Fazenda Vista Alegre"},
+{latitude: -18.7321, longitude: -39.8723 , name: "Rancho dos Palmares"},
+{latitude: -18.7256, longitude: -39.8669 , name: "Sítio Boa Vista"},
+{latitude: -20.3276, longitude: -41.1352 , name: "Fazenda Três Lagos"},
+{latitude: -20.3198, longitude: -41.1487 , name: "Rancho das Palmeiras"},
+{latitude: -20.3245, longitude: -41.1413 , name: "Sítio Serra Verde"},
+{latitude: -16.3314, longitude: -48.9401 , name: "Fazenda Morro Alto"},
+{latitude: -16.3457, longitude: -48.9533 , name: "Rancho dos Pinheiros"},
+{latitude: -16.3381, longitude: -48.9456 , name: "Sítio Bela Natureza"},
+{latitude: -18.1698, longitude: -47.9462 , name: "Fazenda Lagoa Bonita"},
+{latitude: -18.1832, longitude: -47.9574 , name: "Rancho Verdejante"},
+{latitude: -18.1765, longitude: -47.9516 , name: "Sítio da Colina"},
+{latitude: -16.7615, longitude: -47.6138 , name: "Fazenda Cristalina Alta"},
+{latitude: -16.7731, longitude: -47.6287 , name: "Rancho da Esperança"},
+{latitude: -16.7658, longitude: -47.6194 , name: "Sítio das Águas Claras"},
+{latitude: -18.0123, longitude: -49.3642 , name: "Fazenda Santa Luzia"},
+{latitude: -18.0276, longitude: -49.3728 , name: "Rancho das Flores"},
+{latitude: -18.0192, longitude: -49.3685 , name: "Sítio Refúgio Verde"},
+{latitude: -17.8719, longitude: -51.7216 , name: "Fazenda Três Irmãos"},
+{latitude: -17.8798, longitude: -51.7284 , name: "Rancho Vale do Sol"},
+{latitude: -17.8752, longitude: -51.7239 , name: "Sítio Recanto Verde"},
+{latitude: -17.5693, longitude: -52.5524 , name: "Fazenda dos Buritis"},
+{latitude: -17.5817, longitude: -52.5653 , name: "Rancho Vale das Águas"},
+{latitude: -17.5756, longitude: -52.5591 , name: "Sítio Primavera"},
+{latitude: -17.7325, longitude: -49.0928 , name: "Fazenda Três Palmeiras"},
+{latitude: -17.7478, longitude: -49.1056 , name: "Rancho Encanto do Cerrado"},
+{latitude: -17.7403, longitude: -49.0997 , name: "Sítio Monte Alegre"},
+{latitude: -13.4412, longitude: -49.1487 , name: "Fazenda Nova Esperança"},
+{latitude: -13.4567, longitude: -49.1624 , name: "Rancho Encanto Verde"},
+{latitude: -13.4483, longitude: -49.1559 , name: "Sítio dos Cedros"},
+{latitude: -17.7927, longitude: -50.9193 , name: "Fazenda Bela Vista"},
+{latitude: -17.8002, longitude: -50.9328 , name: "Rancho das Palmeiras"},
+{latitude: -17.7954, longitude: -50.9251 , name: "Sítio Água Clara"},
+{latitude: -14.5273, longitude: -49.1384 , name: "Fazenda Riacho Fundo"},
+{latitude: -14.5432, longitude: -49.1471 , name: "Rancho dos Pioneiros"},
+{latitude: -14.5345, longitude: -49.1426 , name: "Sítio das Cachoeiras"},
+{latitude: -4.9473, longitude: -47.4982 , name: "Fazenda Bela Vista"},
+{latitude: -4.9561, longitude: -47.5034 , name: "Rancho Encanto Verde"},
+{latitude: -4.9508, longitude: -47.5003 , name: "Sítio Riacho Claro"},
+{latitude: -4.2273, longitude: -44.7871 , name: "Fazenda Campo Verde"},
+{latitude: -4.2365, longitude: -44.7929 , name: "Rancho Vale do Sol"},
+{latitude: -4.2312, longitude: -44.7894 , name: "Sítio Lago Azul"},
+{latitude: -7.5328, longitude: -46.0359 , name: "Fazenda Boa Esperança"},
+{latitude: -7.5402, longitude: -46.0423 , name: "Rancho dos Buritis"},
+{latitude: -7.5376, longitude: -46.0391 , name: "Sítio do Lago Verde"},
+{latitude: -5.5076, longitude: -45.2468 , name: "Fazenda Riacho Fundo"},
+{latitude: -5.5142, longitude: -45.2523 , name: "Rancho do Cerrado"},
+{latitude: -5.5108, longitude: -45.2489 , name: "Sítio do Vale Verde"},
+{latitude: -3.7419, longitude: -43.3615 , name: "Fazenda Boa Vista"},
+{latitude: -3.7501, longitude: -43.3694 , name: "Rancho dos Cedros"},
+{latitude: -3.7456, longitude: -43.3657 , name: "Sítio das Palmeiras"},
+{latitude: -4.4542, longitude: -43.8872 , name: "Fazenda Lagoa do Sol"},
+{latitude: -4.4630, longitude: -43.8927 , name: "Rancho Serra Azul"},
+{latitude: -4.4576, longitude: -43.8894 , name: "Sítio da Cachoeira"},
+{latitude: -5.8267, longitude: -46.1475 , name: "Fazenda Três Marias"},
+{latitude: -5.8341, longitude: -46.1536 , name: "Rancho da Paz"},
+{latitude: -5.8309, longitude: -46.1503 , name: "Sítio Cachoeirinha"},
+{latitude: -5.5193, longitude: -47.4754 , name: "Fazenda Estrela do Sul"},
+{latitude: -5.5238, longitude: -47.4802 , name: "Rancho São João"},
+{latitude: -5.5210, longitude: -47.4781 , name: "Sítio Verdejante"},
+{latitude: -4.5783, longitude: -44.5912 , name: "Fazenda Água Clara"},
+{latitude: -4.5857, longitude: -44.5981 , name: "Rancho Flor do Campo"},
+{latitude: -4.5825, longitude: -44.5943 , name: "Sítio do Sossego"},
+{latitude: -3.6732, longitude: -45.3846 , name: "Fazenda dos Sonhos"},
+{latitude: -3.6814, longitude: -45.3923 , name: "Rancho Santa Luzia"},
+{latitude: -3.6768, longitude: -45.3885 , name: "Sítio Vale das Flores"},
+{latitude: -9.8823, longitude: -56.0905 , name: "Fazenda Bela Vista"},
+{latitude: -9.8731, longitude: -56.0856 , name: "Fazenda Boa Esperança"},
+{latitude: -9.8753, longitude: -56.0912 , name: "Fazenda Bonança"},
+{latitude: -9.8806, longitude: -56.0832 , name: "Fazenda do Sol"},
+{latitude: -9.8812, longitude: -56.0917 , name: "Fazenda Novo Amanhecer"},
+{latitude: -9.8769, longitude: -56.0827 , name: "Fazenda Santo Antônio"},
+{latitude: -9.8809, longitude: -56.0895 , name: "Rancho dos Campos"},
+{latitude: -9.8764, longitude: -56.0934 , name: "Rancho dos Lagos"},
+{latitude: -9.8725, longitude: -56.0883 , name: "Rancho Floresta Viva"},
+{latitude: -9.8704, longitude: -56.0957 , name: "Rancho São Francisco"},
+{latitude: -9.8722, longitude: -56.0951 , name: "Rancho Sol Nascente"},
+{latitude: -9.8749, longitude: -56.0872 , name: "Rancho Vale do Ouro"},
+{latitude: -9.8734, longitude: -56.0861 , name: "Sítio das Águas"},
+{latitude: -9.8770, longitude: -56.0982 , name: "Sítio do Horizonte"},
+{latitude: -9.8784, longitude: -56.0923 , name: "Sítio Mata Verde"},
+{latitude: -9.8815, longitude: -56.0849 , name: "Sítio Recanto Verde"},
+{latitude: -9.8850, longitude: -56.0898 , name: "Sítio Três Palmeiras"},
+{latitude: -9.8798, longitude: -56.0855 , name: "Vale da Prosperidade"},
+{latitude: -9.8757, longitude: -56.0844 , name: "Vale dos Ipês"},
+{latitude: -9.8795, longitude: -56.0879 , name: "Vale Encantado"},
+{latitude: -13.4902, longitude: -58.3045 , name: "Águas do Sertão"},
+{latitude: -12.332, longitude: -57.1248 , name: "Campo das Flores"},
+{latitude: -13.3411, longitude: -58.6214 , name: "Chácara Boa Vista"},
+{latitude: -13.3821, longitude: -58.3070 , name: "Chácara Paraíso"},
+{latitude: -13.6119, longitude: -58.5591 , name: "Estância Águas Claras"},
+{latitude: -12.1137, longitude: -57.4094 , name: "Estância Vista Alegre"},
+{latitude: -12.3924, longitude: -57.6173 , name: "Mata da Onça"},
+{latitude: -13.763, longitude: -57.6534 , name: "Morada das Águas"},
+{latitude: -12.4879, longitude: -58.2343 , name: "Pouso das Araras"},
+{latitude: -12.4901, longitude: -57.1635 , name: "Rancho Coração"},
+{latitude: -12.6990, longitude: -57.4414 , name: "Rancho das Bromélias"},
+{latitude: -13.1070, longitude: -57.2260 , name: "Recanto do Guaporé"},
+{latitude: -13.1337, longitude: -57.2144 , name: "Recanto do Ipê"},
+{latitude: -12.4188, longitude: -57.4771 , name: "Refúgio das Palmeiras"},
+{latitude: -13.1586, longitude: -58.428 , name: "Refúgio dos Pinhais"},
+{latitude: -12.5642, longitude: -58.1121 , name: "Serra Azul"},
+{latitude: -11.80941, longitude: -58.3874 , name: "Sítio do Tucano"},
+{latitude: -12.6120, longitude: -57.5946 , name: "Sítio Rio Sereno"},
+{latitude: -10.7435, longitude: -59.3761 , name: "Sitio Verde"},
+{latitude: -13.2404, longitude: -57.5840 , name: "Vale do Cedro"},
+{latitude: -13.2419, longitude: -58.6386 , name: "Vale dos Cristais"},
+{latitude: -15.8786, longitude: -52.2580 , name: "Fazenda Boa Esperança"},
+{latitude: -15.8816, longitude: -52.2610 , name: "Fazenda Campo Verde"},
+{latitude: -15.8800, longitude: -52.2609 , name: "Fazenda das Águas"},
+{latitude: -15.8782, longitude: -52.2633 , name: "Fazenda Flor do Cerrado"},
+{latitude: -15.8807, longitude: -52.2543 , name: "Fazenda Rio Azul"},
+{latitude: -15.8775, longitude: -52.2598 , name: "Fazenda Vista Alegre"},
+{latitude: -15.8783, longitude: -52.2651 , name: "Rancho da Montanha"},
+{latitude: -15.8765, longitude: -52.2568 , name: "Rancho dos Amigos"},
+{latitude: -15.8792, longitude: -52.2594 , name: "Rancho Estrela do Sul"},
+{latitude: -15.8768, longitude: -52.2605 , name: "Rancho Pedra Branca"},
+{latitude: -15.8773, longitude: -52.2556 , name: "Rancho Santa Clara"},
+{latitude: -15.8799, longitude: -52.2637 , name: "Sítio Bela Vista"},
+{latitude: -15.8787, longitude: -52.2570 , name: "Sítio Boa Fé"},
+{latitude: -15.8801, longitude: -52.2564 , name: "Sítio das Palmeiras"},
+{latitude: -15.8814, longitude: -52.2629 , name: "Sítio dos Lagos"},
+{latitude: -15.8808, longitude: -52.2586 , name: "Sítio Pedra Vermelha"},
+{latitude: -15.8811, longitude: -52.2591 , name: "Sítio Raízes da Terra"},
+{latitude: -15.8790, longitude: -52.2587 , name: "Vale do Paraíso"},
+{latitude: -15.8779, longitude: -52.2548 , name: "Vale do Sol"},
+{latitude: -15.8804, longitude: -52.2579 , name: "Vale dos Cedros"},
+{latitude: -12.6334, longitude: -57.3107 , name: "Chácara do Lago Azul"},
+{latitude: -13.6221, longitude: -57.4192 , name: "Chácara dos Coqueiros"},
+{latitude: -13.2281, longitude: -58.4081 , name: "Colina do Vale"},
+{latitude: -12.2033, longitude: -57.4715 , name: "Estância da Mata Alta"},
+{latitude: -12.6120, longitude: -57.5946 , name: "Estância das Palmeiras"},
+{latitude: -12.4866, longitude: -57.6887 , name: "Estância do Riacho"},
+{latitude: -13.6119, longitude: -58.5591 , name: "Estância Flor do Campo"},
+{latitude: -11.80941, longitude: -58.3874 , name: "Fazenda de Paolo"},
+{latitude: -12.5377, longitude: -57.443 , name: "Fazenda Sol da Manhã"},
+{latitude: -12.3210, longitude: -57.4139 , name: "Fazenda Terra Boa"},
+{latitude: -12.5642, longitude: -58.1121 , name: "Fazenda Terra Fértil"},
+{latitude: -12.4901, longitude: -57.1635 , name: "Morada do Cerrado"},
+{latitude: -12.2197, longitude: -57.5902 , name: "Morada do Vento"},
+{latitude: -12.4879, longitude: -58.2343 , name: "Morada dos Jacarandás"},
+{latitude: -12.1137, longitude: -57.4094 , name: "Morada Encantada"},
+{latitude: -13.5674, longitude: -57.3183 , name: "Pousada da Colina"},
+{latitude: -13.3821, longitude: -58.3070 , name: "Pousada da Lua"},
+{latitude: -13.1489, longitude: -57.1769 , name: "Pousada da Serra Azul"},
+{latitude: -13.2404, longitude: -57.5840 , name: "Pousada da Serra Verde"},
+{latitude: -13.1586, longitude: -58.428 , name: "Pousada dos Araucárias"},
+{latitude: -12.3390, longitude: -58.110 , name: "Pousada Rio Claro"},
+{latitude: -13.408, longitude: -58.3791 , name: "Rancho Alegre"},
+{latitude: -12.6990, longitude: -57.4414 , name: "Rancho da Cachoeira"},
+{latitude: -13.6756, longitude: -58.2491 , name: "Rancho da Mata"},
+{latitude: -13.1337, longitude: -57.2144 , name: "Rancho da Vargem"},
+{latitude: -13.2419, longitude: -58.6386 , name: "Rancho das Palmeiras"},
+{latitude: -12.4188, longitude: -57.4771 , name: "Rancho do Pôr do Sol"},
+{latitude: -12.3924, longitude: -57.6173 , name: "Rancho Vale Dourado"},
+{latitude: -13.3411, longitude: -58.6214 , name: "Recanto das Águas"},
+{latitude: -12.6661, longitude: -57.1151 , name: "Recanto do Cerrado"},
+{latitude: -12.1096, longitude: -58.511 , name: "Recanto do Horizonte"},
+{latitude: -13.4902, longitude: -58.3045 , name: "Recanto do Sabiá"},
+{latitude: -13.1070, longitude: -57.2260 , name: "Recanto dos Cedros"},
+{latitude: -13.763, longitude: -57.6534 , name: "Recanto dos Ipês"},
+{latitude: -12.1912, longitude: -58.3405 , name: "Recanto dos Ipês Brancos"},
+{latitude: -12.332, longitude: -57.1248 , name: "Refúgio da Paz"},
+{latitude: -13.2501, longitude: -58.4046 , name: "Refúgio do Sol"},
+{latitude: -13.5036, longitude: -58.1304 , name: "Refúgio dos Sonhos"},
+{latitude: -13.6935, longitude: -57.6003 , name: "Refúgio dos Ventos"},
+{latitude: -12.2152, longitude: -57.1693 , name: "Sítio da Boa Vista"},
+{latitude: -13.2213, longitude: -58.3767 , name: "Sítio da Estrela"},
+{latitude: -12.1723, longitude: -57.3301 , name: "Sítio das Nuvens"},
+{latitude: -13.5884, longitude: -57.4408 , name: "Sítio do Cedro"},
+{latitude: -13.6326, longitude: -58.2715 , name: "Sítio do Horizonte"},
+{latitude: -13.6579, longitude: -58.2570 , name: "Sítio dos Cedros Altos"},
+{latitude: -13.6088, longitude: -58.1081 , name: "Terra do Cedro Branco"},
+{latitude: -13.2586, longitude: -58.2302 , name: "Terra do Paraíso"},
+{latitude: -12.1386, longitude: -57.5693 , name: "Terra do Rio Sereno"},
+{latitude: -12.3838, longitude: -57.6478 , name: "Vale das Águas Claras"},
+{latitude: -13.1206, longitude: -58.6061 , name: "Vale dos Pássaros"},
+{latitude: -15.5978, longitude: -56.1082 , name: "Fazenda Boa Terra"},
+{latitude: -15.5978, longitude: -56.1082 , name: "Fazenda Boa Terra"},
+{latitude: -15.5964, longitude: -56.0993 , name: "Fazenda Novo Horizonte"},
+{latitude: -15.5964, longitude: -56.0993 , name: "Fazenda Novo Horizonte"},
+{latitude: -15.6009, longitude: -56.1045 , name: "Fazenda Santa Cruz"},
+{latitude: -15.6009, longitude: -56.1045 , name: "Fazenda Santa Cruz"},
+{latitude: -15.5953, longitude: -56.1035 , name: "Rancho do Sossego"},
+{latitude: -15.5953, longitude: -56.1035 , name: "Rancho do Sossego"},
+{latitude: -15.5995, longitude: -56.1017 , name: "Rancho Verdejante"},
+{latitude: -15.5995, longitude: -56.1017 , name: "Rancho Verdejante"},
+{latitude: -15.6014, longitude: -56.0979 , name: "Sítio do Cerrado"},
+{latitude: -15.6014, longitude: -56.0979 , name: "Sítio do Cerrado"},
+{latitude: -15.5958, longitude: -56.1066 , name: "Sítio do Jacaré"},
+{latitude: -15.5958, longitude: -56.1066 , name: "Sítio do Jacaré"},
+{latitude: -15.5980, longitude: -56.1028 , name: "Sítio Raízes de Mato"},
+{latitude: -15.5980, longitude: -56.1028 , name: "Sítio Raízes de Mato"},
+{latitude: -15.5976, longitude: -56.0982 , name: "Vale do Sol Nascente"},
+{latitude: -15.5976, longitude: -56.0982 , name: "Vale do Sol Nascente"},
+{latitude: -15.5991, longitude: -56.1001 , name: "Vale dos Girassóis"},
+{latitude: -15.5991, longitude: -56.1001 , name: "Vale dos Girassóis"},
+{latitude: -13.0668, longitude: -55.9179 , name: "Fazenda Boa Safra"},
+{latitude: -13.0668, longitude: -55.9179 , name: "Fazenda Boa Safra"},
+{latitude: -13.0661, longitude: -55.9186 , name: "Fazenda Céu Azul"},
+{latitude: -13.0661, longitude: -55.9186 , name: "Fazenda Céu Azul"},
+{latitude: -13.0659, longitude: -55.9204 , name: "Rancho dos Amigos"},
+{latitude: -13.0659, longitude: -55.9204 , name: "Rancho dos Amigos"},
+{latitude: -13.0655, longitude: -55.9193 , name: "Rancho Encantado"},
+{latitude: -13.0655, longitude: -55.9193 , name: "Rancho Encantado"},
+{latitude: -13.0645, longitude: -55.9167 , name: "Rancho Esperança"},
+{latitude: -13.0645, longitude: -55.9167 , name: "Rancho Esperança"},
+{latitude: -13.0673, longitude: -55.9171 , name: "Sítio Bela Flor"},
+{latitude: -13.0673, longitude: -55.9171 , name: "Sítio Bela Flor"},
+{latitude: -13.0642, longitude: -55.9227 , name: "Sítio do Horizonte"},
+{latitude: -13.0642, longitude: -55.9227 , name: "Sítio do Horizonte"},
+{latitude: -13.0681, longitude: -55.9202 , name: "Sítio do Verdejante"},
+{latitude: -13.0681, longitude: -55.9202 , name: "Sítio do Verdejante"},
+{latitude: -13.0634, longitude: -55.9215 , name: "Vale dos Mares"},
+{latitude: -13.0634, longitude: -55.9215 , name: "Vale dos Mares"},
+{latitude: -13.0628, longitude: -55.9238 , name: "Vale Verdejante"},
+{latitude: -13.0628, longitude: -55.9238 , name: "Vale Verdejante"},
+{latitude: -13.8349, longitude: -56.0867 , name: "Fazenda Esperança"},
+{latitude: -13.8349, longitude: -56.0867 , name: "Fazenda Esperança"},
+{latitude: -13.8331, longitude: -56.0825 , name: "Fazenda Novo Futuro"},
+{latitude: -13.8331, longitude: -56.0825 , name: "Fazenda Novo Futuro"},
+{latitude: -13.8351, longitude: -56.0884 , name: "Fazenda Santa Luzia"},
+{latitude: -13.8351, longitude: -56.0884 , name: "Fazenda Santa Luzia"},
+{latitude: -13.8365, longitude: -56.0861 , name: "Rancho Bela Terra"},
+{latitude: -13.8365, longitude: -56.0861 , name: "Rancho Bela Terra"},
+{latitude: -13.8307, longitude: -56.0841 , name: "Rancho da Paz"},
+{latitude: -13.8307, longitude: -56.0841 , name: "Rancho da Paz"},
+{latitude: -13.8326, longitude: -56.0853 , name: "Rancho dos Cedros"},
+{latitude: -13.8326, longitude: -56.0853 , name: "Rancho dos Cedros"},
+{latitude: -13.8338, longitude: -56.0832 , name: "Sítio Beira Rio"},
+{latitude: -13.8338, longitude: -56.0832 , name: "Sítio Beira Rio"},
+{latitude: -13.8374, longitude: -56.0813 , name: "Sítio do Mato"},
+{latitude: -13.8374, longitude: -56.0813 , name: "Sítio do Mato"},
+{latitude: -13.8315, longitude: -56.0829 , name: "Vale das Orquídeas"},
+{latitude: -13.8315, longitude: -56.0829 , name: "Vale das Orquídeas"},
+{latitude: -13.8362, longitude: -56.0819 , name: "Vale dos Ventos"},
+{latitude: -13.8362, longitude: -56.0819 , name: "Vale dos Ventos"},
+{latitude: -16.4649, longitude: -54.6312 , name: "Fazenda Bela Vista"},
+{latitude: -16.4689, longitude: -54.6350 , name: "Fazenda da Esperança"},
+{latitude: -16.4680, longitude: -54.6308 , name: "Fazenda do Sossego"},
+{latitude: -16.4654, longitude: -54.6325 , name: "Rancho do Cerrado"},
+{latitude: -16.4657, longitude: -54.6318 , name: "Rancho do Pantanal"},
+{latitude: -16.4677, longitude: -54.6349 , name: "Rancho Novo Horizonte"},
+{latitude: -16.4668, longitude: -54.6331 , name: "Sítio do Horizonte"},
+{latitude: -16.4662, longitude: -54.6334 , name: "Sítio Verdejante"},
+{latitude: -16.4671, longitude: -54.6370 , name: "Vale do Cedro"},
+{latitude: -16.4691, longitude: -54.6357 , name: "Vale dos Girassóis"},
+{latitude: -11.8611, longitude: -55.5090 , name: "Fazenda Boa Esperança"},
+{latitude: -11.8619, longitude: -55.5071 , name: "Fazenda Rio Claro"},
+{latitude: -11.8651, longitude: -55.5085 , name: "Rancho das Flores"},
+{latitude: -11.8658, longitude: -55.5107 , name: "Rancho do Sol"},
+{latitude: -11.8645, longitude: -55.5104 , name: "Rancho Verdejante"},
+{latitude: -11.8623, longitude: -55.5081 , name: "Sítio Bela Vista"},
+{latitude: -11.8627, longitude: -55.5112 , name: "Sítio do Horizonte"},
+{latitude: -11.8631, longitude: -55.5093 , name: "Sítio dos Girassóis"},
+{latitude: -11.8607, longitude: -55.5079 , name: "Vale das Palmeiras"},
+{latitude: -11.8603, longitude: -55.5098 , name: "Vale Encantado"},
+{latitude: -12.5365, longitude: -55.7231 , name: "Fazenda Boa Safra"},
+{latitude: -12.5353, longitude: -55.7214 , name: "Fazenda Novo Horizonte"},
+{latitude: -12.5323, longitude: -55.7195 , name: "Fazenda Vale Encantado"},
+{latitude: -12.5315, longitude: -55.7223 , name: "Rancho da Paz"},
+{latitude: -12.5351, longitude: -55.7208 , name: "Rancho dos Sonhos"},
+{latitude: -12.5328, longitude: -55.7226 , name: "Rancho Verde"},
+{latitude: -12.5336, longitude: -55.7212 , name: "Sítio Bela Flor"},
+{latitude: -12.5314, longitude: -55.7190 , name: "Sítio do Cerrado"},
+{latitude: -12.5347, longitude: -55.7202 , name: "Vale das Estrelas"},
+{latitude: -12.5342, longitude: -55.7206 , name: "Vale das Palmeiras"},
+{latitude: -14.6260, longitude: -57.4858 , name: "Fazenda Céu Azul"},
+{latitude: -14.6270, longitude: -57.4854 , name: "Fazenda Esperança Verde"},
+{latitude: -14.6281, longitude: -57.4880 , name: "Fazenda Santa Luzia"},
+{latitude: -14.6283, longitude: -57.4886 , name: "Rancho Bela Terra"},
+{latitude: -14.6294, longitude: -57.4892 , name: "Rancho do Horizonte"},
+{latitude: -14.6297, longitude: -57.4871 , name: "Rancho Encantado"},
+{latitude: -14.6257, longitude: -57.4869 , name: "Sítio das Palmeiras"},
+{latitude: -14.6259, longitude: -57.4862 , name: "Sítio do Sol Nascente"},
+{latitude: -14.6274, longitude: -57.4866 , name: "Vale das Águas"},
+{latitude: -14.6262, longitude: -57.4875 , name: "Vale dos Sonhos"},
+{latitude: -15.6461, longitude: -56.00 , name: "Fazenda Bela Flor"},
+{latitude: -15.6453, longitude: -56.1378 , name: "Fazenda Boa Vista"},
+{latitude: -15.6459, longitude: -56.1380 , name: "Fazenda Nova Esperança"},
+{latitude: -15.6468, longitude: -56.1394 , name: "Rancho das Palmeiras"},
+{latitude: -15.6448, longitude: -56.1379 , name: "Rancho do Horizonte"},
+{latitude: -15.6465, longitude: -56.1417 , name: "Rancho Verdejante"},
+{latitude: -15.6447, longitude: -56.1413 , name: "Sítio das Orquídeas"},
+{latitude: -15.6449, longitude: -56.1391 , name: "Sítio do Cerrado"},
+{latitude: -15.6452, longitude: -56.1393 , name: "Sítio Encantado"},
+{latitude: -15.6463, longitude: -56.1406 , name: "Vale do Rio Claro"},
+{latitude: -21.4203, longitude: -45.9478 , name: "Fazenda Flor do Campo"},
+{latitude: -21.4264, longitude: -45.9532 , name: "Rancho Vale Verde"},
+{latitude: -21.4231, longitude: -45.9495 , name: "Sítio Santa Maria"},
+{latitude: -18.6467, longitude: -48.1875 , name: "Fazenda Bela Vista"},
+{latitude: -18.6520, longitude: -48.1941 , name: "Rancho dos Pinheiros"},
+{latitude: -18.6484, longitude: -48.1892 , name: "Sítio Boa Esperança"},
+{latitude: -15.8125, longitude: -43.3148 , name: "Fazenda Boa Esperança"},
+{latitude: -15.8193, longitude: -43.3196 , name: "Rancho Santa Luzia"},
+{latitude: -15.8159, longitude: -43.3162 , name: "Sítio Riacho Fundo"},
+{latitude: -21.2419, longitude: -45.0065 , name: "Fazenda Riacho Doce"},
+{latitude: -21.2490, longitude: -45.0128 , name: "Rancho Encanto Verde"},
+{latitude: -21.2453, longitude: -45.0092 , name: "Sítio Lagoa Bonita"},
+{latitude: -16.7358, longitude: -43.8612 , name: "Fazenda Encantada"},
+{latitude: -16.7420, longitude: -43.8667 , name: "Rancho Lago Azul"},
+{latitude: -16.7386, longitude: -43.8634 , name: "Sítio Boa Vista"},
+{latitude: -17.2228, longitude: -46.8741 , name: "Fazenda Nova Esperança"},
+{latitude: -17.2276, longitude: -46.8793 , name: "Rancho Riacho Verde"},
+{latitude: -17.2253, longitude: -46.8764 , name: "Sítio Santa Clara"},
+{latitude: -18.5754, longitude: -46.5148 , name: "Fazenda Campo Belo"},
+{latitude: -18.5798, longitude: -46.5201 , name: "Rancho Bela Vista"},
+{latitude: -18.5776, longitude: -46.5169 , name: "Sítio Lagoa Serena"},
+{latitude: -22.2265, longitude: -45.9312 , name: "Fazenda dos Ipês"},
+{latitude: -22.2331, longitude: -45.9365 , name: "Rancho do Bosque"},
+{latitude: -22.2293, longitude: -45.9330 , name: "Sítio da Serra"},
+{latitude: -19.3054, longitude: -46.0429 , name: "Fazenda Santo Antônio"},
+{latitude: -19.3127, longitude: -46.0483 , name: "Rancho dos Cedros"},
+{latitude: -19.3089, longitude: -46.0458 , name: "Sítio das Palmeiras"},
+{latitude: -18.9186, longitude: -48.2783 , name: "Fazenda Três Lagoas"},
+{latitude: -18.9245, longitude: -48.2831 , name: "Rancho Estrela do Sul"},
+{latitude: -18.9209, longitude: -48.2796 , name: "Sítio Vale do Sol"},
+{latitude: -16.3592, longitude: -46.9053 , name: "Fazenda dos Coqueiros"},
+{latitude: -16.3654, longitude: -46.9125 , name: "Rancho das Palmeiras"},
+{latitude: -16.3620, longitude: -46.9089 , name: "Sítio Santa Luzia"},
+{latitude: -20.7582, longitude: -42.8784 , name: "Fazenda Três Rios"},
+{latitude: -20.7627, longitude: -42.8842 , name: "Rancho Encantado"},
+{latitude: -20.7598, longitude: -42.8815 , name: "Sítio do Vale Azul"},
+{latitude: -3.2046, longitude: -52.2051 , name: "Fazenda Nova Esperança"},
+{latitude: -3.2109, longitude: -52.2098 , name: "Rancho Encanto Verde"},
+{latitude: -3.2073, longitude: -52.2063 , name: "Sítio Vale do Sol"},
+{latitude: -1.0534, longitude: -46.7645 , name: "Fazenda Riacho Fundo"},
+{latitude: -1.0592, longitude: -46.7698 , name: "Rancho Boa Esperança"},
+{latitude: -1.0556, longitude: -46.7662 , name: "Sítio Lagoa Serena"},
+{latitude: -1.2998, longitude: -47.9265 , name: "Fazenda Rio Branco"},
+{latitude: -1.3045, longitude: -47.9301 , name: "Rancho Santa Cruz"},
+{latitude: -1.3017, longitude: -47.9284 , name: "Sítio dos Lírios"},
+{latitude: -4.2734, longitude: -55.9921 , name: "Fazenda Lagoa Bonita"},
+{latitude: -4.2792, longitude: -55.9974 , name: "Rancho Estrela do Sul"},
+{latitude: -4.2758, longitude: -55.9938 , name: "Sítio dos Coqueiros"},
+{latitude: -5.3682, longitude: -49.1171 , name: "Fazenda Boa Vista"},
+{latitude: -5.3715, longitude: -49.1206 , name: "Rancho dos Ipês"},
+{latitude: -5.3699, longitude: -49.1183 , name: "Sítio das Palmeiras"},
+{latitude: -7.1432, longitude: -55.3834 , name: "Fazenda Santo Antônio"},
+{latitude: -7.1495, longitude: -55.3887 , name: "Rancho Encanto Verde"},
+{latitude: -7.1458, longitude: -55.3851 , name: "Sítio Riacho Doce"},
+{latitude: -2.9662, longitude: -47.3464 , name: "Fazenda Rio Verde"},
+{latitude: -2.9684, longitude: -47.3510 , name: "Rancho do Vale"},
+{latitude: -2.9648, longitude: -47.3481 , name: "Sítio Boa Esperança"},
+{latitude: -8.0243, longitude: -50.0312 , name: "Fazenda Rio Claro"},
+{latitude: -8.0297, longitude: -50.0375 , name: "Rancho Bela Vista"},
+{latitude: -8.0261, longitude: -50.0336 , name: "Sítio Encantado"},
+{latitude: -2.4461, longitude: -54.7079 , name: "Fazenda Flor do Campo"},
+{latitude: -2.4532, longitude: -54.7135 , name: "Rancho Santa Maria"},
+{latitude: -2.4487, longitude: -54.7092 , name: "Sítio Três Palmeiras"},
+{latitude: -3.7654, longitude: -49.6725 , name: "Fazenda dos Cedros"},
+{latitude: -3.7708, longitude: -49.6781 , name: "Rancho Três Lagos"},
+{latitude: -3.7673, longitude: -49.6747 , name: "Sítio Bela Vista"},
+{latitude: -6.8847, longitude: -38.5612 , name: "Fazenda Estrela do Norte"},
+{latitude: -6.8892, longitude: -38.5668 , name: "Rancho Encantado"},
+{latitude: -6.8864, longitude: -38.5634 , name: "Sítio Bela Esperança"},
+{latitude: -6.3409, longitude: -37.7415 , name: "Fazenda Verde Vale"},
+{latitude: -6.3445, longitude: -37.7461 , name: "Rancho Lago Azul"},
+{latitude: -6.3422, longitude: -37.7438 , name: "Sítio da Paz"},
+{latitude: -7.0223, longitude: -35.8571 , name: "Fazenda Rio Verde"},
+{latitude: -7.0268, longitude: -35.8627 , name: "Rancho da Serra"},
+{latitude: -7.0245, longitude: -35.8601 , name: "Sítio Encanto Verde"},
+{latitude: -7.3041, longitude: -38.1514 , name: "Fazenda Riacho Fundo"},
+{latitude: -7.3096, longitude: -38.1568 , name: "Rancho do Sol Nascente"},
+{latitude: -7.3069, longitude: -38.1539 , name: "Sítio Três Palmeiras"},
+{latitude: -7.8872, longitude: -37.1267 , name: "Fazenda dos Cedros"},
+{latitude: -7.8917, longitude: -37.1313 , name: "Rancho Vale Encantado"},
+{latitude: -7.8894, longitude: -37.1285 , name: "Sítio Boa Vista"},
+{latitude: -7.0201, longitude: -37.2734 , name: "Fazenda Vale Bonito"},
+{latitude: -7.0237, longitude: -37.2789 , name: "Rancho Três Rios"},
+{latitude: -7.0215, longitude: -37.2761 , name: "Sítio das Flores"},
+{latitude: -6.5081, longitude: -36.3514 , name: "Fazenda Flor do Campo"},
+{latitude: -6.5126, longitude: -36.3561 , name: "Rancho Santa Fé"},
+{latitude: -6.5102, longitude: -36.3535 , name: "Sítio Estrela do Norte"},
+{latitude: -6.7735, longitude: -37.8019 , name: "Fazenda Riacho Doce"},
+{latitude: -6.7780, longitude: -37.8063 , name: "Rancho Santa Maria"},
+{latitude: -6.7756, longitude: -37.8039 , name: "Sítio Boa Esperança"},
+{latitude: -6.4851, longitude: -37.4458 , name: "Fazenda São Francisco"},
+{latitude: -6.4896, longitude: -37.4512 , name: "Rancho dos Coqueiros"},
+{latitude: -6.4873, longitude: -37.4489 , name: "Sítio dos Lírios"},
+{latitude: -6.7541, longitude: -38.2301 , name: "Fazenda Boa Vista"},
+{latitude: -6.7584, longitude: -38.2345 , name: "Rancho Verdejante"},
+{latitude: -6.7560, longitude: -38.2323 , name: "Sítio Lagoa Serena"},
+{latitude: -10.2350, longitude: -62.8833 , name: "Fazenda do Rio"},
+{latitude: -10.2421, longitude: -62.8715 , name: "Sítio da Luz"},
+{latitude: -11.4933, longitude: -61.4454 , name: "Fazenda do Café"},
+{latitude: -11.4822, longitude: -61.4381 , name: "Sítio Verde e Amarelo"},
+{latitude: -10.0212, longitude: -62.5628 , name: "Fazenda das Palmeiras"},
+{latitude: -10.0270, longitude: -62.5501 , name: "Sítio das Flores"},
+{latitude: -10.9665, longitude: -61.9283 , name: "Fazenda da Esperança"},
+{latitude: -10.9545, longitude: -61.9191 , name: "Fazendinha do Lago"},
+{latitude: -10.9778, longitude: -61.9452 , name: "Sítio Verdejante"},
+{latitude: -9.7472, longitude: -63.3294 , name: "Fazenda do Pacaembu"},
+{latitude: -9.7534, longitude: -63.3192 , name: "Sítio da Floresta"},
+{latitude: -8.7919, longitude: -63.9115 , name: "Fazenda dos Ventos"},
+{latitude: -8.7767, longitude: -63.9238 , name: "Fazenda São Jorge"},
+{latitude: -8.7608, longitude: -63.9033 , name: "Sítio Porto Alegre"},
+{latitude: -10.2380, longitude: -62.2700 , name: "Fazenda das Águas"},
+{latitude: -10.2256, longitude: -62.2753 , name: "Sítio do Vale"},
+{latitude: 2312383, longitude: -60.6753 , name: "Fazenda Boa Esperança"},
+{latitude: 2302887, longitude: -60.6742 , name: "Sítio Verdejante"},
+{latitude: 785305, longitude: -60.6570 , name: "Fazenda do Vale"},
+{latitude: 783479, longitude: -60.6538 , name: "Sítio da Esperança"},
+{latitude: 2389450, longitude: -60.8595 , name: "Chácara do Rio Branco"},
+{latitude: 2374109, longitude: -60.8580 , name: "Fazenda Verde de Mucajaí"},
+{latitude: 2629779, longitude: -60.7250 , name: "Fazenda Rio Verde"},
+{latitude: 2649137, longitude: -60.7274 , name: "Sítio de São Paulo"},
+{latitude: 1695854, longitude: -60.7012 , name: "Chácara do Sol"},
+{latitude: 1680149, longitude: -60.7035 , name: "Fazenda São Jorge"}
+    ];
+
+// Ajouter des marqueurs pour chaque feu
+fireData.forEach(function(row) {
+    var fireDate = getDateNDaysAgo(row.date); // Calculer la date à partir de "date" (nombre de jours)
+    var fireDateFormatted = new Date(fireDate).toLocaleDateString(); // Formater la date
+    L.marker([row.latitude, row.longitude], {icon: fireIcon}).addTo(map)
+        .bindPopup("Feu détecté le : " + fireDateFormatted + "<br>Position : " + row.latitude + ", " + row.longitude);
+});
+
+    // Ajouter des marqueurs pour chaque ferme
+    farmData.forEach(function(row) {
+        L.marker([row.latitude, row.longitude], {icon: farmIcon}).addTo(map)
+            .bindPopup("Nom de la ferme : " + row.name + "<br>Position : " + row.latitude + ", " + row.longitude);
+    });
+
+</script>
+
+</body>
+</html>
