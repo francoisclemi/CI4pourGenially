@@ -3,7 +3,7 @@
 <style>
 .phone {
     width: 90vw;
-    max-width: 300px;
+    max-width: 400px; /* Largeur maximale fixée */
     aspect-ratio: 9 / 19.5;
     background: #1a1a1a;
     border-radius: 40px;
@@ -39,7 +39,7 @@
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 4vw; /* Taille des chiffres réduite */
+    font-size: 4vw; /* Taille des chiffres */
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -78,11 +78,11 @@
     border: none;
     border-radius: 25px;
     color: white;
-    font-size: 3.5vw; /* Taille ajustée pour ne pas dépasser */
-    max-font-size: 14px; /* Limite de taille pour petits écrans */
+    font-size: 3.5vw;
+    max-font-size: 14px; /* Limite pour petits écrans */
     cursor: pointer;
     text-align: center;
-    white-space: nowrap; /* Empêche le retour à la ligne */
+    white-space: nowrap;
 }
 
 .call-button.hang-up {
@@ -119,6 +119,7 @@
     }
 }
 </style>
+
 
 </head>
 <body>
