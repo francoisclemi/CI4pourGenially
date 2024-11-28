@@ -48,6 +48,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     width: 90%;
+    max-width: 350px; /* Taille maximale cohérente avec le boîtier */
     margin-top: auto;
 }
 
@@ -57,6 +58,7 @@
     border: none;
     padding: 10px;
     font-size: 4vw;
+    max-width: 90px; /* Limite maximale pour chaque bouton */
     border-radius: 50%;
     cursor: pointer;
     aspect-ratio: 1;
@@ -73,13 +75,13 @@
 .call-button {
     background: #4CAF50;
     width: 90%;
+    max-width: 350px; /* Taille maximale cohérente avec le boîtier */
     padding: 10px;
     margin-top: 10px;
     border: none;
     border-radius: 25px;
     color: white;
     font-size: 3.5vw;
-    max-font-size: 14px; /* Limite pour petits écrans */
     cursor: pointer;
     text-align: center;
     white-space: nowrap;
@@ -119,6 +121,7 @@
     }
 }
 </style>
+
 
 
 </head>
