@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <h2>NASA FIRMS</h2>
-    Latitude: <input type="number" id="latitude" placeholder="Latitude" step="any"><br>
-    Longitude: <input type="number" id="longitude" placeholder="Longitude" step="any"><br>
-    <button onclick="zoomOnCoordinates()">Centrer et Zoomer sur les coordonnées</button>
-
+  <span style="font-size: 24px;font-family: Arial; font-weight: bold;">Latitude : </span><input type="number" id="latitude" placeholder="Latitude" step="any"  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br>
+  <br>
+  <span style="font-size: 24px; font-family: Arial;font-weight: bold;">Longitude : </span><input type="number" id="longitude" placeholder="Longitude" step="any"  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br>
+  <br>
+    <button style="font-size: 24px; font-family: Arial, sans-serif; padding: 10px 20px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="zoomOnCoordinates()">Centrer et Zoomer sur les coordonnées</button>
+  <br>
+    <br>
     <title>Carte avec fond Satellite</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
         #map {
-            height: 500px;
+            height: 700px;
             width: 100%;
         }
     </style>
@@ -26,9 +28,7 @@
 var map = L.map('map').setView([-8.0261, -50.0336], 5); // Centrer sur le brésil avec un zoom de 5
 
     // Ajout du fond de carte satellite
-    L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', {
-        attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
-    }).addTo(map);
+    L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', ).addTo(map);
 
     // Icône de carré rouge pour les feux
     var fireIcon = L.divIcon({
