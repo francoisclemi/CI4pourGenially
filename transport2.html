@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport de Bétail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        #search-container {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            margin-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 50px;
+            z-index: 999;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .details {
+            display: none;
+            background-color: #e9e9e9;
+            padding: 10px;
+            margin-top: -1px;
+        }
+        .details-row td {
+            vertical-align: top;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .date-col {
+            width: 100px;
+        }
+        tbody tr:nth-child(odd) {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        tbody tr:nth-child(odd):hover {
+            background-color: #f0f0f0;
+        }
+        tbody tr:nth-child(odd)::after {
+            content: 'ℹ️';
+            float: right;
+            opacity: 0.5;
+            margin-right: 10px;
+        }
+        tbody tr:nth-child(odd):hover::after {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div id="search-container">
+    <input type="text" id="search-input" placeholder="Rechercher un nom de ferme..." oninput="searchTable()">
+    <button id="next-button" disabled>Suivant</button>
+    <button id="prev-button" disabled>Précédent</button>
+    <span id="result-count"></span>
+</div>
+
+<table id="data-table">
+    <thead>
+        <tr>
+            <th class="date-col">Date</th>
+            <th>Ferme de départ</th>
+            <th>Ferme d'arrivée</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Les lignes de données seront ajoutées ici -->
+    </tbody>
+</table>
+
+<script>
+    const data = [
+        { 
+            daysAgo: 75, 
+            fromFarm: "Fazenda Alto Acre", 
+            fromCity: "Cruzeiro do Sul", 
+            fromState: "Acre", 
+            toFarm: "Fazenda Monte Verde", 
+            toCity: "Acrelândia", 
+            toState: "Acre", 
+            cargo: "41 têtes de bétail", 
+            transport: "Transportes Rio Branco LTDA", 
+            driver: "Carlos Eduardo Santos Silva" 
+        },
+        { 
+            daysAgo: 80, 
+            fromFarm: "Fazenda Campo Bonito", 
+            fromCity: "Epitaciolândia", 
+            fromState: "Acre", 
+            toFarm: "Sítio Vale Verde", 
+            toCity: "Brasileia", 
+            toState: "Acre", 
+            cargo: "67 têtes de bétail", 
+            transport: "Transportes do Acre Express", 
+            driver: "Marcos Oliveira Pereira" 
+        },
+        { 
+            daysAgo: 67, 
+            fromFarm: "Fazenda Santo Antônio", 
+            fromCity: "Feijó", 
+            fromState: "Acre", 
+            toFarm: "Chácara da Paz", 
+            toCity: "Cruzeiro do Sul", 
+            toState: "Acre", 
+            cargo: "111 têtes de bétail", 
+            transport: "Logística Bovina Nacional", 
+            driver: "Rafael Almeida Costa" 
+        }
+    ];
+
+    const tableBody = document.querySelector('#data-table tbody');
+    const searchInput = document.querySelector('#search-input');
+    const nextButton = document.querySelector('#next-button');
+    const prevButton = document.querySelector('#prev-button');
+    const resultCount = document.querySelector('#result-count');
+    let searchResults = [];
+    let currentResultIndex = 0;
+    let searchQuery = '';
+
+    function getFormattedDate(daysAgo) {
+        let date = new Date();
+        date.setDate(date.getDate() - daysAgo);
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function populateTable() {
+        tableBody.innerHTML = '';
+        data.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = ` 
+                <td class="date-col">${getFormattedDate(row.daysAgo)}</td>
+                <td>${row.fromFarm}</td>
+                <td>${row.toFarm}</td>
+            `;
+            tr.addEventListener('click', () => toggleDetails(index, tr));
+            tableBody.appendChild(tr);
+
+            const detailsRow = document.createElement('tr');
+            detailsRow.className = 'details-row';
+            detailsRow.innerHTML = `
+                <td colspan="3">
+                    <div class="details">
+                        <div><strong>Date du transport :</strong> ${getFormattedDate(row.daysAgo)}</div><br>
+                        <div style="margin-left: 30px;">
+                            <strong>Ferme de départ :</strong> ${row.fromFarm}<br>
+                            <strong>Commune :</strong> ${row.fromCity}<br>
+                            <strong>État :</strong> ${row.fromState}<br><br>
+                        </div>
+                        <div style="margin-left: 60px;">
+                            <strong>Marchandise :</strong> ${row.cargo}<br>
+                            <strong>Société de transport :</strong> ${row.transport}<br>
+                            <strong>Nom du chauffeur :</strong> ${row.driver}<br><br>
+                        </div>
+                        <div style="margin-left: 120px;">
+                            <strong>Ferme d'arrivée :</strong> ${row.toFarm}<br>
+                            <strong>État :</strong> ${row.toState}<br>
+                            <strong>Commune :</strong> ${row.toCity}<br>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(detailsRow);
+        });
+    }
+
+    function toggleDetails(index, row) {
+        const detailsRow = row.nextElementSibling;
+        const details = detailsRow.querySelector('.details');
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function removeHighlights() {
+        document.querySelectorAll('.highlight').forEach(el => {
+            const parent = el.parentNode;
+            parent.innerHTML = parent.textContent;
+        });
+    }
+
+    function highlightText(element, query) {
+        const text = element.textContent;
+        const regex = new RegExp(query, 'gi');
+        element.innerHTML = text.replace(regex, match => `<span class="highlight">${match}</span>`);
+    }
+
+    function searchTable() {
+        // Remove previous highlights
+        removeHighlights();
+
+        // Get search query
+        searchQuery = searchInput.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        // Find matching rows
+        searchResults = [];
+        document.querySelectorAll('#data-table tbody tr:nth-child(even)').forEach(row => {
+            const cells = row.previousElementSibling.querySelectorAll('td');
+            
+            cells.forEach(cell => {
+                if (cell.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(searchQuery)) {
+                    searchResults.push(cell);
+                }
+            });
+        });
+
+        // Update navigation and highlight first result
+        currentResultIndex = 0;
+        updateSearchNavigation();
+        
+        if (searchResults.length > 0) {
+            highlightNextResult();
+        }
+    }
+
+    function highlightNextResult() {
+        if (searchResults.length === 0) return;
+
+        // Remove previous highlights
+        removeHighlights();
+
+        // Highlight current result
+        const currentResult = searchResults[currentResultIndex];
+        highlightText(currentResult, searchQuery);
+        
+        // Scroll to the result
+        currentResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function updateSearchNavigation() {
+        resultCount.textContent = `Résultats : ${searchResults.length}`;
+        nextButton.disabled = searchResults.length <= 1;
+        prevButton.disabled = searchResults.length <= 1;
+    }
+
+    searchInput.addEventListener('input', searchTable);
+
+    nextButton.addEventListener('click', () => {
+        if (searchResults.length > 0) {
+            currentResultIndex = (currentResultIndex + 1) % searchResults.length;
+            highlightNextResult();
+        }
+    });
+
+    prevButton.addEventListener('click', () => {
+        if (searchResults.length > 0) {
+            currentResultIndex = (currentResultIndex - 1 + searchResults.length) % searchResults.length;
+            highlightNextResult();
+        }
+    });
+
+    populateTable();
+</script>
+
+</body>
+</html>
