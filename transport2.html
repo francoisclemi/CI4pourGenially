@@ -80,7 +80,7 @@
     <thead>
         <tr>
             <th class="date-col">Date</th>
-            <th>Ferme de départ</th>
+            <th>Ferme de départ   →</th>
             <th>Ferme d'arrivée</th>
         </tr>
     </thead>
@@ -37237,7 +37237,7 @@
             const tr = document.createElement('tr');
             tr.innerHTML = ` 
                 <td class="date-col">${getFormattedDate(row.daysAgo)}</td>
-                <td>${row.fromFarm}</td>
+                <td>${row.fromFarm} →</td>
                 <td>${row.toFarm}</td>
             `;
             tr.addEventListener('click', () => toggleDetails(index, tr));
@@ -37251,9 +37251,8 @@
                         <div><strong>Date du transport :</strong> ${getFormattedDate(row.daysAgo)}</div><br>
                         <div style="margin-left: 30px;">
                             <strong>Ferme de départ :</strong> ${row.fromFarm}<br>
-                            
-                            <strong>État :</strong> ${row.fromState}<br><br>
                             <strong>Commune :</strong> ${row.fromCity}<br>
+                            <strong>État :</strong> ${row.fromState}<br><br>
                         </div>
                         <div style="margin-left: 60px;">
                             <strong>Marchandise :</strong> ${row.cargo}<br>
