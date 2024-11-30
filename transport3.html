@@ -112,42 +112,40 @@
         return `${day}/${month}/${year}`;
     }
 
-function populateTable(dataToDisplay) {
-    tableBody.innerHTML = '';
-    dataToDisplay.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${getFormattedDate(row.daysAgo)}</td>
-            <td>${row.fromFarm}</td>
-            <td>${row.toFarm}</td>
-        `;
-        tableBody.appendChild(tr);
+    function populateTable(dataToDisplay) {
+        tableBody.innerHTML = '';
+        dataToDisplay.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${getFormattedDate(row.daysAgo)}</td>
+                <td>${row.fromFarm}</td>
+                <td>${row.toFarm}</td>
+            `;
+            tr.addEventListener('click', () => toggleDetails(index, tr));
+            tableBody.appendChild(tr);
 
-        const detailsRow = document.createElement('tr');
-        detailsRow.className = 'details-row';
-        detailsRow.innerHTML = `
-            <td colspan="3">
-                <div class="details">
-                    <strong>Départ :</strong> ${row.fromFarm}, ${row.fromCity}, ${row.fromState}<br>
-                    <strong>Arrivée :</strong> ${row.toFarm}, ${row.toCity}, ${row.toState}<br>
-                    <strong>Cargo :</strong> ${row.cargo}<br>
-                    <strong>Transport :</strong> ${row.transport}<br>
-                    <strong>Chauffeur :</strong> ${row.driver}
-                </div>
-            </td>
-        `;
-        detailsRow.style.display = 'none'; // Par défaut masqué
-        tableBody.appendChild(detailsRow);
+            const detailsRow = document.createElement('tr');
+            detailsRow.className = 'details-row';
+            detailsRow.innerHTML = `
+                <td colspan="3">
+                    <div class="details">
+                        <strong>Départ :</strong> ${row.fromFarm}, ${row.fromCity}, ${row.fromState}<br>
+                        <strong>Arrivée :</strong> ${row.toFarm}, ${row.toCity}, ${row.toState}<br>
+                        <strong>Cargo :</strong> ${row.cargo}<br>
+                        <strong>Transport :</strong> ${row.transport}<br>
+                        <strong>Chauffeur :</strong> ${row.driver}
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(detailsRow);
+        });
+    }
 
-        // Un clic sur la ligne alterne l'affichage des détails
-        tr.addEventListener('click', () => toggleDetails(detailsRow));
-    });
-}
-
-function toggleDetails(detailsRow) {
-    const isVisible = detailsRow.style.display === 'table-row';
-    detailsRow.style.display = isVisible ? 'none' : 'table-row';
-}
+    function toggleDetails(index, row) {
+        const detailsRow = row.nextElementSibling;
+        const details = detailsRow.querySelector('.details');
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
 
     // Recherche et navigation des résultats
     function searchTable() {
