@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport de Bétail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        #search-container {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            margin-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 50px;
+            z-index: 999;
+        }
+        .details {
+            display: none;
+            background-color: #e9e9e9;
+            padding: 10px;
+            margin-top: -1px;
+        }
+        .details-row td {
+            vertical-align: top;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        tbody tr:nth-child(odd) {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        tbody tr:nth-child(odd):hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="search-container">
+    <input type="text" id="search-input" placeholder="Rechercher un nom de ferme..." oninput="searchTable()">
+    <button id="next-button" disabled>Suivant</button>
+    <button id="prev-button" disabled>Précédent</button>
+    <span id="result-count"></span>
+</div>
+
+<table id="data-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Ferme de départ</th>
+            <th>Ferme d'arrivée</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Les lignes de données seront ajoutées ici dynamiquement -->
+    </tbody>
+</table>
+
+<script>
+    let data = [];
+    let searchResults = [];
+    let currentResultIndex = 0;
+
+    // Charger les données à partir du fichier JSON
+    fetch('transports.json')
+        .then(response => response.json())
+        .then(jsonData => {
+            data = jsonData;
+            populateTable(data);
+        })
+        .catch(error => console.error('Erreur lors du chargement des données :', error));
+
+    const tableBody = document.querySelector('#data-table tbody');
+    const searchInput = document.querySelector('#search-input');
+    const nextButton = document.querySelector('#next-button');
+    const prevButton = document.querySelector('#prev-button');
+    const resultCount = document.querySelector('#result-count');
+
+    function getFormattedDate(daysAgo) {
+        let date = new Date();
+        date.setDate(date.getDate() - daysAgo);
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function populateTable(dataToDisplay) {
+        tableBody.innerHTML = '';
+        dataToDisplay.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${getFormattedDate(row.daysAgo)}</td>
+                <td>${row.fromFarm}</td>
+                <td>${row.toFarm}</td>
+            `;
+            tr.addEventListener('click', () => toggleDetails(index, tr));
+            tableBody.appendChild(tr);
+
+            const detailsRow = document.createElement('tr');
+            detailsRow.className = 'details-row';
+            detailsRow.innerHTML = `
+                <td colspan="3">
+                    <div class="details">
+                        <strong>Départ :</strong> ${row.fromFarm}, ${row.fromCity}, ${row.fromState}<br>
+                        <strong>Arrivée :</strong> ${row.toFarm}, ${row.toCity}, ${row.toState}<br>
+                        <strong>Cargo :</strong> ${row.cargo}<br>
+                        <strong>Transport :</strong> ${row.transport}<br>
+                        <strong>Chauffeur :</strong> ${row.driver}
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(detailsRow);
+        });
+    }
+
+    function toggleDetails(index, row) {
+        const detailsRow = row.nextElementSibling;
+        const details = detailsRow.querySelector('.details');
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Recherche et navigation des résultats
+    function searchTable() {
+        const query = searchInput.value.toLowerCase();
+        searchResults = [];
+        currentResultIndex = 0;
+
+        document.querySelectorAll('#data-table tbody tr:nth-child(odd)').forEach(row => {
+            if (row.textContent.toLowerCase().includes(query)) {
+                searchResults.push(row);
+            }
+        });
+
+        resultCount.textContent = `Résultats : ${searchResults.length}`;
+        highlightNextResult();
+    }
+
+    function highlightNextResult() {
+        if (searchResults.length === 0) return;
+        searchResults.forEach(row => row.classList.remove('highlight'));
+        searchResults[currentResultIndex].classList.add('highlight');
+        searchResults[currentResultIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    nextButton.addEventListener('click', () => {
+        if (searchResults.length > 0) {
+            currentResultIndex = (currentResultIndex + 1) % searchResults.length;
+            highlightNextResult();
+        }
+    });
+
+    prevButton.addEventListener('click', () => {
+        if (searchResults.length > 0) {
+            currentResultIndex = (currentResultIndex - 1 + searchResults.length) % searchResults.length;
+            highlightNextResult();
+        }
+    });
+</script>
+
+</body>
+</html>
