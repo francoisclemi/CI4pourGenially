@@ -3993,7 +3993,7 @@
             "cargo": "115 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Sandro Luiz Azevedo" 
-        },            "            "            "     { 
+        },  { 
             "daysAgo": 179, 
             "fromFarm": "Fazenda São Lucas", 
             "fromCity": "Macapá (zone rurale)", 
@@ -4183,7 +4183,7 @@
             "cargo": "116 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Carlos Eduardo Ferreira" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 189, 
             "fromFarm": "Fazenda São Lucas", 
             "fromCity": "Macapá (zone rurale)", 
@@ -4374,7 +4374,7 @@
             "cargo": "139 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Roberto Carlos Souza" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 193, 
             "fromFarm": "Fazenda Vale do Sol", 
             "fromCity": "Mazagão", 
@@ -4565,7 +4565,7 @@
             "cargo": "103 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Vagner Mendes Rocha" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 188, 
             "fromFarm": "Chácara Rio Azul", 
             "fromCity": "Pedra Branca do Amapari", 
@@ -4756,7 +4756,7 @@
             "cargo": "108 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Maurício da Cruz Martins" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 189, 
             "fromFarm": "Fazenda Boa Vista", 
             "fromCity": "Careiro da Várzea", 
@@ -7835,7 +7835,7 @@
             "cargo": "70 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Luiz Antônio da Costa" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 203, 
             "fromFarm": "Rancho da Colina", 
             "fromCity": "Colatina", 
@@ -7893,7 +7893,7 @@
             "cargo": "79 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Lucas Machado Vieira" 
-        },            "            "            "         { 
+        },      { 
             "daysAgo": 201, 
             "fromFarm": "Rancho das Palmeiras", 
             "fromCity": "Venda Nova do Imigrante", 
@@ -8011,7 +8011,7 @@
             "cargo": "124 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Maurício Vieira Costa" 
-        },            "            "            "     { 
+        },  { 
             "daysAgo": 201, 
             "fromFarm": "Rancho das Palmeiras", 
             "fromCity": "Venda Nova do Imigrante", 
@@ -9171,7 +9171,7 @@
             "cargo": "66 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Renato Luiz Martins" 
-        },            "            "            "            "            "         { 
+        },         "            "         { 
             "daysAgo": 221, 
             "fromFarm": "Rancho das Flores", 
             "fromCity": "Goiatuba", 
@@ -9302,7 +9302,7 @@
             "cargo": "81 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "João Pereira da Silva" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 221, 
             "fromFarm": "Rancho das Flores", 
             "fromCity": "Goiatuba", 
@@ -9433,7 +9433,7 @@
             "cargo": "120 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Fernando Nascimento Almeida" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 215, 
             "fromFarm": "Rancho das Flores", 
             "fromCity": "Goiatuba", 
@@ -9551,7 +9551,7 @@
             "cargo": "108 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "João Pereira da Silva" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 217, 
             "fromFarm": "Rancho das Flores", 
             "fromCity": "Goiatuba", 
@@ -9682,7 +9682,7 @@
             "cargo": "138 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Maurício Vieira Costa" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 216, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -9813,7 +9813,7 @@
             "cargo": "73 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Gilberto Campos Silva" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 216, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -9944,7 +9944,7 @@
             "cargo": "138 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Antônio Marcos dos Santos" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 219, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -10075,7 +10075,7 @@
             "cargo": "128 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Vagner Mendes Rocha" 
-        },            "            "            "            "            "     { 
+        },         "            "     { 
             "daysAgo": 215, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -10158,7 +10158,7 @@
             "cargo": "79 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Everton Henrique Santos" 
-        },            "            "            "            "            "            "         { 
+        },         "            "            "         { 
             "daysAgo": 217, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -10241,7 +10241,7 @@
             "cargo": "92 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Fernando Nascimento Almeida" 
-        },            "            "            "            "            "            "         { 
+        },         "            "            "         { 
             "daysAgo": 215, 
             "fromFarm": "Rancho Encanto Verde", 
             "fromCity": "Porangatu", 
@@ -10324,7 +10324,7 @@
             "cargo": "106 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Osvaldo Nascimento Gonçalves" 
-        },            "            "            "            "            "            "            "     { 
+        },         "  { 
             "daysAgo": 235, 
             "fromFarm": "Rancho das Palmeiras", 
             "fromCity": "Rio Verde", 
@@ -10431,7 +10431,7 @@
             "cargo": "110 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Cláudio Antônio Ramos" 
-        },            "            "            "            "            "            " { 
+        },         "            "            " { 
             "daysAgo": 235, 
             "fromFarm": "Rancho das Palmeiras", 
             "fromCity": "Rio Verde", 
@@ -10538,7 +10538,7 @@
             "cargo": "61 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Eder Fernandes de Souza" 
-        },            "            "            "            "            "            " { 
+        },         "            "            " { 
             "daysAgo": 234, 
             "fromFarm": "Rancho das Palmeiras", 
             "fromCity": "Rio Verde", 
@@ -17693,7 +17693,7 @@
             "cargo": "134 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Leandro Alexandre Gomes" 
-        },            "            "            "            "         
+        },         "         
         { 
             "daysAgo": 64, 
             "fromFarm": "Fazenda Santa Cruz", 
@@ -17813,7 +17813,7 @@
             "cargo": "109 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Ricardo Alves Batista" 
-        },            "            "            "            "         
+        },         "         
         { 
             "daysAgo": 64, 
             "fromFarm": "Sítio Bela Flor", 
@@ -19265,7 +19265,7 @@
             "cargo": "116 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Carlos Eduardo Ferreira" 
-        },            "            "            "            "         
+        },         "         
         { 
             "daysAgo": 63, 
             "fromFarm": "Sítio do Verdejante", 
@@ -20057,7 +20057,7 @@
             "cargo": "122 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Antônio Marcos dos Santos" 
-        },            "            "            "            "            "            "            " 
+        },         "            "            "            " 
         { 
             "daysAgo": 63, 
             "fromFarm": "Rancho Verdejante", 
@@ -20129,7 +20129,7 @@
             "cargo": "53 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Wagner da Rocha Costa" 
-        },            "            "            "            "            "            " 
+        },         "            "            " 
         { 
             "daysAgo": 61, 
             "fromFarm": "Vale das Palmeiras", 
@@ -20249,7 +20249,7 @@
             "cargo": "84 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Osvaldo Nascimento Gonçalves" 
-        },            "            "            "            "         
+        },         "         
         { 
             "daysAgo": 62, 
             "fromFarm": "Vale Encantado", 
@@ -21485,7 +21485,7 @@
             "cargo": "52 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Cláudio Antônio Ramos" 
-        },            "            "            "            "            "     
+        },         "            "     
         { 
             "daysAgo": 61, 
             "fromFarm": "Fazenda Nova Esperança", 
@@ -21545,7 +21545,7 @@
             "cargo": "72 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Maurício Vieira Costa" 
-        },            "            "            "            "            "            "     
+        },         "            "            "     
         { 
             "daysAgo": 60, 
             "fromFarm": "Fazenda Nova Esperança", 
@@ -22541,7 +22541,7 @@
             "cargo": "95 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Marcos Vinícius Oliveira" 
-        },            "            "            "            "     
+        },         "     
         { 
             "daysAgo": 65, 
             "fromFarm": "Rancho Encanto Verde", 
@@ -22673,7 +22673,7 @@
             "cargo": "59 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "André Luiz Teixeira" 
-        },            "            "            "            "     
+        },         "     
         { 
             "daysAgo": 65, 
             "fromFarm": "Rancho Encanto Verde", 
@@ -22805,7 +22805,7 @@
             "cargo": "100 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Vagner Mendes Rocha" 
-        },            "            "            "            "     
+        },         "     
         { 
             "daysAgo": 61, 
             "fromFarm": "Rancho Encanto Verde", 
@@ -23105,7 +23105,7 @@
             "cargo": "114 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Rômulo Nogueira Martins" 
-        },            "            "            "            "            " 
+        },         "            " 
         { 
             "daysAgo": 60, 
             "fromFarm": "Rancho Boa Esperança", 
@@ -24281,7 +24281,7 @@
             "cargo": "73 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Rômulo Nogueira Martins" 
-        },            "            "            "            "            "     
+        },         "            "     
         { 
             "daysAgo": 60, 
             "fromFarm": "Sítio Estrela do Norte", 
@@ -25181,7 +25181,7 @@
             "cargo": "128 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Everton Henrique Santos" 
-        },            "            "            "         
+        },      
         { 
             "daysAgo": 60, 
             "fromFarm": "Fazenda dos Ventos", 
@@ -25337,5 +25337,5 @@
             "cargo": "127 têtes de bétail", 
             "transport": "2RGM TRANSPORT", 
             "driver": "Wagner da Rocha Costa" 
-        } 
+        }     
 ]
