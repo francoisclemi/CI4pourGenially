@@ -18,11 +18,70 @@
             height: 700px;
             width: 100%;
         }
+        
+        
+    .modal {
+    display: none; /* Masquée par défaut */
+    position: fixed;
+    z-index: 1000; /* Au-dessus de tout */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond semi-transparent */
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    position: relative;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 80%;
+    max-height: 80%;
+  }
+
+  .modal-content img {
+    width: 100%;
+    height: auto;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: center;
+  }     
+        
+        
+        
+        
+        
+        
+        
     </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <button class="close-button" onclick="closeModal()">×</button>
+    <img src="https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif" alt="Historique des feux">
+  </div>
+</div>
 
 <script>
     // Initialisation de la carte
@@ -68,7 +127,7 @@ function getDateNDaysAgo(daysAgo) {
     
     var fireData = [
   
-      {latitude: -9.8184 , longitude: -66.8969 , date: 571},{latitude: -9.8224 , longitude: -66.8929 , date: 227},{latitude: -9.8284 , longitude: -66.9019 , date: 517},{latitude: -9.8154 , longitude: -66.8959 , date: 269},{latitude: -9.866632414 , longitude: -66.87613969 , date: 676},{latitude: -9.811745264 , longitude: -66.90792501 , date: 392},{latitude: -9.810230698 , longitude: -66.92649318 , date: 507},{latitude: -9.860783969 , longitude: -66.87802204 , date: 101},
+     {latitude: -9.8184 , longitude: -66.8969 , date: 571},{latitude: -9.8224 , longitude: -66.8929 , date: 227},{latitude: -9.8284 , longitude: -66.9019 , date: 517},{latitude: -9.8154 , longitude: -66.8959 , date: 269},{latitude: -9.866632414 , longitude: -66.87613969 , date: 676},{latitude: -9.811745264 , longitude: -66.90792501 , date: 392},{latitude: -9.810230698 , longitude: -66.92649318 , date: 507},{latitude: -9.860783969 , longitude: -66.87802204 , date: 101},
   {latitude: -9.8201 , longitude: -66.893 , date: 898},{latitude: -9.8241 , longitude: -66.889 , date: 49},{latitude: -9.8301 , longitude: -66.898 , date: 869},{latitude: -9.8171 , longitude: -66.892 , date: 202},{latitude: -9.820096846 , longitude: -66.87816127 , date: 7},{latitude: -9.866867593 , longitude: -66.92505646 , date: 595},{latitude: -9.799286347 , longitude: -66.87743356 , date: 390},{latitude: -9.781950874 , longitude: -66.89566266 , date: 126},
 
 
@@ -716,7 +775,7 @@ function getDateNDaysAgo(daysAgo) {
     ];
 
     var farmData = [
-       {latitude: -9.8234, longitude: -66.8989 , name: "Chácara dos Ipês"},
+             {latitude: -9.8234, longitude: -66.8989 , name: "Chácara dos Ipês"},
 {latitude: -9.8251, longitude: -66.8950 , name: "Fazenda Boa Vista"},
 {latitude: -9.8223, longitude: -66.8977 , name: "Fazenda Monte Verde"},
 {latitude: -9.8245, longitude: -66.8961 , name: "Sítio dos Araçás"},
@@ -1344,6 +1403,41 @@ fireData.forEach(function(row) {
         L.marker([row.latitude, row.longitude], {icon: farmIcon}).addTo(map)
             .bindPopup("Nom de la ferme : " + row.name + "<br>Position : " + row.latitude + ", " + row.longitude);
     });
+    
+    // Icône horloge pour l'historique des feux
+// Icône horloge
+var clockIcon = L.divIcon({
+    className: 'clock-icon',
+    html: '<div style="width: 30px; height: 30px; background-color: #333; color: white; text-align: center; line-height: 20px; border-radius: 50%;">🕒</div>',
+    iconSize: [30, 30],
+        iconAnchor: [15, 15], // Ajuste l'ancrage au centre
+    popupAnchor: [0, -15]
+});
+
+
+// Ajouter un marqueur "horloge" pour l'historique des feux
+var historiqueMarker = L.marker([-10.7435, -59.3661], {icon: clockIcon}).addTo(map)
+    .bindTooltip("Voir l'historique des feux depuis 1999", {permanent: false, direction: "top"})
+    .on('click', function () {
+        var gifUrl = "https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif";
+    });
+
+
+
+function openModal() {
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// Modifier le marqueur pour ouvrir la fenêtre modale
+historiqueMarker.on('click', function (e) {
+    e.originalEvent.preventDefault(); // Empêche l'action par défaut si un lien est cliqué
+    openModal(); // Affiche la fenêtre interne
+});
+
 
 </script>
 
