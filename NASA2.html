@@ -1408,9 +1408,9 @@ fireData.forEach(function(row) {
 // Icône horloge
 var clockIcon = L.divIcon({
     className: 'clock-icon',
-    html: '<div style="width: 30px; height: 30px; background-color: #333; color: white; text-align: center; line-height: 20px; border-radius: 50%;">🕒</div>',
-    iconSize: [30, 30],
-        iconAnchor: [15, 15], // Ajuste l'ancrage au centre
+    html: '<div style="font-size: 30px; text-align: center; line-height: 30px;">⏰</div>', // Utilise un caractère Unicode horloge
+    iconSize: [30, 30], // Taille de l'icône doublée
+    iconAnchor: [15, 15], // Ancre ajustée pour le centrage
     popupAnchor: [0, -15]
 });
 
