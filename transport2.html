@@ -21903,11 +21903,20 @@
         });
     }
 
-    function toggleDetails(index, row) {
-        const detailsRow = row.nextElementSibling;
-        const details = detailsRow.querySelector('.details');
-        details.style.display = details.style.display === 'none' ? 'block' : 'none';
-    }
+function toggleDetails(index, row) {
+    const detailsRow = row.nextElementSibling;
+    const details = detailsRow.querySelector('.details');
+
+    // Ferme tous les autres détails ouverts
+    document.querySelectorAll('.details').forEach(detail => {
+        if (detail !== details) {
+            detail.style.display = 'none';
+        }
+    });
+
+    // Alterne l'affichage du détail cliqué
+    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+}
 
     function removeHighlights() {
         document.querySelectorAll('.highlight').forEach(el => {
