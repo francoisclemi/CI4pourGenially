@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>- Interface Forbidden Investigation -</title>
+    <title>Consortium des Journalistes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            color: grey;
             text-align: center;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             background-color: #00356b;
+            color: white;
         }
         .hidden {
             display: none;
@@ -24,31 +29,17 @@
             margin-top: 20px;
         }
         .tool {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
+            padding: 20px;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            width: 150px;
+            color: black;
+            text-align: center;
         }
         .tool img {
-            width: 100px;
-            height: 100px;
-        }
-        .tool span {
-            margin-top: 10px;
-        }
-        .tool:hover::after {
-            content: "À compléter informations over";
-            position: absolute;
-            background: rgba(0, 0, 0, 0.75);
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 12px;
+            width: 240px;
+            height: 240px;
         }
         .update-button {
             position: absolute;
@@ -61,32 +52,24 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .iframe-container {
-            width: 80%;
+        .content-frame {
+            width: 90%;
             height: 80vh;
-            background: white;
-            position: absolute;
-            top: 10%;
-            left: 10%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-        .iframe-container iframe {
-            width: 100%;
-            height: 90%;
             border: none;
-            border-bottom: 1px solid #ccc;
         }
-        .close-button {
-            background: red;
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #dc3545;
             color: white;
             border: none;
-            padding: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            width: 100%;
+        }
+        #error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
@@ -97,52 +80,55 @@
         <h2>Entrez le mot de passe</h2>
         <input type="password" id="password-input">
         <button onclick="checkPassword()">Valider</button>
+        <p id="error-message">Mot de passe incorrect</p>
     </div>
     
     <div id="interface" class="hidden">
         <h1>Bienvenue au Consortium des Journalistes</h1>
         <div class="tools">
-            <div class="tool" onclick="openTool('DossierPhotos.html')">
-                <img src="media/logos/dossier.png" alt="Dossier Photos">
-                <span>Dossier Photos</span>
+            <div class="tool hidden" id="photos-tool" onclick="openTool('DossierPhotos.html')">
+                <img src="media/logos/photos.png" alt="Dossier Photos" title="À compléter informations over">
+                <p>Dossier Photos</p>
             </div>
-            <div class="tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/SIF.html')">
-                <img src="media/logos/2rgm.png" alt="2RGM">
-                <span>2RGM</span>
+            <div class="tool hidden" id="rgm-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/SIF.html')">
+                <img src="media/logos/rgm.png" alt="2RGM" title="À compléter informations over">
+                <p>2RGM</p>
             </div>
-            <div class="tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/IBAMA.html')">
-                <img src="media/logos/ibama.png" alt="IBAMA">
-                <span>IBAMA</span>
+            <div class="tool hidden" id="ibama-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/IBAMA.html')">
+                <img src="media/logos/ibama.png" alt="IBAMA" title="À compléter informations over">
+                <p>IBAMA</p>
             </div>
             <div class="tool hidden" id="transport-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/transport2.html')">
-                <img src="media/logos/usb.png" alt="Base de donnée transport">
-                <span>Base de donnée transport</span>
+                <img src="media/logos/transport.png" alt="Base de données transport" title="À compléter informations over">
+                <p>Base de données transport</p>
             </div>
             <div class="tool hidden" id="firm-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/NASA2.html')">
-                <img src="media/logos/firm.png" alt="FIRM NASA">
-                <span>FIRM NASA</span>
+                <img src="media/logos/firm.png" alt="FIRM NASA" title="À compléter informations over">
+                <p>FIRM NASA</p>
             </div>
             <div class="tool hidden" id="search-tool" onclick="openTool('MoteurRecherche.html')">
-                <img src="media/logos/search.png" alt="Moteur de recherche">
-                <span>Moteur de recherche</span>
+                <img src="media/logos/search.png" alt="Moteur de recherche" title="À compléter informations over">
+                <p>Moteur de recherche</p>
             </div>
         </div>
-    </div>
-    
-    <div id="iframe-container" class="iframe-container">
-        <button class="close-button" onclick="closeTool()">Fermer</button>
-        <iframe id="tool-frame"></iframe>
+        <iframe id="content-frame" class="content-frame hidden"></iframe>
+        <button id="back-button" class="back-button hidden" onclick="closeTool()">Retour à l'accueil</button>
     </div>
     
     <script>
         function checkPassword() {
             const password = document.getElementById('password-input').value;
-            if (password === "1208" || password === "1705" || password === "0502") {
+            const validPasswords = ["1208", "1705", "0502"];
+            if (validPasswords.includes(password)) {
                 document.getElementById('password-screen').classList.add('hidden');
                 document.getElementById('interface').classList.remove('hidden');
-                checkUpdatePassword(password);
+                displayTools(password);
             } else {
-                alert("Mot de passe incorrect");
+                document.getElementById('error-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 2000);
+                document.getElementById('password-input').value = '';
             }
         }
 
@@ -150,26 +136,30 @@
             document.getElementById('password-screen').classList.remove('hidden');
         }
 
-        function checkUpdatePassword(password) {
-            if (password === "1705") {
-                document.getElementById('transport-tool').classList.remove('hidden');
-                alert("Mise à jour effectuée : Base de donnée transport ajoutée.");
-            } 
-            if (password === "0502") {
-                document.getElementById('firm-tool').classList.remove('hidden');
-                document.getElementById('search-tool').classList.remove('hidden');
-                alert("Mise à jour effectuée : FIRM NASA et moteur de recherche ajoutés.");
+        function displayTools(password) {
+            const tools = {
+                "1208": ["photos-tool", "rgm-tool", "ibama-tool"],
+                "1705": ["photos-tool", "rgm-tool", "ibama-tool", "transport-tool"],
+                "0502": ["photos-tool", "rgm-tool", "ibama-tool", "transport-tool", "firm-tool", "search-tool"]
+            };
+            document.querySelectorAll('.tool').forEach(tool => tool.classList.add('hidden'));
+            if (tools[password]) {
+                tools[password].forEach(id => document.getElementById(id).classList.remove('hidden'));
             }
         }
 
         function openTool(url) {
-            document.getElementById('tool-frame').src = url;
-            document.getElementById('iframe-container').style.display = 'flex';
+            document.querySelector('.tools').classList.add('hidden');
+            document.getElementById('content-frame').src = url;
+            document.getElementById('content-frame').classList.remove('hidden');
+            document.getElementById('back-button').classList.remove('hidden');
         }
 
         function closeTool() {
-            document.getElementById('iframe-container').style.display = 'none';
-            document.getElementById('tool-frame').src = '';
+            document.getElementById('content-frame').classList.add('hidden');
+            document.getElementById('back-button').classList.add('hidden');
+            document.getElementById('content-frame').src = "";
+            document.querySelector('.tools').classList.remove('hidden');
         }
     </script>
 </body>
