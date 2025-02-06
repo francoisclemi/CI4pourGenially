@@ -52,24 +52,28 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .content-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .content-header {
+            background: red;
+            width: 100%;
+            padding: 10px;
+            text-align: right;
+        }
         .content-frame {
             width: 90%;
             height: 80vh;
             border: none;
-        }
-        .back-button {
-            margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #error-message {
-            color: red;
-            margin-top: 10px;
-            display: none;
         }
     </style>
 </head>
@@ -80,18 +84,17 @@
         <h2>Entrez le mot de passe</h2>
         <input type="password" id="password-input">
         <button onclick="checkPassword()">Valider</button>
-        <p id="error-message">Mot de passe incorrect</p>
     </div>
     
     <div id="interface" class="hidden">
         <h1>Bienvenue au Consortium des Journalistes</h1>
         <div class="tools">
             <div class="tool hidden" id="photos-tool" onclick="openTool('DossierPhotos.html')">
-                <img src="media/logos/photos.png" alt="Dossier Photos" title="À compléter informations over">
+                <img src="media/logos/dossier.png" alt="Dossier Photos" title="À compléter informations over">
                 <p>Dossier Photos</p>
             </div>
             <div class="tool hidden" id="rgm-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/SIF.html')">
-                <img src="media/logos/rgm.png" alt="2RGM" title="À compléter informations over">
+                <img src="media/logos/2rgm.png" alt="2RGM" title="À compléter informations over">
                 <p>2RGM</p>
             </div>
             <div class="tool hidden" id="ibama-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/IBAMA.html')">
@@ -99,7 +102,7 @@
                 <p>IBAMA</p>
             </div>
             <div class="tool hidden" id="transport-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/transport2.html')">
-                <img src="media/logos/transport.png" alt="Base de données transport" title="À compléter informations over">
+                <img src="media/logos/usb.png" alt="Base de données transport" title="À compléter informations over">
                 <p>Base de données transport</p>
             </div>
             <div class="tool hidden" id="firm-tool" onclick="openTool('https://francoisclemi.github.io/CI4pourGenially/NASA2.html')">
@@ -111,25 +114,21 @@
                 <p>Moteur de recherche</p>
             </div>
         </div>
-        <iframe id="content-frame" class="content-frame hidden"></iframe>
-        <button id="back-button" class="back-button hidden" onclick="closeTool()">Retour à l'accueil</button>
+    </div>
+    
+    <div id="content-container" class="content-container">
+        <div class="content-header">
+            <button onclick="closeTool()">❌ Fermer</button>
+        </div>
+        <iframe id="content-frame" class="content-frame"></iframe>
     </div>
     
     <script>
         function checkPassword() {
             const password = document.getElementById('password-input').value;
-            const validPasswords = ["1208", "1705", "0502"];
-            if (validPasswords.includes(password)) {
-                document.getElementById('password-screen').classList.add('hidden');
-                document.getElementById('interface').classList.remove('hidden');
-                displayTools(password);
-            } else {
-                document.getElementById('error-message').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('error-message').style.display = 'none';
-                }, 2000);
-                document.getElementById('password-input').value = '';
-            }
+            document.getElementById('password-screen').classList.add('hidden');
+            document.getElementById('interface').classList.remove('hidden');
+            displayTools(password);
         }
 
         function showUpdateScreen() {
@@ -149,17 +148,13 @@
         }
 
         function openTool(url) {
-            document.querySelector('.tools').classList.add('hidden');
             document.getElementById('content-frame').src = url;
-            document.getElementById('content-frame').classList.remove('hidden');
-            document.getElementById('back-button').classList.remove('hidden');
+            document.getElementById('content-container').style.display = 'flex';
         }
 
         function closeTool() {
-            document.getElementById('content-frame').classList.add('hidden');
-            document.getElementById('back-button').classList.add('hidden');
+            document.getElementById('content-container').style.display = 'none';
             document.getElementById('content-frame').src = "";
-            document.querySelector('.tools').classList.remove('hidden');
         }
     </script>
 </body>
