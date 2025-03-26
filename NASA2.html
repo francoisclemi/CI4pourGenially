@@ -1613,6 +1613,7 @@ fireData.forEach(function(row) {
 
 
 
+
 // Taille du rectangle en degrés (approximatif car la taille en km varie avec la latitude)
 var halfSize = 0.10; // ≈ 10 km en degrés
 var bounds = [
@@ -1639,6 +1640,10 @@ rectangle.on("click", function () {
 
 
 
+// Ajout d'une échelle permanente en bas à droite
+L.control.scale({ position: 'bottomleft', metric: true, imperial: false }).addTo(map);
+
+
 
 
 
@@ -1649,19 +1654,6 @@ rectangle.on("click", function () {
 
 
 
-function openModal() {
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-// Modifier le marqueur pour ouvrir la fenêtre modale
-historiqueMarker.on('click', function (e) {
-    e.originalEvent.preventDefault(); // Empêche l'action par défaut si un lien est cliqué
-    openModal(); // Affiche la fenêtre interne
-});
 
 
 </script>
