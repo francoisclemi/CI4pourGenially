@@ -2220,26 +2220,44 @@ fireData.forEach(function(row) {
         }).addTo(map)
         .bindPopup("Nom de la ferme : " + row.name + "<br>Position : " + row.latitude + ", " + row.longitude);
     });
-    
-    // Icône horloge pour l'historique des feux
-// Icône horloge
-var clockIcon = L.divIcon({
-    className: 'clock-icon',
-    html: '<div style="font-size: 30px; text-align: center; line-height: 30px;">🕒</div>', // Utilise un caractère Unicode horloge
-    iconSize: [30, 30], // Taille de l'icône doublée
-    iconAnchor: [17, 15], // Ancre ajustée pour le centrage
-    popupAnchor: [0, -15]
+    /////////////////////////////////////////// carré rouge zone historique
+
+
+
+
+
+// Taille du rectangle en degrés (approximatif car la taille en km varie avec la latitude)
+var halfSize = 0.10; // ≈ 10 km en degrés
+var bounds = [
+    [-10.7435 - halfSize, -59.3661 - halfSize], // Coin bas-gauche
+    [-10.7435 + halfSize, -59.3661 + halfSize]  // Coin haut-droit
+];
+
+// Création du rectangle avec une bordure rouge
+var rectangle = L.rectangle(bounds, { color: "red", weight: 2 }).addTo(map);
+
+// Ajout d'un tooltip qui s'affiche en hover (au survol)
+rectangle.bindTooltip("Cliquer ici pour voir l'historique des feux de cette zone", {
+    permanent: false,
+    direction: "center",
+    className: "custom-tooltip"
+});
+
+// Affichage d'un GIF dans une popup au clic
+rectangle.on("click", function () {
+    rectangle.bindPopup('<img src="https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif" width="300" alt="Historique des feux">').openPopup();
 });
 
 
-// Ajouter un marqueur "horloge" pour l'historique des feux
-var historiqueMarker = L.marker([-10.7435, -59.3661], {icon: clockIcon}).addTo(map)
-    .bindTooltip("Voir l'historique des feux depuis 1998", {permanent: false, direction: "top"})
-    .on('click', function () {
-        var gifUrl = "https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif";
-    });
 
 
+
+
+
+
+  
+
+///////////////////////////////////////////////////////////////////////////////////
 
 function openModal() {
     document.getElementById('modal').style.display = 'flex';
