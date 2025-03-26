@@ -1571,21 +1571,6 @@ function getDateNDaysAgo(daysAgo) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     ];
 
 
@@ -1598,14 +1583,7 @@ fireData.forEach(function(row) {
         .bindPopup("Feu détecté<br>Position : " + row.latitude + ", " + row.longitude);
 });
 
- // Ajouter des marqueurs pour chaque ferme
-    farmData.forEach(function(row) {
-        L.marker([row.latitude, row.longitude], { 
-            icon: farmIcon, 
-            className: 'farm-icon' // Ajout de la classe personnalisée
-        }).addTo(map)
-        .bindPopup("Nom de la ferme : " + row.name + "<br>Position : " + row.latitude + ", " + row.longitude);
-    });
+
     /////////////////////////////////////////// carré rouge zone historique
 
 
