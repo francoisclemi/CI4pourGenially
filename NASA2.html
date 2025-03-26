@@ -1646,6 +1646,12 @@ rectangle.on("click", function () {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+
+
+
+  // Ajout d'une échelle permanente en bas à droite
+L.control.scale({ position: 'bottomleft', metric: true, imperial: false }).addTo(map);
+
 function openModal() {
     document.getElementById('modal').style.display = 'flex';
 }
