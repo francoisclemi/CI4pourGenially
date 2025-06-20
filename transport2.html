@@ -21981,6 +21981,13 @@ function toggleDetails(index, row) {
 
     searchInput.addEventListener('input', searchTable);
 
+                                                                searchInput.addEventListener('keydown', function(event) {
+                                                                    if (event.key === 'Enter') {
+                                                                        event.preventDefault(); // Empêche l'action par défaut (comme un éventuel rechargement)
+                                                                        nextButton.click();     // Simule le clic sur le bouton RECHERCHER
+                                                                    }
+                                                                });
+    
     nextButton.addEventListener('click', () => {
         if (searchResults.length > 0) {
             currentResultIndex = (currentResultIndex + 1) % searchResults.length;
