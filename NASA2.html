@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head >
-<span style="font-size: 20px; font-family: Arial;font-weight: bold; color: white">Entrez les coordonnées GPS puis cliquez sur valider : </span><br>
-  <input type="text" id="latitude" placeholder="Latitude" autocomplete="off" step="any"  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br>
-  <br>
-  <input type="text" id="longitude" placeholder="Longitude" autocomplete="off" step="any"  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br>
-  <br>
-    <button style="font-size: 24px; font-family: Arial, sans-serif; padding: 10px 20px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="zoomOnCoordinates()">VALIDER</button>
-  <br>
-    <br>
-    <title>Carte avec fond Satellite</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        #map {
-            height: 700px;
-            width: 100%;
-        }
-        
-        
-    .modal {
-    display: none; /* Masquée par défaut */
+<head>
+<span style="font-size: 20px; font-family: Arial; font-weight: bold; color: white">
+  Entrez les coordonnées GPS puis cliquez sur valider :
+</span><br>
+<input type="text" id="latitude" placeholder="Latitude" autocomplete="off" step="any"
+  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br><br>
+<input type="text" id="longitude" placeholder="Longitude" autocomplete="off" step="any"
+  style="font-size: 24px; font-family: Arial, sans-serif; width: 200px; height: 40px;"><br><br>
+<button
+  style="font-size: 24px; font-family: Arial, sans-serif; padding: 10px 20px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer;"
+  onclick="zoomOnCoordinates()">VALIDER</button>
+<br><br>
+<title>Carte avec fond Satellite</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+  #map {
+    height: 700px;
+    width: 100%;
+  }
+
+  .modal {
+    display: none;
     position: fixed;
-    z-index: 1000; /* Au-dessus de tout */
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Fond semi-transparent */
+    background-color: rgba(0, 0, 0, 0.8);
     align-items: center;
     justify-content: center;
   }
@@ -62,17 +64,12 @@
     font-size: 18px;
     line-height: 28px;
     text-align: center;
-  }     
-        
-        
-    .leaflet-marker-icon.farm-icon {
-        opacity: 0.5; /* Rendre les puces des fermes transparentes à 50% */
-    }        
-        
-        
-        
-        
-    </style>
+  }
+
+  .leaflet-marker-icon.farm-icon {
+    opacity: 0.5;
+  }
+</style>
 </head>
 <body>
 
@@ -86,46 +83,50 @@
 </div>
 
 <script>
-    // Initialisation de la carte
-var map = L.map('map').setView([-8.0261, -50.0336], 5); // Centrer sur le brésil avec un zoom de 5
+  // Initialisation de la carte
+  var map = L.map('map').setView([-8.0261, -50.0336], 5); // Centrer sur le Brésil
 
-    // Ajout du fond de carte satellite
-    L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=cg1oTGylkVWBYghNwXph', ).addTo(map);
+  // ---- Nouveau fond de carte : Esri Satellite (sans clé ni quota) ----
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+  }).addTo(map);
 
-    // Icône de carré rouge pour les feux
-    var fireIcon = L.divIcon({
-        className: 'fire-icon',
-        html: '<div style="width: 15px; height: 15px; background-color: red;"></div>',
-        iconSize: [15, 15]
-    });
+  // Icône de carré rouge pour les feux
+  var fireIcon = L.divIcon({
+      className: 'fire-icon',
+      html: '<div style="width: 15px; height: 15px; background-color: red;"></div>',
+      iconSize: [15, 15]
+  });
 
-    // Icône épingle bleue standard pour les fermes
-    var farmIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-    });
+  // Icône épingle bleue standard pour les fermes
+  var farmIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+  });
 
-    // Fonction pour centrer et zoomer sur les coordonnées saisies
-    function zoomOnCoordinates() {
-        var lat = parseFloat(document.getElementById('latitude').value);
-        var lon = parseFloat(document.getElementById('longitude').value);
+  // Fonction pour centrer et zoomer sur les coordonnées saisies
+  function zoomOnCoordinates() {
+      var lat = parseFloat(document.getElementById('latitude').value);
+      var lon = parseFloat(document.getElementById('longitude').value);
 
-        // Vérification que les coordonnées sont valides
-        if (!isNaN(lat) && !isNaN(lon)) {
-            map.setView([lat, lon], 13);
-        } else {
-            alert("Veuillez entrer des coordonnées valides.");
-        }
-    }
-// Fonction pour calculer la date en soustrayant des jours à la date actuelle
-function getDateNDaysAgo(daysAgo) {
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - daysAgo); // Soustraire les jours
-    return currentDate.toISOString().split('T')[0]; // Retourner la date au format YYYY-MM-DD
-}
-    // Exemple de données pour feux et fermes
+      if (!isNaN(lat) && !isNaN(lon)) {
+          map.setView([lat, lon], 13);
+      } else {
+          alert("Veuillez entrer des coordonnées valides.");
+      }
+  }
+
+  // Fonction pour calculer la date en soustrayant des jours à la date actuelle
+  function getDateNDaysAgo(daysAgo) {
+      const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() - daysAgo);
+      return currentDate.toISOString().split('T')[0];
+  }
+
+  // Exemple de données pour feux
     
     var fireData = [
   
@@ -1575,63 +1576,39 @@ function getDateNDaysAgo(daysAgo) {
 
 
 
-// Ajouter des marqueurs pour chaque feu
-fireData.forEach(function(row) {
-    var fireDate = getDateNDaysAgo(row.date); // Calculer la date à partir de "date" (nombre de jours)
-    var fireDateFormatted = new Date(fireDate).toLocaleDateString(); // Formater la date
-    L.marker([row.latitude, row.longitude], {icon: fireIcon}).addTo(map)
-        .bindPopup("Feu détecté<br>Position : " + row.latitude + ", " + row.longitude);
-});
+ // Ajouter des marqueurs pour chaque feu
+  fireData.forEach(function(row) {
+      var fireDate = getDateNDaysAgo(row.date);
+      L.marker([row.latitude, row.longitude], {icon: fireIcon}).addTo(map)
+          .bindPopup("Feu détecté<br>Position : " + row.latitude + ", " + row.longitude);
+  });
 
+  // ---- Carré rouge zone historique ----
+  var halfSize = 0.10;
+  var bounds = [
+      [-10.7435 - halfSize, -59.3661 - halfSize],
+      [-10.7435 + halfSize, -59.3661 + halfSize]
+  ];
 
-    /////////////////////////////////////////// carré rouge zone historique
+  var rectangle = L.rectangle(bounds, { color: "red", weight: 2 }).addTo(map);
+  rectangle.bindTooltip("Cliquer ici pour voir l'historique des feux de cette zone", {
+      permanent: false,
+      direction: "center",
+      className: "custom-tooltip"
+  });
 
+  rectangle.on("click", function () {
+      rectangle.bindPopup('<img src="https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif" width="300" alt="Historique des feux">').openPopup();
+  });
 
+  // ---- Modale ----
+  function openModal() {
+      document.getElementById('modal').style.display = 'flex';
+  }
 
-
-
-// Taille du rectangle en degrés (approximatif car la taille en km varie avec la latitude)
-var halfSize = 0.10; // ≈ 10 km en degrés
-var bounds = [
-    [-10.7435 - halfSize, -59.3661 - halfSize], // Coin bas-gauche
-    [-10.7435 + halfSize, -59.3661 + halfSize]  // Coin haut-droit
-];
-
-// Création du rectangle avec une bordure rouge
-var rectangle = L.rectangle(bounds, { color: "red", weight: 2 }).addTo(map);
-
-// Ajout d'un tooltip qui s'affiche en hover (au survol)
-rectangle.bindTooltip("Cliquer ici pour voir l'historique des feux de cette zone", {
-    permanent: false,
-    direction: "center",
-    className: "custom-tooltip"
-});
-
-// Affichage d'un GIF dans une popup au clic
-rectangle.on("click", function () {
-    rectangle.bindPopup('<img src="https://francoisclemi.github.io/CI4pourGenially/media/v6-NASA-historique-1998.gif" width="300" alt="Historique des feux">').openPopup();
-});
-
-
-
-  
-
-///////////////////////////////////////////////////////////////////////////////////
-
-function openModal() {
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-// Modifier le marqueur pour ouvrir la fenêtre modale
-historiqueMarker.on('click', function (e) {
-    e.originalEvent.preventDefault(); // Empêche l'action par défaut si un lien est cliqué
-    openModal(); // Affiche la fenêtre interne
-});
-
+  function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+  }
 
 </script>
 
