@@ -67,6 +67,19 @@
         tbody tr:nth-child(odd):hover {
             background-color: #f0f0f0;
         }
+        
+       .expand-icon {
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s ease;
+}
+
+.expand-icon.open {
+    transform: rotate(90deg); /* ▶ devient ▼ */
+}
+
     </style>
 </head>
 <body>
@@ -81,6 +94,7 @@
 <table id="data-table">
     <thead>
         <tr>
+        <th style="width: 40px;"></th>  <!-- colonne pour la flèche  -->
             <th class="date-col">Date</th>
             <th>Ferme de départ   →</th>
             <th>Ferme d'arrivée</th>
@@ -94,7 +108,7 @@
 <script>
     const data = [    
         
-        { 
+      { 
             daysAgo: 65 , 
             fromFarm: 'Sítio Santa Maria', 
             fromCity: 'Campo Alegre', 
@@ -21867,6 +21881,7 @@
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = ` 
+                <td class="expand-icon">▶</td>
                 <td class="date-col">${getFormattedDate(row.daysAgo)}</td>
                 <td>${row.fromFarm} →</td>
                 <td>${row.toFarm}</td>
@@ -21877,7 +21892,7 @@
             const detailsRow = document.createElement('tr');
             detailsRow.className = 'details-row';
             detailsRow.innerHTML = `
-                <td colspan="3">
+                <td colspan="4">
                     <div class="details">
                         <div><strong>Date du transport :</strong> ${getFormattedDate(row.daysAgo)}</div><br>
                         <div style="margin-left: 30px;">
@@ -21903,20 +21918,28 @@
         });
     }
 
+
+
 function toggleDetails(index, row) {
     const detailsRow = row.nextElementSibling;
     const details = detailsRow.querySelector('.details');
+    const icon = row.querySelector('.expand-icon');
 
-    // Ferme tous les autres détails ouverts
-    document.querySelectorAll('.details').forEach(detail => {
-        if (detail !== details) {
-            detail.style.display = 'none';
-        }
-    });
+    const isOpen = details.style.display === 'block';
 
-    // Alterne l'affichage du détail cliqué
-    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+    // Fermer tous les détails + réinitialiser toutes les flèches
+    document.querySelectorAll('.details').forEach(d => d.style.display = 'none');
+    document.querySelectorAll('.expand-icon').forEach(i => i.classList.remove('open'));
+
+    // Si ce n'était pas ouvert → l'ouvrir
+    if (!isOpen) {
+        details.style.display = 'block';
+        icon.classList.add('open');
+    }
+    // Sinon → ne rien faire (car on vient de tout fermer)
 }
+
+
 
     function removeHighlights() {
         document.querySelectorAll('.highlight').forEach(el => {
