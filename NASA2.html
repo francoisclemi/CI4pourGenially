@@ -108,16 +108,26 @@
   });
 
   // Fonction pour centrer et zoomer sur les coordonnées saisies
-  function zoomOnCoordinates() {
-      var lat = parseFloat(document.getElementById('latitude').value);
-      var lon = parseFloat(document.getElementById('longitude').value);
+function zoomOnCoordinates() {
+    // Récupération des valeurs brutes
+    let lat = document.getElementById('latitude').value.trim();
+    let lon = document.getElementById('longitude').value.trim();
 
-      if (!isNaN(lat) && !isNaN(lon)) {
-          map.setView([lat, lon], 13);
-      } else {
-          alert("Veuillez entrer des coordonnées valides.");
-      }
-  }
+    // Remplacement des virgules par des points
+    lat = lat.replace(",", ".");
+    lon = lon.replace(",", ".");
+
+    // Conversion en nombre
+    lat = parseFloat(lat);
+    lon = parseFloat(lon);
+
+    // Vérification et zoom
+    if (!isNaN(lat) && !isNaN(lon)) {
+        map.setView([lat, lon], 13);
+    } else {
+        alert("Veuillez entrer des coordonnées valides.");
+    }
+}
 
   // Fonction pour calculer la date en soustrayant des jours à la date actuelle
   function getDateNDaysAgo(daysAgo) {
